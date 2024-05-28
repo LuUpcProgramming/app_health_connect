@@ -44,7 +44,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyClUC8JYtYOaUmb1zVucILXZbKLNCJirm4',
+    apiKey: '',
     appId: '1:901887741088:web:2b2dec0c2d056172fb4dc5',
     messagingSenderId: '901887741088',
     projectId: 'tesisapp-bd1ec',
@@ -55,7 +55,7 @@ class DefaultFirebaseOptions {
 
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAWT6Qr9bDy2BCAfVS4aMDo6pPYcjMa5dg',
+    apiKey: '',
     appId: '1:901887741088:android:ee459e8847400f01fb4dc5',
     messagingSenderId: '901887741088',
     projectId: 'tesisapp-bd1ec',
@@ -65,7 +65,7 @@ class DefaultFirebaseOptions {
 
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAZjUdOV0Jl0hivocpqJRqyeKLP-E8TMHs',
+    apiKey: '',
     appId: '1:901887741088:ios:21a0c3615793bc15fb4dc5',
     messagingSenderId: '901887741088',
     projectId: 'tesisapp-bd1ec',
@@ -78,7 +78,7 @@ class DefaultFirebaseOptions {
 */
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAZjUdOV0Jl0hivocpqJRqyeKLP-E8TMHs',
+    apiKey: '',
     appId: '1:901887741088:ios:21a0c3615793bc15fb4dc5',
     messagingSenderId: '901887741088',
     projectId: 'tesisapp-bd1ec',
@@ -91,7 +91,7 @@ class DefaultFirebaseOptions {
 */
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyClUC8JYtYOaUmb1zVucILXZbKLNCJirm4',
+    apiKey: '',
     appId: '1:901887741088:web:892100085add64c6fb4dc5',
     messagingSenderId: '901887741088',
     projectId: 'tesisapp-bd1ec',
