@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "901887741088",
+    "project_id": "tesisapp-bd1ec",
+    "storage_bucket": "tesisapp-bd1ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901887741088:android:ee459e8847400f01fb4dc5",
+        "android_client_info": {
+          "package_name": "com.example.app_health_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901887741088-7pqinmiq5e6v5osi5mieqi0p18ffcmvu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWT6Qr9bDy2BCAfVS4aMDo6pPYcjMa5dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "901887741088-7pqinmiq5e6v5osi5mieqi0p18ffcmvu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "901887741088-f47fnmcm8ns1b3iek58k5sdq3qh037ve.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.appHealthConnect"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
