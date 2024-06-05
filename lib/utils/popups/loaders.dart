@@ -26,7 +26,7 @@ class Loaders {
       colorText: TColors.white,
       backgroundColor: Colors.orange,
       snackPosition: SnackPosition.BOTTOM,
-      duration: const Duration (seconds: 3),
+      duration: const Duration (seconds: 4),
       margin: const EdgeInsets.all(20),
       icon: const Icon(Icons.warning,color: TColors.white)
     );

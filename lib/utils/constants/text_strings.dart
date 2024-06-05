@@ -7,6 +7,8 @@ class TTexts {
   static const String submit = "Enviar";
   static const String appName = "Health Connect";
   static const String tContinue = "Continuar";
+  static const String tNext = "Siguiente";
+  static const String tStart = "Comenzar";
 
   // -- OnBoarding Texts
   static const String onBoardingTitle1 = "Encuentra la calma en cada día";
@@ -35,9 +37,9 @@ class TTexts {
   static const String registerAccount = "Registrarme";
   static const String orSignInWith = "o inicia sesión con";
   static const String orSignUpWith = "or sign up with";
-  static const String iAgreeTo = "I agree to";
-  static const String privacyPolicy = "Privacy Policy";
-  static const String termsOfUse = "Terms of use";
+  static const String iAgreeTo = "De acuerdo con ";
+  static const String privacyPolicy = "Política de privacidad";
+  static const String termsOfUse = "Términos de Uso";
   static const String verificationCode = "verificationCode";
   static const String resendEmail = "Resend Email";
   static const String resendEmailIn = "Resend email in";
@@ -87,4 +89,7 @@ class TTexts {
   // -- Home
   static const String homeAppbarTitle = "Good day for shopping";
   static const String homeAppbarSubTitle = "Taimoor Sikander";
+
+  // -- Dashboard
+  static const String avatarTitle = "Bienvenido(a)";
 }

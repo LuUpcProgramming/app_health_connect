@@ -6,6 +6,7 @@ import 'package:app_health_connect/features/authentication/screens/onboarding/wi
 import 'package:app_health_connect/utils/constants/general.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
+import 'package:app_health_connect/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,7 +35,13 @@ class LoginScreen extends StatelessWidget {
           SingleChildScrollView(
             child: Padding(
               //padding: TSpacingStyle.paddingWithAppBarHeight,
-              padding: const EdgeInsets.only(top: 100, left: 24, right: 24),
+              //padding: const EdgeInsets.only(top: 100, left: 24, right: 24),
+              padding:  EdgeInsets.only(
+                top: THelperFunctions.screenHeight() * 0.08,
+                left: TSizes.defaultSpace,
+                right: TSizes.defaultSpace,
+                bottom: THelperFunctions.screenHeight() * 0.08
+              ),
               child: Column(
                 children: [
                   const SizedBox(height: TSizes.spaceBtwSections),

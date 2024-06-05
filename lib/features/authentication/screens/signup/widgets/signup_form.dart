@@ -1,5 +1,4 @@
 import 'package:app_health_connect/features/authentication/controllers/signup/signup_controller.dart';
-import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/widgets/terms_conditions_checkbox.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
@@ -7,7 +6,6 @@ import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/validators/validation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 
 class TSignupForm extends StatelessWidget {
   const TSignupForm({

@@ -1,4 +1,5 @@
 import 'package:app_health_connect/features/authentication/controllers/welcome/welcome_controller.dart';
+import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +26,6 @@ class _PersonalInfoView extends StatefulWidget {
 }
 
 class _PersonalInfoState extends State<_PersonalInfoView> {
-
   String fechaNacimiento = '';
   String altura = '';
   String peso = '';
@@ -69,7 +69,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            context.pop();
+            Get.back();
           },
         ),
       ),
@@ -86,9 +86,9 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
                       child: Column(
                         children: [
                           _buildDropdownField(),
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: TSizes.spaceBtwInputFields),
                           _buildDateField(context),
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: TSizes.spaceBtwInputFields),
                           _buildTextField(
                             tController: controller.alturaController,
                             labelText: 'Altura (cm)',
@@ -103,7 +103,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
                               altura = value!;
                             },
                           ),
-                          const SizedBox(height: 30.0),
+                          const SizedBox(height: TSizes.spaceBtwInputFields),
                           _buildTextField(
                             tController: controller.pesoController,
                             labelText: 'Peso (kg)',
@@ -119,7 +119,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
                               peso = value!;
                             },
                           ),
-                          const SizedBox(height: 40.0),
+                          const SizedBox(height: 50.0),
                           ElevatedButton(
                             //Boton de siguiente y guardar
                             onPressed: () => controller.validarPersonalInfo(),
@@ -169,7 +169,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: DropdownButtonFormField<String>(
         decoration: const InputDecoration(
           labelText: 'Género',
@@ -210,7 +210,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: TextFormField(
         controller: tController,
         decoration: InputDecoration(
@@ -238,7 +238,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: TextFormField(
         controller: controller.dateController,
         decoration: const InputDecoration(

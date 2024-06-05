@@ -1,10 +1,8 @@
 import 'package:app_health_connect/features/authentication/controllers/welcome/welcome_controller.dart';
-import 'package:app_health_connect/features/authentication/models/user_detail.dart';
-import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
+
 
 class HealthInfoScreen extends StatelessWidget {
   static const name = 'health-info-screen';
@@ -47,7 +45,13 @@ class __HealthInfoState extends State<__HealthInfoView> {
           'Cuéntame sobre tu salud',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFF4157FF),
+        backgroundColor: TColors.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Get.back();
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),

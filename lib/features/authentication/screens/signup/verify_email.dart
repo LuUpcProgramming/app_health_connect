@@ -5,6 +5,7 @@ import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/helpers/helper_functions.dart';
+import 'package:app_health_connect/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,28 +29,34 @@ class VerifyEmailScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(TSizes.defaultSpace),
+          padding:  EdgeInsets.only(
+            top: THelperFunctions.screenHeight()*0.05,
+            left: TSizes.defaultSpace,
+            right: TSizes.defaultSpace,
+            //bottom: THelperFunctions.screenHeight()*0.08
+          ),
           child: Column(
             children: [
               ///Images
               Image(
                   image: const AssetImage(TImages.deliveredEmailIllustration),
-                  width: THelperFunctions.screenHeight() * 0.6),
-              const SizedBox(height: TSizes.spaceBtwSections),
+                  width: THelperFunctions.screenWidth() * 0.8,
+                  height: THelperFunctions.screenHeight() * 0.30),
+              const SizedBox(height: TSizes.sm),
 
               ///Titulo y subtitulo
               Text(TTexts.confirmEmail,
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: TAppTheme.textThemeTitle,
                   textAlign: TextAlign.center),
-              const SizedBox(height: TSizes.spaceBtwItems),
+              const SizedBox(height: TSizes.sm),
               Text(email ?? '',
-                  style: Theme.of(context).textTheme.labelLarge,
+                  style: TAppTheme.textThemeSubTitleDark,
                   textAlign: TextAlign.center),
               const SizedBox(height: TSizes.spaceBtwItems),
               Text(TTexts.confirmEmailSubTitle,
-                  style: Theme.of(context).textTheme.labelMedium,
+                  style: TAppTheme.textThemeCustom(14, 'Poppins', FontStyle.normal, TColors.dark, FontWeight.w500),
                   textAlign: TextAlign.center),
-              const SizedBox(height: TSizes.spaceBtwSections),
+              const SizedBox(height: TSizes.spaceBtwAditional),
 
               ///Buttons
               SizedBox(
@@ -69,7 +76,7 @@ class VerifyEmailScreen extends StatelessWidget {
               const SizedBox(height: TSizes.spaceBtwItems),
               SizedBox(
                 width: double.infinity,
-                child: TextButton(
+                child: OutlinedButton(
                   style: const ButtonStyle(
                       padding: MaterialStatePropertyAll(EdgeInsets.all(20))),
                   onPressed: () => controller.sendEmailVerification(),

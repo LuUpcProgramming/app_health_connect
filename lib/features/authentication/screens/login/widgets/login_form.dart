@@ -23,7 +23,10 @@ class TLoginForm extends StatelessWidget {
           TextFormField(
             decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.email,color:TColors.primary),
-                labelText: TTexts.email),
+                labelText: TTexts.email,
+                labelStyle: TextStyle(color: TColors.primary)
+
+            ),
           ),
           const SizedBox(height: TSizes.spaceBtwInputFields * 1.5),
           //Password
@@ -31,6 +34,7 @@ class TLoginForm extends StatelessWidget {
             decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.password,color: TColors.primary,),
                 labelText: TTexts.password,
+                labelStyle: TextStyle(color: TColors.primary),
                 suffixIcon: Icon(Icons.remove_red_eye_outlined,color: TColors.primary,)),
           ),
           const SizedBox(height: TSizes.spaceBtwInputFields / 2),

@@ -1,10 +1,11 @@
 import 'package:app_health_connect/config/constants/constantes.dart';
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
+import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 
 class ChatScreen extends StatelessWidget {
   static const name = 'chat-screen';
@@ -27,6 +28,8 @@ class _ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<_ChatView> {
+  
+  
   final _log = logger(_ChatView);
   final _openAiKey = Environment.openAiKey;
   final ChatUser _user =
@@ -44,10 +47,12 @@ class _ChatViewState extends State<_ChatView> {
   void initState() {
     _log.i('Inicializar Pantalla');
     super.initState();
+    final dashboard = Get.put(DashboardController());
+    final user = dashboard.user?.firstName;
     _messages.add(
       ChatMessage(
           text:
-              'Hola ${_user.firstName}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
+              'Hola ${user ?? ''}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
           user: _asistenteVirtual,
           createdAt: DateTime.now()),
     );
@@ -62,7 +67,7 @@ class _ChatViewState extends State<_ChatView> {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               // Navigator.of(context).pop();
-              context.pop();
+              Get.back();
               _log.i("Se presionó el IconButton");
             },
           ),
@@ -150,7 +155,7 @@ class _ChatViewState extends State<_ChatView> {
     final request = ChatCompleteText(
         messages: messagesHistory,
         maxToken: 200,
-        model: GptTurbo0125ChatModel());
+        model: GptTurbo0125ChatModel()); 
 
     try {
       _log.d('OpenAIKey: $_openAiKey');

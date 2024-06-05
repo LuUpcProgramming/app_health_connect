@@ -1,10 +1,7 @@
-import 'package:app_health_connect/common/widgets/login_signup/form_divider.dart';
-import 'package:app_health_connect/common/widgets/login_signup/social_buttons.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/widgets/signup_form.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/features/authentication/screens/login/widgets/login_header.dart';
-import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

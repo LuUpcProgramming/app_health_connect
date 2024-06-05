@@ -9,6 +9,7 @@ class UserDetail {
   String ocupacion;
   String modalidadTrabajo;
   String horasTrabajo;
+  String tipoHorasTrabajo;
   String tipoContrato;
   String turnoTrabajo;
   List<String> opcionesSalud;
@@ -22,6 +23,7 @@ class UserDetail {
     this.ocupacion = '',
     this.modalidadTrabajo = '',
     this.horasTrabajo = '',
+    this.tipoHorasTrabajo = '',
     this.tipoContrato = '',
     this.turnoTrabajo = '',
     this.opcionesSalud = const [],
@@ -38,6 +40,7 @@ class UserDetail {
       'ocupacion': ocupacion,
       'modalidadTrabajo': modalidadTrabajo,
       'horasTrabajo': horasTrabajo,
+      'tipoHorasTrabajo': tipoHorasTrabajo,
       'tipoContrato': tipoContrato,
       'turnoTrabajo': turnoTrabajo,
       'opcionesSalud': opcionesSalud,
@@ -55,6 +58,7 @@ class UserDetail {
       ocupacion: json['ocupacion'],
       modalidadTrabajo: json['modalidadTrabajo'],
       horasTrabajo: json['horasTrabajo'],
+      tipoHorasTrabajo: json['tipoHorasTrabajo'],
       tipoContrato: json['tipoContrato'],
       turnoTrabajo: json['turnoTrabajo'],
       opcionesSalud: List<String>.from(json['opcionesSalud']),
@@ -74,10 +78,10 @@ class UserDetail {
         ocupacion: data['ocupacion'] ?? '',
         modalidadTrabajo: data['modalidadTrabajo'] ?? '',
         horasTrabajo: data['horasTrabajo'] ?? '',
+        tipoHorasTrabajo: data['tipoHorasTrabajo'] ??'',
         tipoContrato: data['tipoContrato'] ?? '',
         turnoTrabajo: data['turnoTrabajo'] ?? '',
         opcionesSalud: List<String>.from(data['opcionesSalud']),
-
       );
     }
     return throw Exception();

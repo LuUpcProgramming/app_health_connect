@@ -2,6 +2,7 @@ import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
+import 'package:app_health_connect/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class TLoginHeader extends StatelessWidget {
@@ -11,10 +12,10 @@ class TLoginHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return  Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image(
+        const Image(
           height: 150,
           image: AssetImage(TImages.officialLogo),
         ),
@@ -22,10 +23,10 @@ class TLoginHeader extends StatelessWidget {
           // style: Theme.of(context).textTheme.headlineMedium
             style: TextStyle(color: TColors.primary,fontSize: TSizes.lg)
         ), */
-        SizedBox(height: TSizes.sm),
+        const SizedBox(height: TSizes.sm),
         Text(TTexts.loginSubTitle,
           //style: Theme.of(context).textTheme.headlineSmall
-          style: TextStyle(color: TColors.primary,fontSize: 20  )
+          style: TAppTheme.textThemeSubTitlePrimary
         ),
       ],
     );

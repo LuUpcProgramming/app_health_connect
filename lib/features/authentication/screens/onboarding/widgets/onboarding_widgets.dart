@@ -1,7 +1,9 @@
 import 'package:app_health_connect/features/authentication/controllers/onboarding/onboarding_controller.dart';
+import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/general.dart';
 import 'package:app_health_connect/utils/device/device_utility.dart';
 import 'package:app_health_connect/utils/helpers/helper_functions.dart';
+import 'package:app_health_connect/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -36,7 +38,13 @@ class OnBoardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(TSizes.defaultSpace),
+     // padding: const EdgeInsets.all(TSizes.defaultSpace),
+      padding:  EdgeInsets.only(
+        top: THelperFunctions.screenHeight() * 0.08,
+        left: TSizes.defaultSpace,
+        right: TSizes.defaultSpace,
+        bottom: THelperFunctions.screenHeight() * 0.08
+      ),
       child: Column(
         children: [
           Image(
@@ -45,19 +53,21 @@ class OnBoardingPage extends StatelessWidget {
               image: AssetImage(image)),
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style:TAppTheme.textThemeTitle,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: TSizes.spaceBtwItems),
           Text(
             subTitle,
-            style: Theme.of(context).textTheme.bodyMedium,
+            style: TAppTheme.textThemeSubTitleDark,
             textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
+
+ 
 }
 
 class OnBoardingDotNavigation extends StatelessWidget {
@@ -70,8 +80,8 @@ class OnBoardingDotNavigation extends StatelessWidget {
     final controller = OnBoardingController.instance;
     //final dark = THelperFunctions.isDarkMode(context);
     return Positioned(
-        bottom: TDeviceUtils.getBottomNavigationBarHeight() + (THelperFunctions.screenHeight() * 0.25),
-        left: THelperFunctions.screenHeight() * 0.2,
+        bottom:  (THelperFunctions.screenHeight() * 0.24),
+        left: THelperFunctions.screenWidth() * 0.40,
         child: SmoothPageIndicator(
             controller: controller.pageController,
             onDotClicked: controller.dotNavigationClick,
@@ -91,7 +101,7 @@ class OnBoardingNextButton extends StatelessWidget {
     //final dark = THelperFunctions.isDarkMode(context);
     return Positioned(
         right: TSizes.defaultSpace,
-        bottom: TDeviceUtils.getBottomNavigationBarHeight(),
+        bottom: THelperFunctions.screenHeight() * 0.08,
         child: ElevatedButton(
           onPressed: () {
             OnBoardingController.instance.nextPage(); 

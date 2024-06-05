@@ -1,9 +1,11 @@
+import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
+import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
-import 'package:app_health_connect/features/authentication/screens/welcome/personal_info.dart';
 import 'package:app_health_connect/features/authentication/screens/welcome/welcome.dart';
-//import 'package:app_health_connect/presentation/screens/screens.dart';
+import 'package:app_health_connect/features/authentication/screens/welcome/work_info.dart';
+import 'package:app_health_connect/navigation_menu.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_auth_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/format_exceptions.dart';
@@ -27,7 +29,9 @@ class AuthenticationRepository extends GetxController {
   void onReady() {
     FlutterNativeSplash.remove();
     //Redirige a la pantalla apropiada
-    //Get.offAll(() => const PersonalInfoScreen());
+    //Get.offAll(() => const WelcomeScreen());
+    //Get.offAll(() => const NavigationMenu());
+    //Get.offAll(() => const DashboardScreen());
     screenRedirect();
   }
 

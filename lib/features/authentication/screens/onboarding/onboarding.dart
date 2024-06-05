@@ -55,7 +55,7 @@ class OnboardingScreen extends StatelessWidget {
             ],
           ),
           //Skip Button
-          const OnBoardingSkip(),
+         // const OnBoardingSkip(),
           //Dot Navigation
           const OnBoardingDotNavigation(),
           //Button

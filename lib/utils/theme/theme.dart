@@ -16,7 +16,7 @@ class TAppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     //fontFamily: 'Poppins',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: 'Poppins',
     disabledColor: TColors.grey,
     brightness: Brightness.light,
     primaryColor: TColors.primary,
@@ -34,7 +34,7 @@ class TAppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     //fontFamily: 'Poppins',
-    fontFamily: 'Source Sans Pro',
+    fontFamily: 'Poppins',
     disabledColor: TColors.grey,
     brightness: Brightness.dark,
     primaryColor: TColors.primary,
@@ -48,4 +48,42 @@ class TAppTheme {
     outlinedButtonTheme: TOutlinedButtonTheme.darkOutlinedButtonTheme,
     inputDecorationTheme: TTextFormFieldTheme.darkInputDecorationTheme,
   );
+
+  static TextStyle textThemeTitle = const TextStyle(
+      fontSize: 24,
+      fontFamily: 'Poppins',
+      color: TColors.primary,
+      fontWeight: FontWeight.w600,
+  );
+
+  static TextStyle textThemeSubTitleDark = const TextStyle(
+      fontSize: 16,
+      fontFamily: 'Poppins',
+      fontStyle: FontStyle.italic,
+      color: TColors.dark,
+      fontWeight: FontWeight.w500,
+  );
+
+   static TextStyle textThemeSubTitlePrimary = const TextStyle(
+      fontSize: 16,
+      fontFamily: 'Poppins',
+      fontStyle: FontStyle.italic,
+      color: TColors.primary,
+      fontWeight: FontWeight.w500,
+  );
+
+  static TextStyle textThemeCustom (double fontSize,
+  String fontFamily,
+  FontStyle fontStyle,
+  Color color,
+  FontWeight fontWeight){
+    return   TextStyle(
+      fontSize: fontSize ,
+      fontFamily: fontFamily,
+      fontStyle: fontStyle,
+      color: color,
+      fontWeight: fontWeight,
+  );
+  } 
+  
 }

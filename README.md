@@ -19,4 +19,6 @@ samples, guidance on mobile development, and a full API reference.
 
 1. Copiar el .env.template y renombrarlo a .env
 2. Cambiar las variables de entorno (OpenAI Key)
+3. Cambiar las variables de entorno (Firebase Key) para el firebase_options.dart
+
 
