@@ -1,10 +1,9 @@
-import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
-import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
+import 'package:app_health_connect/data/repositories/user/user_repository.dart';
+import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
 import 'package:app_health_connect/features/authentication/screens/welcome/welcome.dart';
-import 'package:app_health_connect/features/authentication/screens/welcome/work_info.dart';
 import 'package:app_health_connect/navigation_menu.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_auth_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_exceptions.dart';
@@ -32,6 +31,8 @@ class AuthenticationRepository extends GetxController {
     //Get.offAll(() => const WelcomeScreen());
     //Get.offAll(() => const NavigationMenu());
     //Get.offAll(() => const DashboardScreen());
+    //Get.offAll(() => const HistorialAdviceScreen());
+    //Get.offAll(() => const EstadisticasScreen());
     screenRedirect();
   }
 
@@ -40,7 +41,15 @@ class AuthenticationRepository extends GetxController {
     final user = _auth.currentUser;
     if (user != null) {
       if (user.emailVerified) {
-        Get.offAll(() => const WelcomeScreen());
+        //final userRepository = Get.put(UserRepository());
+        //final usuarioRegistrado = await userRepository.getUserDetails(user.uid);
+
+        //if(usuarioRegistrado.idUsuario != user.uid){
+          Get.offAll(() => const NavigationMenu());
+        //}else{
+        //  Get.offAll(() => const WelcomeScreen());
+       // }
+        
       } else {
         Get.offAll(() => VerifyEmailScreen(email: _auth.currentUser?.email));
       }
@@ -60,6 +69,22 @@ class AuthenticationRepository extends GetxController {
 
   /* -------------------------------- Email y Contraseña -Inicio de Sesión- Registro************** */
   /// [EmailAutnentication)- Inicio de Sesión
+  Future<UserCredential> loginWithEmailAndPassword(String email, String password) async {
+    try {
+      return await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+    } on TFirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo ';
+    }
+  }
 
   /// [EmailAuthentication] - Registro
   Future<UserCredential> registerWithEmailAndPassword(

@@ -1,4 +1,6 @@
+import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
+import 'package:app_health_connect/features/authentication/screens/statistics/statistics.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -77,9 +79,9 @@ class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
   final screens = [
     const DashboardScreen(),
-    Container(color: Colors.orange),
+    const HistorialAdviceScreen(),
     Container(color: Colors.blue),
-    Container(color: Colors.red),
+    const EstadisticasScreen(),
      Container(color: Colors.grey)
   ];
 }

@@ -31,6 +31,7 @@ android {
     ndkVersion flutter.ndkVersion
 
     compileOptions {
+       // coreLibraryDesugaringEnabled true //Añadido: 15/06/2024
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
