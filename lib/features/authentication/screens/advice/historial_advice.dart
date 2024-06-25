@@ -2,8 +2,10 @@ import 'package:app_health_connect/features/authentication/controllers/advice/ad
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/advice/historial_advice_dt.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
+import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HistorialAdviceScreen extends StatelessWidget {
   const HistorialAdviceScreen({super.key});
@@ -33,10 +35,10 @@ class HistorialAdviceScreen extends StatelessWidget {
             children: [
               const Row(
                 children: [
-                  Icon(Icons.manage_search,color: TColors.primary ,size: 80),
+                  Icon(Icons.manage_search, color: TColors.primary, size: 80),
                   SizedBox(width: 8.0),
                   Expanded(
-                    child:  Text(
+                    child: Text(
                       'Historial de Recomendaciones',
                       softWrap: true,
                       style: TextStyle(
@@ -71,8 +73,10 @@ class HistorialAdviceScreen extends StatelessWidget {
                           value: controller.selectedYear.value,
                           isExpanded: true,
                           underline: const SizedBox(),
-                          onChanged: (newvalue) =>
-                              controller.selectedYear.value = newvalue!,
+                          onChanged: (newvalue) {
+                             controller.selectedYear.value = newvalue!;
+                             controller.cargaHistorialRecomendaciones();
+                          },  
                           items: controller.years
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
@@ -104,8 +108,10 @@ class HistorialAdviceScreen extends StatelessWidget {
                           value: controller.selectedMonth.value,
                           isExpanded: true,
                           underline: const SizedBox(),
-                          onChanged: (newvalue) =>
-                              controller.selectedMonth.value = newvalue!,
+                          onChanged: (newvalue) {
+                             controller.selectedMonth.value = newvalue!;
+                          controller.cargaHistorialRecomendaciones();
+                          },
                           items: controller.months
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
@@ -121,34 +127,40 @@ class HistorialAdviceScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               const Divider(
-                color: Colors.grey, thickness: 0.3, indent: 1, endIndent: 1),
+                  color: Colors.grey, thickness: 0.3, indent: 1, endIndent: 1),
               Expanded(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: controller.lista.length,
-                    itemBuilder: (_, index) {
-                      final advice = controller.lista[index];
-                      return RecomendacionCard(
-                        advice: advice
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 4, // Número de tarjetas shimmer a mostrar
+                      itemBuilder: (_, index) {
+                        return const ShimmerRecomendacionCard();
+                      },
+                    );
+                  } else {
+                     var filteredList = controller.filteredHistorial;
+                  //  if (controller.listaHistorial.isEmpty) {
+                    if (filteredList.isEmpty) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Image.asset(TImages.noData,width: 350, height: 350,),
+                          const Text('Sin Registros',
+                          style: TextStyle(fontSize: 20,fontStyle: FontStyle.italic))
+                        ],
                       );
+                    } else {
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filteredList.length,
+                          itemBuilder: (_, index) {
+                            final advice = controller.listaHistorial[index];
+                            return RecomendacionCard(advice: advice);
+                          });
                     }
-
-                    /*  itemBuilder: (_, index) => const Column(
-                  children: [
-                    Row(
-                      //mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RecomendacionCard(
-                          titulo: 'Practica la Respiración Profunda',
-                          descripcion: 'Cuando sientas el peso del estrés, recuerda el poder de la respiración profunda. En cada inhalación, encuentras calma; en cada exhalación, liberas tensión.',
-                          fecha: '29 Mie',
-                        ),
-                        
-                      ],
-                    )
-                  ],
-                ),  */
-                    ),
+                  }
+                }),
               ),
             ],
           )),
@@ -158,12 +170,9 @@ class HistorialAdviceScreen extends StatelessWidget {
 }
 
 class RecomendacionCard extends StatelessWidget {
-  final HistoryAdvice advice;
+  final HistoryAdviceDetail advice;
 
-  const RecomendacionCard({
-    super.key,
-    required this.advice
-  });
+  const RecomendacionCard({super.key, required this.advice});
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +185,7 @@ class RecomendacionCard extends StatelessWidget {
       ),
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: InkWell(
-        onTap: ()=> showRecommendationDragDetail(context, advice),
+        onTap: () => showRecommendationDragDetail(context, advice),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -209,6 +218,60 @@ class RecomendacionCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ShimmerRecomendacionCard extends StatelessWidget {
+  const ShimmerRecomendacionCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      surfaceTintColor: const Color.fromARGB(255, 230, 229, 229),
+      elevation: 10,
+      borderOnForeground: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: double.infinity,
+                height: 20.0,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: double.infinity,
+                height: 50.0,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8.0),
+            Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: double.infinity,
+                height: 20.0,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );

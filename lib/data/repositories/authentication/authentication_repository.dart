@@ -1,5 +1,6 @@
+import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
-import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
+import 'package:app_health_connect/features/authentication/screens/chat/chat_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
@@ -20,8 +21,10 @@ class AuthenticationRepository extends GetxController {
   static AuthenticationRepository get instance => Get.find();
 
   ///Variables
+  final log = logger(AuthenticationRepository);
   final deviceStorage = GetStorage();
   final _auth = FirebaseAuth.instance;
+  User? get authUser => _auth.currentUser;
 
   /// Llamado del main.dart
   @override
@@ -33,28 +36,40 @@ class AuthenticationRepository extends GetxController {
     //Get.offAll(() => const DashboardScreen());
     //Get.offAll(() => const HistorialAdviceScreen());
     //Get.offAll(() => const EstadisticasScreen());
+    // Get.offAll(() => const ChatScreen());
     screenRedirect();
   }
 
   //Función para Screens relevantes
   screenRedirect() async {
+    log.i("screenRedirect: Comienza Redirección de Screens");
     final user = _auth.currentUser;
     if (user != null) {
       if (user.emailVerified) {
-        //final userRepository = Get.put(UserRepository());
-        //final usuarioRegistrado = await userRepository.getUserDetails(user.uid);
-
-        //if(usuarioRegistrado.idUsuario != user.uid){
+        log.i("screenRedirect: Usuario tiene email verificado");
+        //Verificar que haya ingresado sus datos previos en la interacción preliminar
+        final userRepository = Get.put(UserRepository());
+        final existeDetalleUsuario =
+            await userRepository.checkUserDetailExistence(user.uid);
+        log.i("screenRedirect: existeDetalleUsuario: $existeDetalleUsuario");
+        if (existeDetalleUsuario) {
+          log.i(
+              "screenRedirect: Usuario ya tiene su detalle, se redirige a Dashboard");
           Get.offAll(() => const NavigationMenu());
-        //}else{
-        //  Get.offAll(() => const WelcomeScreen());
-       // }
-        
+        } else {
+          log.i(
+              "screenRedirect: Usuario es nuevo, se redirige al screen de presentación");
+          Get.offAll(() => const WelcomeScreen());
+        }
       } else {
+        log.i(
+            "screenRedirect: Usuario no tiene email verificado. Se redirige a VerifyEmailScreen");
         Get.offAll(() => VerifyEmailScreen(email: _auth.currentUser?.email));
       }
     } else {
       //Local Storage
+      log.i(
+          "screenRedirect: Usuario no existe, se redirige a pantalla Inicial");
       deviceStorage.writeIfNull('IsFirstTime', true);
       if (kDebugMode) {
         print("=================== GET STORAGE AUTH REPOSITORY ==============");
@@ -65,11 +80,13 @@ class AuthenticationRepository extends GetxController {
           ? Get.offAll(() => const LoginScreen())
           : Get.offAll(() => const OnboardingScreen());
     }
+    log.i("screenRedirect: Termina Redirección de Screens");
   }
 
   /* -------------------------------- Email y Contraseña -Inicio de Sesión- Registro************** */
   /// [EmailAutnentication)- Inicio de Sesión
-  Future<UserCredential> loginWithEmailAndPassword(String email, String password) async {
+  Future<UserCredential> loginWithEmailAndPassword(
+      String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(
           email: email, password: password);

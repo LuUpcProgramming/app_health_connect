@@ -1,3 +1,4 @@
+
 import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/widgets/dashboard_widgets.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
@@ -6,27 +7,14 @@ import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+
 class DashboardScreen extends StatelessWidget {
-  static const name = 'dashboard-screen';
-
-  const DashboardScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: _DashboardView()
-        // bottomNavigationBar: CustomBottomNavigation(),
-        );
-  }
-}
-
-class _DashboardView extends StatelessWidget {
-  _DashboardView();
-
+  DashboardScreen({super.key});
   final controller = Get.put(DashboardController());
 
   @override
   Widget build(BuildContext context) {
-    //const String userName = "Juan";
+    // _showDialog(context);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -48,18 +36,18 @@ class _DashboardView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       /* Para Pruebas 
-                      const Text(
-                        '${TTexts.avatarTitle} $userName',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w500),
-                      ), */
+                    const Text(
+                      '${TTexts.avatarTitle} $userName',
+                      style: TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.w500),
+                    ), */
                       Obx(() {
-                        if (controller.user == null) {
+                        if (controller.profileLoading.value) {
                           return const CircularProgressIndicator();
                         } else {
-                          final user = controller.user!;
+                          final nombreUsuario = controller.usuario.value?.firstName ?? "";
                           return Text(
-                            '${TTexts.avatarTitle} ${user.firstName}',
+                            '${TTexts.avatarTitle} $nombreUsuario',
                             style: const TextStyle(fontSize: 16),
                           );
                         }
@@ -79,19 +67,59 @@ class _DashboardView extends StatelessWidget {
               const SizedBox(height: TSizes.spaceBtwItems),
 
               // Trabajo and Estado de Ánimo boxes
-              const Row(
+              Row(
                 children: [
-                  StatusBox(
-                    title: 'Trabajo',
-                    content: 'Saturado',
-                    subContent: 'Tengo Horas Extras',
-                  ),
-                  SizedBox(width: 16),
-                  StatusBox(
-                    title: 'Estado de ánimo',
-                    content: '😩',
-                    subContent: 'Estresado',
-                  ),
+                  Obx(() {
+                    if (controller.detailuser == null) {
+                      return const StatusBox(
+                        title: 'Trabajo',
+                        content: 'Estresado',
+                        subContent: '',
+                      );
+                    } else {
+                      List<String> lista =
+                          controller.detailuser!.analisisIA.split('|');
+                      if(lista.length==3){
+                        return StatusBox(
+                          title: 'Trabajo',
+                          content: '👨‍💼',
+                          subContent: lista[1].trim(),
+                        );
+                      }else{
+                        return const StatusBox(
+                          title: 'Trabajo',
+                          content: '👨‍💼',
+                          subContent: 'Intensivo',
+                        );
+                      }
+                      
+                    }
+                  }),
+                  const SizedBox(width: 16),
+                  Obx(() {
+                    if (controller.detailuser == null) {
+                      return const StatusBox(
+                        title: 'Estado de ánimo',
+                        content: '😩',
+                        subContent: 'Estresado',
+                      );
+                    } else {
+                      List<String> lista = controller.detailuser!.analisisIA.split('|');
+                      if(lista.length==3){
+                        return StatusBox(
+                          title: 'Estado de ánimo',
+                          content: '😩',
+                          subContent: lista[2].trim()
+                        );
+                      }else{
+                        return const StatusBox(
+                          title: 'Estado de ánimo',
+                          content: '😩',
+                          subContent: 'Estresado',
+                        );
+                      }                   
+                    }
+                  }),
                 ],
               ),
               const SizedBox(height: TSizes.spaceBtwItems),
@@ -138,5 +166,9 @@ class _DashboardView extends StatelessWidget {
         ),
       ),
     );
+
+    //const String userName = "Juan";
   }
+
+ 
 }

@@ -70,8 +70,9 @@ class UserModel {
           email: data['Email'] ?? '',
           phoneNumber: data['PhoneNumber'] ?? '',
           profilePicture: data['ProfilePicture'] ?? '');
+    } else {
+      return UserModel.empty();
     }
-    return throw Exception();
   }
 
   // Método para crear un UserModel desde un mapa (útil para Firestore o JSON)

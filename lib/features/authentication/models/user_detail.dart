@@ -13,21 +13,27 @@ class UserDetail {
   String tipoContrato;
   String turnoTrabajo;
   List<String> opcionesSalud;
+  String analisisIA;
+  bool estadoDialogAnalisisIA;
+  //AnalisisIA analisis;
 
-  UserDetail({
-    required this.idUsuario,
-    required this.genero,
-    required this.fechaNacimiento,
-    required this.altura,
-    required this.peso,
-    this.ocupacion = '',
-    this.modalidadTrabajo = '',
-    this.horasTrabajo = '',
-    this.tipoHorasTrabajo = '',
-    this.tipoContrato = '',
-    this.turnoTrabajo = '',
-    this.opcionesSalud = const [],
-  });
+  UserDetail(
+      {required this.idUsuario,
+      required this.genero,
+      required this.fechaNacimiento,
+      required this.altura,
+      required this.peso,
+      this.ocupacion = '',
+      this.modalidadTrabajo = '',
+      this.horasTrabajo = '',
+      this.tipoHorasTrabajo = '',
+      this.tipoContrato = '',
+      this.turnoTrabajo = '',
+      this.opcionesSalud = const [],
+      this.analisisIA = '',
+      this.estadoDialogAnalisisIA = false
+      //AnalisisIA? analisis,
+      }); //: analisis = analisis ?? AnalisisIA();
 
   // Método para convertir un UserProfile a un mapa (útil para JSON)
   Map<String, dynamic> toJson() {
@@ -44,6 +50,9 @@ class UserDetail {
       'tipoContrato': tipoContrato,
       'turnoTrabajo': turnoTrabajo,
       'opcionesSalud': opcionesSalud,
+      'analisisIA': analisisIA,
+      'estadoDialogAnalisisIA': estadoDialogAnalisisIA,
+      // 'analisis': analisis
     };
   }
 
@@ -62,11 +71,13 @@ class UserDetail {
       tipoContrato: json['tipoContrato'],
       turnoTrabajo: json['turnoTrabajo'],
       opcionesSalud: List<String>.from(json['opcionesSalud']),
+      analisisIA: json['analisisIA'],
+      estadoDialogAnalisisIA: json['estadoDialogAnalisisIA'],
+      //analisis: json['analisis'],
     );
   }
 
-  factory UserDetail.fromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> document) {
+  factory UserDetail.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
     if (document.data() != null) {
       final data = document.data()!;
       return UserDetail(
@@ -78,10 +89,13 @@ class UserDetail {
         ocupacion: data['ocupacion'] ?? '',
         modalidadTrabajo: data['modalidadTrabajo'] ?? '',
         horasTrabajo: data['horasTrabajo'] ?? '',
-        tipoHorasTrabajo: data['tipoHorasTrabajo'] ??'',
+        tipoHorasTrabajo: data['tipoHorasTrabajo'] ?? '',
         tipoContrato: data['tipoContrato'] ?? '',
         turnoTrabajo: data['turnoTrabajo'] ?? '',
         opcionesSalud: List<String>.from(data['opcionesSalud']),
+        analisisIA: data['analisisIA'] ?? '',
+        estadoDialogAnalisisIA: data['estadoDialogAnalisisIA'] ?? false,
+        // analisis: data['analisis'] ?? '',
       );
     }
     return throw Exception();

@@ -22,6 +22,17 @@ class SignupController extends GetxController {
   final phoneNumber = TextEditingController();
   GlobalKey<FormState> signupFormKey = GlobalKey<FormState>();
 
+  @override
+  void onInit() {
+    firstName.text = "Luis";
+    lastName.text = "Natividad";
+    phoneNumber.text = "934543452";
+    email.text = "luisnatividad97@hotmail.com";
+    password.text = "L123456%%";
+
+    super.onInit();
+  }
+
   //Signup
 
   void signup() async {

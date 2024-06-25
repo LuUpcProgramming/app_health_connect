@@ -11,6 +11,7 @@ class TImages {
   static const String splashLogo = "assets/images/logo_splash.png";
   static const String officialLogo = "assets/images/logo_v2.png";
   static const String avatarLogo = "assets/logos/avatar.png";
+  static const String noData = "assets/images/no_data.png";
   // -- App Fondos
   static const String defaultFondo = "assets/images/fondo1.png";
 

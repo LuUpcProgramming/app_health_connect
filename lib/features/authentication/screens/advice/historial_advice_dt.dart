@@ -2,9 +2,8 @@ import 'package:app_health_connect/features/authentication/models/history_advice
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
 
-void showRecommendationDetail(BuildContext context, HistoryAdvice advice) {
+void showRecommendationDetail(BuildContext context, HistoryAdviceDetail advice) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -77,7 +76,7 @@ void showRecommendationDetail(BuildContext context, HistoryAdvice advice) {
   );
 }
 
-void showRecommendationDragDetail(BuildContext context, HistoryAdvice advice) {
+void showRecommendationDragDetail(BuildContext context, HistoryAdviceDetail advice) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -119,12 +118,18 @@ void showRecommendationDragDetail(BuildContext context, HistoryAdvice advice) {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            advice.title,
-                            style: const TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white, // Texto blanco para mejor contraste
+                          Flexible(
+                            child: Text(
+                              advice.title,
+                              softWrap: true,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white, // Texto blanco para mejor contraste
+                              ),
                             ),
                           ),
                           IconButton(
@@ -134,13 +139,13 @@ void showRecommendationDragDetail(BuildContext context, HistoryAdvice advice) {
                         ],
                       ),
                       const SizedBox(height: 16.0),
-                      const Column(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                               Text(
+                               const Text(
                                 'Estado de ánimo',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontWeight: FontWeight.bold, 
@@ -148,11 +153,11 @@ void showRecommendationDragDetail(BuildContext context, HistoryAdvice advice) {
                               ),
                               Row(
                                 children: [
-                                   Icon(Icons.sentiment_dissatisfied, size: 64.0, color: Colors.white),
-                                   SizedBox(width: 8.0),
+                                   const Icon(Icons.sentiment_dissatisfied, size: 64.0, color: Colors.white),
+                                   const SizedBox(width: 8.0),
                                    Text(
-                                      'Estresado',
-                                      style: TextStyle(fontSize: 16,color: Colors.white,fontWeight: FontWeight.bold),
+                                      advice.estadoAnimo,
+                                      style: const TextStyle(fontSize: 16,color: Colors.white,fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -176,9 +181,10 @@ void showRecommendationDragDetail(BuildContext context, HistoryAdvice advice) {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       const SizedBox(height: 8.0),
-                      const Text(
-                        '-Exceso de actividades de trabajo.\n-Horas extras sin pago.\n-Discusión con compañeros de trabajo',
-                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                       Text(
+                       // '-Exceso de actividades de trabajo.\n-Horas extras sin pago.\n-Discusión con compañeros de trabajo',
+                       advice.problema,
+                        style: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                       ),
                       const SizedBox(height: 20.0),
                       const Text(

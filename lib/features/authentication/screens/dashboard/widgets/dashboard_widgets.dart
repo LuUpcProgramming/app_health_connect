@@ -1,9 +1,9 @@
+import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/chat/chat_screen.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 class WeeklyCalendar extends StatelessWidget {
   final List<String> days = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
@@ -45,6 +45,7 @@ class StatusBox extends StatelessWidget {
   final String title;
   final String content;
   final String subContent;
+  
 
   const StatusBox(
       {super.key,
@@ -58,18 +59,18 @@ class StatusBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFefeffe)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.4), // Color de la sombra
-              spreadRadius: 2, // Cuanto se extiende la sombra
-              blurRadius: 5, // Cuanto se difumina la sombra
-              offset: const Offset(0, 2.5), // Posición de la sombra (horizontal, vertical)
-            ),
-          ]
-        ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFefeffe)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.4), // Color de la sombra
+                spreadRadius: 2, // Cuanto se extiende la sombra
+                blurRadius: 5, // Cuanto se difumina la sombra
+                offset: const Offset(
+                    0, 2.5), // Posición de la sombra (horizontal, vertical)
+              ),
+            ]),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -77,20 +78,26 @@ class StatusBox extends StatelessWidget {
               title,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 4,),
-            Center(
-              child: Text(
-                content,
-                style: const TextStyle(fontSize:25,fontWeight: FontWeight.w800),
-              ),
+            const SizedBox(
+              height: 8,
             ),
-            
-            Center(
-              child: Text(
-                subContent,
-                style: const TextStyle(fontSize: 16, color: Colors.grey,fontWeight: FontWeight.w600),
-              ),
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Text(
+                  content,
+                  style:
+                      const TextStyle(fontSize: 40, fontWeight: FontWeight.w800),
+                ),
+                Text(
+                  subContent,
+                  style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                    fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),         
           ],
         ),
       ),
@@ -108,30 +115,31 @@ class AssistantBox extends StatelessWidget {
           Get.to(
             () => const ChatScreen(),
             transition: Transition.rightToLeft, // Transición de deslizar
-            duration: const Duration(milliseconds: 600), // Duración de la transición
+            duration:
+                const Duration(milliseconds: 600), // Duración de la transición
           );
         },
         child: Container(
             //padding: const EdgeInsets.all(16),
-            padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFefeffe)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.4), // Color de la sombra
-                  spreadRadius: 2, // Cuanto se extiende la sombra
-                  blurRadius: 5, // Cuanto se difumina la sombra
-                  offset: const Offset(0, 2.5), // Posición de la sombra (horizontal, vertical)
-                ),
-              ]
-                
-            ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFefeffe)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.4), // Color de la sombra
+                    spreadRadius: 2, // Cuanto se extiende la sombra
+                    blurRadius: 5, // Cuanto se difumina la sombra
+                    offset: const Offset(
+                        0, 2.5), // Posición de la sombra (horizontal, vertical)
+                  ),
+                ]),
             child: const Row(children: [
               CircleAvatar(
                 backgroundImage: AssetImage(TImages.robotLogo),
-                backgroundColor: TColors.accent, // Usamos AssetImage para la imagen local
+                backgroundColor:
+                    TColors.accent, // Usamos AssetImage para la imagen local
                 radius: 30,
               ),
               SizedBox(width: 8),
@@ -164,21 +172,21 @@ class RecommendationBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 30,horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFefeffe)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.4), // Color de la sombra
-              spreadRadius: 2, // Cuanto se extiende la sombra
-              blurRadius: 5, // Cuanto se difumina la sombra
-              offset: const Offset(0, 2.5), // Posición de la sombra (horizontal, vertical)
-            ),
-          ]
-        ),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFefeffe)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.4), // Color de la sombra
+                spreadRadius: 2, // Cuanto se extiende la sombra
+                blurRadius: 5, // Cuanto se difumina la sombra
+                offset: const Offset(
+                    0, 2.5), // Posición de la sombra (horizontal, vertical)
+              ),
+            ]),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -205,19 +213,19 @@ class PlanBox extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFefeffe)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.4), // Color de la sombra
-            spreadRadius: 2, // Cuanto se extiende la sombra
-            blurRadius: 5, // Cuanto se difumina la sombra
-            offset: const Offset(0, 2.5), // Posición de la sombra (horizontal, vertical)
-          ),
-        ]
-      ),
-      child:  Column(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFefeffe)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.4), // Color de la sombra
+              spreadRadius: 2, // Cuanto se extiende la sombra
+              blurRadius: 5, // Cuanto se difumina la sombra
+              offset: const Offset(
+                  0, 2.5), // Posición de la sombra (horizontal, vertical)
+            ),
+          ]),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const PlanItem(
@@ -275,13 +283,12 @@ class PlanItem extends StatelessWidget {
               Text(
                 title,
                 style:
-                const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-                
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
               ),
               Text(
                 text,
                 style:
-                const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                    const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
               ),
             ],
           ),

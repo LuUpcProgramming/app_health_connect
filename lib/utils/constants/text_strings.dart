@@ -92,4 +92,8 @@ class TTexts {
 
   // -- Dashboard
   static const String avatarTitle = "Bienvenido(a)";
+
+  // -- Chat
+  static const String procesarConversacion = "Procesar";
+  static const String eliminarConversacion = "Eliminar";
 }
