@@ -1,12 +1,9 @@
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
-
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';

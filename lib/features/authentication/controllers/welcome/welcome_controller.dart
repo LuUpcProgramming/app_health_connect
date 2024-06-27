@@ -1,9 +1,7 @@
-import 'dart:convert';
 
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
-import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/user_detail.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';

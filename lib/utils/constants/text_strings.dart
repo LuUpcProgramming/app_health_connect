@@ -96,4 +96,11 @@ class TTexts {
   // -- Chat
   static const String procesarConversacion = "Procesar";
   static const String eliminarConversacion = "Eliminar";
+
+  //Estadisticas
+  static const String sinRegistros = "";
+  static const String diaria = "Diaria";
+  static const String semanal = "Semanal";
+  static const String mensual = "Mensual";
+ // static const String eliminarConversacion = "Eliminar";
 }

@@ -4,14 +4,11 @@ import 'package:app_health_connect/data/repositories/history/history_repository.
 import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/chat_message.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
-import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
-import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:app_health_connect/navigation_menu.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
-import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';

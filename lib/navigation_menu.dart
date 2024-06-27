@@ -3,7 +3,7 @@ import 'package:app_health_connect/features/authentication/controllers/advice/ad
 import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
-import 'package:app_health_connect/features/authentication/screens/statistics/statistics.dart';
+import 'package:app_health_connect/features/authentication/screens/statistics/statistics_screen.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:firebase_auth/firebase_auth.dart';

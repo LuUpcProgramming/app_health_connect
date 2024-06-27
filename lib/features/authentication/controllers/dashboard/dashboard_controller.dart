@@ -2,7 +2,6 @@ import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
 import 'package:app_health_connect/features/authentication/models/user_detail.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
-import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
