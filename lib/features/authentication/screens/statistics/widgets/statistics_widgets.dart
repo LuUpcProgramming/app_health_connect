@@ -6,6 +6,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+
+
 Widget buildMoodCard(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
   return Card(
     color: TColors.primary,
@@ -45,7 +47,7 @@ Widget buildMoodCard(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
           const SizedBox(height: 10),
           Text(
             mensajeEstadoAnimo,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(fontSize: 16,color: Colors.white),
             textAlign: TextAlign.justify,
           ),
         ],
@@ -53,6 +55,73 @@ Widget buildMoodCard(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
     ),
   );
 }
+
+Widget buildMoodCardV2(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
+  return Card(
+   // color: TColors.primary,
+    elevation: 15,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: TColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+          ), 
+          padding: const EdgeInsets.only(top: 16,bottom: 10,left: 16,right: 16),
+          child:const Text(
+            'Estado de ánimo promedio',
+            style: TextStyle(
+                color: Colors.white, fontSize: 23, fontWeight: FontWeight.w800),
+          ), 
+        ),
+        
+      //  const SizedBox(height: 10),
+        Container(
+          decoration: const BoxDecoration(
+            color: TColors.white,
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(25.0)),
+          ), 
+          padding: const EdgeInsets.only(top: 16,bottom: 10,left: 16,right: 16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.sentiment_dissatisfied,
+                      color: TColors.primary, size: 40),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      // 'Ligeramente Estresado',
+                      estadoAnimoPromedio,
+                      style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "''$mensajeEstadoAnimo''",
+                style: const TextStyle(fontSize: 16,color: Colors.black),
+                textAlign: TextAlign.justify,
+              ),
+            ],
+          ),
+        ),
+        
+      ],
+    ),
+  );
+}
+
 
 Widget buildWeeklyProgressChart(EstadisticaController stat) {
   return Card(
@@ -164,6 +233,130 @@ Widget buildWeeklyProgressChart(EstadisticaController stat) {
     ),
   );
 }
+
+Widget buildWeeklyProgressChartV2(EstadisticaController stat) {
+  return Card(
+    //color: TColors.primary,
+    elevation: 15,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(15.0),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            color: TColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+          ), 
+          padding: const EdgeInsets.only(top: 16,bottom: 10,left: 16,right: 16),
+          child: Obx(
+            () => Text(
+              stat.selectedDate.value == TTexts.semanal
+                  ? 'Progreso Semanal'
+                  : 'Progreso Mensual',
+          
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 23,
+                  fontWeight: FontWeight.w800),
+            ),
+          ),
+        ),
+       // const SizedBox(height: 15),
+        Container(
+           decoration: const BoxDecoration(
+            color: TColors.primary,
+            borderRadius: BorderRadius.vertical(bottom: Radius.circular(25.0)),
+          ), 
+          padding: const EdgeInsets.only(top: 16,bottom: 10,left: 16,right: 16),
+          child: SizedBox(
+            height: 200,
+            child: BarChart(
+              BarChartData(
+                maxY: 20,
+                barGroups: _buildBarGroups(
+                    stat.selectedDate.value, stat.estadisticasSemanal.value),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(color: Colors.white),
+                          );
+                        }),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            value.toInt().toString(),
+                            style: const TextStyle(color: Colors.white),
+                          );
+                        }),
+                  ),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        const style = TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        );
+                        Widget text;
+                        switch (value.toInt()) {
+                          case 0:
+                            text = const Text('L', style: style);
+                            break;
+                          case 1:
+                            text = const Text('M', style: style);
+                            break;
+                          case 2:
+                            text = const Text('M', style: style);
+                            break;
+                          case 3:
+                            text = const Text('J', style: style);
+                            break;
+                          case 4:
+                            text = const Text('V', style: style);
+                            break;
+                          case 5:
+                            text = const Text('S', style: style);
+                            break;
+                          case 6:
+                            text = const Text('D', style: style);
+                            break;
+                          default:
+                            text = const Text('', style: style);
+                            break;
+                        }
+                        return SideTitleWidget(
+                          axisSide: meta.axisSide,
+                          child: text,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        _buildLegend()
+      ],
+    ),
+  );
+}
+
+
 
 Widget buildMonthlyProgressChart(EstadisticaController stat) {
   return Card(

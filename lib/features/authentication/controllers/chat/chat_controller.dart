@@ -1,6 +1,7 @@
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/data/repositories/chat/chat_repository.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
+import 'package:app_health_connect/data/repositories/user/user_repository.dart';
 import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/chat_message.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
@@ -10,6 +11,7 @@ import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
@@ -42,21 +44,28 @@ class ChatController extends GetxController {
         baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
         enableLog: true);
     log.i("onInit: Se instancia OPENAI");
-    cargaDatosChat();
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+      cargaDatosChat();
+    });
   }
 
   Future<void> cargaDatosChat() async {
     try {
+      TFullScreenLoader.openLoadingDialog("Cargando Chat..", TImages.loadingAnimation);
       isLoading.value = true;
       log.i("cargaDatosChat: Comienza cargaDatosChat");
 
       // Simular carga de datos con un retraso
-      await Future.delayed(const Duration(seconds: 1));
+      // await Future.delayed(const Duration(seconds: 1));
 
       // Carga de datos de Usuario
-      final dashboard = Get.put(DashboardController());
-      nombreUsuario = dashboard.usuario.value?.firstName ?? "";
-      idUsuario = dashboard.usuario.value?.id ?? "";
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        final userRepository = Get.put(UserRepository());
+        final user = await userRepository.fethUserRecord();
+        nombreUsuario = user.firstName;
+        idUsuario = user.id;
+      }
       log.i(
           "cargaDatosChat: nombreUsuario $nombreUsuario , idUsuario $idUsuario");
       // Carga de Historial de Mensajes desde la base de datos
@@ -72,10 +81,13 @@ class ChatController extends GetxController {
       messagesHistory.assignAll(historial);
       countMessageHistory = messagesHistory.length;
       log.i("cargaDatosChat: Se carga Historial de Chat si lo hubiera");
+      
       isLoading.value = false;
+      TFullScreenLoader.stopLoading();
       log.i("cargaDatosChat: Finaliza cargaDatosChat");
       Get.delete<ChatRepository>();
     } catch (e) {
+      TFullScreenLoader.stopLoading();
       log.e('Error en cargaDatosChat');
       log.e("Error: ${e.toString()}");
       //Show some generic error to user
@@ -204,7 +216,7 @@ class ChatController extends GetxController {
   void procesarConversacion() {
     try {
       log.i("procesarConversacion: Comienza procesarConversacion");
-      TFullScreenLoader.openLoadingDialog("Cargando Datos", TImages.avatarLogo);
+      TFullScreenLoader.openLoadingDialog("Procesando Información...", TImages.loadingAnimation);
       if (messagesHistory.isNotEmpty) {
         if (countMessageHistory != messagesHistory.length) {
           // Aquí va la lógica para procesar la conversación

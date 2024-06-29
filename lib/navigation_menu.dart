@@ -1,10 +1,12 @@
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/features/authentication/controllers/advice/advice_controller.dart';
+import 'package:app_health_connect/features/authentication/controllers/statistics/statistics_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/features/authentication/screens/statistics/statistics_screen.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -107,7 +109,8 @@ class NavigationController extends GetxController {
             style: ElevatedButton.styleFrom(
               backgroundColor: TColors.primary,
               elevation: 10, // Elevación del botón
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),// Color del texto
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 12), // Color del texto
             ),
             child: const Text("Cerrar Sesión",
                 style: TextStyle(color: Colors.white)),
@@ -127,12 +130,20 @@ class NavigationController extends GetxController {
   void handleScreenChange(int index) {
     try {
       if (index == 1) {
-        log.i("handleScreenChange: Entro a index 2");
-        // Índice de HistorialAdviceScreen
-        // Realiza alguna acción específica cuando se selecciona HistorialAdviceScreen
-        // Por ejemplo, puedes llamar a un método en el controlador de HistorialAdviceScreen
+        log.i("handleScreenChange: Entro a index 1");
         final adviceController = Get.put(AdviceController());
-        adviceController.cargaHistorialRecomendaciones();
+        if(!adviceController.isSubscriptionActive()){
+          adviceController.startListeningAdviceRecommendation();
+        }
+        
+      } else if (index == 3) {
+        log.i("handleScreenChange: Entro a index 3");
+        final estadisticaController = Get.put(EstadisticaController());
+        if (estadisticaController.isSubscriptionActive()) {
+          estadisticaController.stopListening();
+        }
+        estadisticaController.selectedDate.value = TTexts.semanal;
+        estadisticaController.startListeningWeeklyStatistics();
       }
     } catch (e) {
       log.e("Error: ${e.toString()}");

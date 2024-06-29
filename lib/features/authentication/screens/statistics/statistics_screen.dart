@@ -6,6 +6,7 @@ import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+
 class EstadisticasScreen extends StatelessWidget {
   const EstadisticasScreen({super.key});
   @override
@@ -64,7 +65,7 @@ class EstadisticasScreen extends StatelessWidget {
                           onChanged: (newvalue) {
                             controller.selectedDate.value = newvalue!;
                             //controller.cargaEstadisticas();
-                            controller.cargaDataEstadisticas();
+                            controller.obtenerEstadisticas();
                           },
                           items: controller.listaTipoFecha
                               .map<DropdownMenuItem<String>>((String value) {
@@ -81,52 +82,50 @@ class EstadisticasScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Obx(() {
-                if(controller.isLoading.value){
-                  return const Center(child: CircularProgressIndicator());
-                }else{
-                 /*  var estadoAnimo =
-                      controller.estadisticas.value.estadoAnimoPromedio;
-                  var estadoMensaje =
-                      controller.estadisticas.value.mensajeEstadoAnimo; */
-                  var estadoAnimo =controller.estadisticasSemanal.value.estadoAnimoPromedio;
-                  var estadoMensaje =controller.estadisticasSemanal.value.mensajeEstadoAnimo;
 
-                  if (estadoAnimo.trim().isEmpty && estadoMensaje.trim().isEmpty) {
-                    return buildDefaultMoodCard();
-                  } else {
-                    return buildMoodCard(estadoAnimo, estadoMensaje);
-                  }
-                }
-               
-              }),
-              const SizedBox(height: 20),
-              Obx(() {
-                if(controller.isLoading.value){
-                  return const Center(child: CircularProgressIndicator());
-                }else{
-                  if (controller.selectedDate.value == TTexts.semanal) {
-                    return buildWeeklyProgressChart(controller);
-                  } else if (controller.selectedDate.value == TTexts.mensual) {
-                    return buildMonthlyProgressChart(controller);
-                  } else {
-                    return buildWeeklyProgressChart(controller);
-                  }
+                if (controller.isLoading.value) {
+                  return buildShimmerMoodCard();
                 } 
-               
+
+                var estadoAnimo = controller
+                    .estadisticasSemanal.value.estadoAnimoPromedio;
+                var estadoMensaje =
+                    controller.estadisticasSemanal.value.mensajeEstadoAnimo;
+                if (estadoAnimo.trim().isEmpty &&
+                    estadoMensaje.trim().isEmpty) {
+                  return buildDefaultMoodCard();
+                } else {
+                  return buildMoodCard(estadoAnimo, estadoMensaje);
+                }
+
               }),
               const SizedBox(height: 20),
               Obx(() {
-                if(controller.isLoading.value){
-                  return const Center(child: CircularProgressIndicator());
-                }else{
-                  var logros = controller.estadisticasSemanal.value.logros;
-                  if (logros.isEmpty) {
-                    return buildDefaultTopAchievements();
-                  } else {
-                    return buildTopAchievements(controller.logroConIcono);
-                  }
+                if (controller.isLoading.value) {
+                  return buildShimmerProgressChart();
+                } 
+
+                if (controller.selectedDate.value == TTexts.semanal) {
+                  return buildWeeklyProgressChart(controller);
+                } else if (controller.selectedDate.value == TTexts.mensual) {
+                  return buildMonthlyProgressChart(controller);
+                } else {
+                  return buildWeeklyProgressChart(controller);
                 }
                 
+              }),
+              const SizedBox(height: 20),
+              Obx(() {
+                if (controller.isLoading.value) {
+                  return buildShimmerTopAchievements();
+                } 
+
+                var logros = controller.estadisticasSemanal.value.logros;
+                if (logros.isEmpty) {
+                  return buildDefaultTopAchievements();
+                } else {
+                  return buildTopAchievements(controller.logroConIcono);
+                }
               }),
             ],
           ),

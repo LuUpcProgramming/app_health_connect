@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -26,7 +29,8 @@ class AdviceController extends GetxController {
   //Caché
   // DateTime? lastUpdateTime;
   // final cacheDuration = const Duration(minutes: 1); // Duración del caché
-
+  StreamSubscription<DocumentSnapshot>? _subscriptionAdvice;
+  final historyRepository = Get.put(HistoryRepository());
   final List<String> years = ['2024', '2025', '2026', '2027'];
   final List<String> months = [
     'enero',
@@ -99,6 +103,12 @@ class AdviceController extends GetxController {
     initializeDateFormatting();
   }
 
+  @override
+  void onClose() {
+    stopListening();
+    super.onClose();
+  }
+
   //***************Métodos***************/
 
   Future<void> cargaHistorialRecomendaciones() async {
@@ -153,16 +163,44 @@ class AdviceController extends GetxController {
     }).toList();
   }
 
-  /*  void getHistoryStream(String userId) {
-    FirebaseFirestore.instance
-        .collection('History')
-        .where('idUsuario', isEqualTo: userId)
-        .snapshots()
-        .listen((QuerySnapshot snapshot) {
-      listaHistorial.clear();
-      for (var document in snapshot.docs) {
-        listaHistorial.add(HistoryAdviceDetail.fromJson(document.data() as Map<String, dynamic>));
-      }
-    });
-  } */
+  bool isSubscriptionActive() {
+    return _subscriptionAdvice != null && !_subscriptionAdvice!.isPaused;
+  }
+
+  void stopListening() {
+    log.i("Se canceló stopWeeklyListening");
+    _subscriptionAdvice?.cancel();
+  }
+
+  void startListeningAdviceRecommendation() async {
+    log.i(
+        "startListeningAdviceRecommendation: Comienza startListeningAdviceRecommendation");
+    try {
+      isLoading.value = true;
+      _subscriptionAdvice = historyRepository.listenToAdviceRecommendations().listen((snapshot) {
+        if (snapshot.exists) {
+          HistoryAdvice dHistory = HistoryAdvice.fromSnapshot(snapshot);
+          historial?.value = dHistory;
+          listaHistorial.value = dHistory.listaHistorialDetalle;
+          //countHistorialMessages.value = dHistory.listaHistorialDetalle.length;
+          log.i("startListeningAdviceRecommendation: Se cargaron las recomendaciones");
+        } else {
+          historial?.value = HistoryAdvice(idUsuario: '0', listaHistorialDetalle: []);
+          listaHistorial.value = [];
+        }
+        
+      });
+
+    } catch (e) {
+      log.e("Error: ${e.toString()}");
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+    }finally{
+      isLoading.value = false;
+      log.i("startListeningAdviceRecommendation: Termina startListeningAdviceRecommendation");
+    }
+
+    
+    
+  }
 }

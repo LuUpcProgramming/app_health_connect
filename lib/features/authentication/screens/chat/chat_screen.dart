@@ -3,12 +3,13 @@ import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/features/authentication/controllers/chat/chat_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/chat/widgets/chat_widgets.dart';
-import 'package:app_health_connect/utils/constants/colors.dart';
-import 'package:app_health_connect/utils/constants/text_strings.dart';
+import 'package:app_health_connect/utils/constants/image_strings.dart';
+import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class ChatScreen extends StatelessWidget {
   static const name = 'chat-screen';
@@ -86,7 +87,7 @@ class _ChatViewState extends State<_ChatView> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              showCustomDialogSaveChat(context,controller);
+              showCustomDialogSaveChat(context, controller);
             },
           ),
           title: Row(
@@ -108,7 +109,7 @@ class _ChatViewState extends State<_ChatView> {
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.white),
               onPressed: () {
-                showCustomDialogRemoveChat(context,controller);
+                showCustomDialogRemoveChat(context, controller);
               },
             )
           ]
@@ -124,18 +125,18 @@ class _ChatViewState extends State<_ChatView> {
           ),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: Text(""));
         } else {
-            if (controller.messagesHistory.isEmpty) {
-              _messages = <ChatMessage>[];
-              _messages.add(
-                ChatMessage(
-                    text:
-                        'Hola ${controller.nombreUsuario ?? ''}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
-                    user: _asistenteVirtual,
-                    createdAt: DateTime.now()),
-              );
-            }
+          if (controller.messagesHistory.isEmpty) {
+            _messages = <ChatMessage>[];
+            _messages.add(
+              ChatMessage(
+                  text:
+                      'Hola ${controller.nombreUsuario ?? ''}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
+                  user: _asistenteVirtual,
+                  createdAt: DateTime.now()),
+            );
+          }
           cargarHistorial();
           return DashChat(
               currentUser: _user,

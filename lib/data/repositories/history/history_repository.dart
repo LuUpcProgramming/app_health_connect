@@ -1,4 +1,5 @@
 import 'package:app_health_connect/config/helper/logging.dart';
+import 'package:app_health_connect/data/repositories/authentication/authentication_repository.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/format_exceptions.dart';
@@ -32,6 +33,25 @@ class HistoryRepository extends GetxController {
       throw TPlatformException(e.code).message;
     } catch (e) {
       throw 'Algo salió mal, intente de nuevo $e';
+    }
+  }
+
+  
+  Stream<DocumentSnapshot<Map<String, dynamic>>> listenToAdviceRecommendations() {
+    try {
+      return _db
+          .collection('History')
+          .doc(AuthenticationRepository.instance.authUser?.uid ?? '0')
+          .snapshots();
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      log.e("Error al escuchar cambios: ${e.toString()}");
+      return const Stream.empty();
     }
   }
 

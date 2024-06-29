@@ -40,9 +40,9 @@ class DashboardController extends GetxController {
 
 
   //Cargas Data
-  Future<void> cargaDatosDashboard() async {
+ /*  Future<void> cargaDatosDashboard() async {
     try {
-      TFullScreenLoader.openLoadingDialog("Cargando Datos", TImages.avatarLogo);
+      TFullScreenLoader.openLoadingDialog("Cargando Datos", TImages.loadingAnimation);
       log.i("Comienza cargaDatosDashboard");
       await cargaDatosUsuario();
       await cargaDatosDetalleUsuario();
@@ -57,14 +57,14 @@ class DashboardController extends GetxController {
           title: 'Oh, sucedió un error', message: e.toString());
       throw Exception(e);
     }
-  }
+  } */
 
   Future<void> cargaDatosUsuario() async {
     try {
       //Show Dialog
       log.i("Comienza cargaDatosUsuario");
       profileLoading.value = true;
-      TFullScreenLoader.openLoadingDialog("Cargando Datos", TImages.avatarLogo);
+      TFullScreenLoader.openLoadingDialog("Espere por favor...", TImages.loadingAnimation);
       final currentUser = FirebaseAuth.instance.currentUser;
       log.i('currentUser: $currentUser');
       if (currentUser != null) {
@@ -274,4 +274,6 @@ class DashboardController extends GetxController {
       },
     );
   }
+
+
 }

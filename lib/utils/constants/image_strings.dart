@@ -52,6 +52,9 @@ class TImages {
 
   // -- Lottie Animations
   static const String successfullyRegisterAnimation = "assets/images/animations/72462-check-register.json";
+  static const String loadingAnimation = "assets/images/animations/loading.gif";
+  static const String loadingAnimationv2 = "assets/images/animations/141397-loading-juggle.json";
+
 
   // -- OnBoarding Texts
   static const String onBoardingImage1 = "assets/images/on_boarding_images/sammy-line-searching.gif";

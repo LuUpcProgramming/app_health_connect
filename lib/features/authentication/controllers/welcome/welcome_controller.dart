@@ -174,7 +174,7 @@ class WelcomeController extends GetxController {
         return;
       }
       TFullScreenLoader.openLoadingDialog(
-          'Procesando Información', TImages.avatarLogo);
+          'Procesando Información', TImages.loadingAnimation);
 
       final userHealthInfo = UserDetail(
           idUsuario: _user.value?.id ?? "0",

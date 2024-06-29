@@ -110,7 +110,7 @@ class HistorialAdviceScreen extends StatelessWidget {
                           underline: const SizedBox(),
                           onChanged: (newvalue) {
                              controller.selectedMonth.value = newvalue!;
-                          controller.cargaHistorialRecomendaciones();
+                          controller.startListeningAdviceRecommendation();
                           },
                           items: controller.months
                               .map<DropdownMenuItem<String>>((String value) {

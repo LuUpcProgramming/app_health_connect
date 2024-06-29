@@ -105,14 +105,13 @@ class StatusBox extends StatelessWidget {
   }
 }
 
-class AssistantBox extends StatelessWidget {
-  const AssistantBox({super.key});
 
-  @override
-  Widget build(BuildContext context) {
+
+  
+Widget assistantBox(DashboardController controller) {
     return GestureDetector(
         onTap: () {
-          Get.to(
+          Get.offAll(
             () => const ChatScreen(),
             transition: Transition.rightToLeft, // Transición de deslizar
             duration:
@@ -159,8 +158,8 @@ class AssistantBox extends StatelessWidget {
               Spacer(),
               Icon(Icons.arrow_forward, size: 32),
             ])));
-  }
 }
+
 
 class RecommendationBox extends StatelessWidget {
   final IconData icon;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
@@ -5,6 +7,7 @@ import 'package:app_health_connect/features/authentication/models/statistics.dar
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +24,23 @@ class EstadisticaController extends GetxController {
   final openAiKey = Environment.openAiKey;
   RxList<Logro> logroConIcono = <Logro>[].obs;
   final statsRepository = Get.put(StatisticsRepository());
+//  StreamSubscription<DocumentSnapshot>? _subscriptionSemanal;
+//  StreamSubscription<DocumentSnapshot>? _subscriptionMensual;
+  StreamSubscription<DocumentSnapshot>? _subscription;
+  var estadisticasDiarias = <EstadisticasDiaria>[].obs;
+  //RxBool get hasDataChanged => statsRepository.hasDataChanged;
+  // Existing variables...
+  var estadoAnimoPromedio = ''.obs;
+  var descripcionEstadoAnimoPromedio = ''.obs;
+  var progresoSemanal = <int>[].obs;
+  var topLogros = <String>[].obs;
+  var estadisticasSemanal = EstadisticasSemanal(
+    estadoAnimoPromedio: TTexts.sinRegistros,
+    mensajeEstadoAnimo: TTexts.sinRegistros,
+    progresoLogros: [0, 0, 0, 0, 0, 0, 0],
+    progresoPlanes: [0, 0, 0, 0, 0, 0, 0],
+    logros: [],
+  ).obs;
 /*   var estadisticas = Estadisticas(
     estadoAnimoPromedio: 'Ligeramente Estresado',
     mensajeEstadoAnimo:
@@ -32,103 +52,32 @@ class EstadisticaController extends GetxController {
       Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center),
     ],
   ).obs; */
-  var estadisticasSemanal = EstadisticasSemanal(
-    estadoAnimoPromedio: TTexts.sinRegistros,
-    mensajeEstadoAnimo: TTexts.sinRegistros,
-    progresoLogros: [0, 0, 0, 0, 0, 0, 0],
-    progresoPlanes: [0, 0, 0, 0, 0, 0, 0],
-    logros: [],
-  ).obs;
 
   //***************Métodos***************/
-  /* void updateEstadisticas(Estadisticas nuevasEstadisticas) {
-    estadisticas.value = nuevasEstadisticas;
-  } */
-
-/*   Future<void> cargaEstadisticas() async {
-    isLoading.value = true;
-    if (selectedDate.value == TTexts.semanal) {
-      updateEstadisticas(
-        Estadisticas(
-          estadoAnimoPromedio: 'Muy Feliz',
-          mensajeEstadoAnimo:
-              '“Recarga energías, tómate un tiempo para ti mismo y haz aquello que te haga sentir bien. Recuerda que tu salud mental es fundamental para alcanzar tus metas.¡Sigue adelante!”',
-          progresoLogros: [5, 10, 12, 10, 2, 8, 9],
-          progresoPlanes: [10, 12, 12, 10, 8, 9, 9],
-          logros: [
-            Logro(titulo: 'Sueño Reparador', icono: Icons.bed),
-            Logro(titulo: 'Mente en Calma', icono: Icons.self_improvement),
-            Logro(titulo: 'Círculos de apoyo', icono: Icons.group),
-          ],
-        ),
-      );
-    } else if (selectedDate.value == TTexts.mensual) {
-      updateEstadisticas(
-        Estadisticas(
-          estadoAnimoPromedio: 'Ligeramente triste',
-          mensajeEstadoAnimo:
-              '“Persististe a pesar de los desafíos. Ahora, prioriza tu bienestar. Recarga energías y sigue adelante. Tu salud mental es crucial para tu éxito. ¡Sigue adelante!”',
-          progresoLogros: [15, 20, 20, 40, 15, 30],
-          progresoPlanes: [25, 40, 40, 40, 15, 30],
-          logros: [
-            Logro(titulo: 'Gourmet Saludable', icono: Icons.restaurant),
-            Logro(titulo: 'Equilibrio Espiritual', icono: Icons.spa),
-            Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center),
-          ],
-        ),
-      );
-    }
-    isLoading.value = false;
-  } */
-
-  //var estadisticasDiarias = EstadisticasDiarias().obs;
-/*   Future<void> obtenerEstadisticasDiarias() async {
-    var fechaActual = DateTime.now();
-    try {
-      isLoading.value = true;
-      String fechaFormato = DateFormat('dd-MM-yyyy').format(fechaActual);
-
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('estadisticas')
-          //.doc(AuthenticationRepository.instance.authUser!.uid)
-          .doc('61gBjNkAMk5LfBf5zRty')
-          .collection('diario')
-          .doc(fechaFormato)
-          .get();
-
-      if (doc.exists) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        estadisticasDiarias.value = EstadisticasDiarias(
-          estadoAnimo: data['estado_animo'],
-          descripcionEstadoAnimo: data['descripcion_animo'],
-          cantidadPlanesTotales: data['c_planes_totales'],
-          cantidadPlanesCumplidos: data['c_planes_cumplidos'],
-          logros: List<String>.from(data['logros']),
-        );
-      } else {
-        estadisticasDiarias.value =
-            EstadisticasDiarias(); // Datos vacíos si no existe el documento
-      }
-      isLoading.value = false;
-    } catch (e) {
-      isLoading.value = false;
-      print("Error obteniendo estadísticas diarias: $e");
-    }
-  } */
 
   @override
   void onInit() {
     super.onInit();
+
     openAI = OpenAI.instance.build(
         token: openAiKey,
         baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
         enableLog: true);
+
+    //Empezamos a escuchar de forma inicial la estadística Semanal
+   // startListeningWeeklyStatistics();
+/*
     obtenerEstadisticasDiarias().then((_) {
       calcularEstadisticaSemanal();
     });
+*/
   }
 
-  var estadisticasDiarias = <EstadisticasDiaria>[].obs;
+  @override
+  void onClose() {
+    stopListening();
+    super.onClose();
+  }
 
   void cargaDataEstadisticas() {
     obtenerEstadisticasDiarias().then((_) {
@@ -170,18 +119,12 @@ class EstadisticaController extends GetxController {
     }
   }
 
-  // Existing variables...
-  var estadoAnimoPromedio = ''.obs;
-  var descripcionEstadoAnimoPromedio = ''.obs;
-  var progresoSemanal = <int>[].obs;
-  var topLogros = <String>[].obs;
-
   Future<void> calcularEstadisticaSemanal() async {
     if (estadisticasDiarias.isEmpty) return;
     try {
       isLoading.value = true;
       log.i("calcularEstadisticaSemanal: Comienza calcularEstadisticaSemanal");
-      await analizarEstadisticaOpenAI(estadisticasDiarias);
+      await analizarEstadisticaSemanalOpenAI(estadisticasDiarias);
     } catch (e) {
       log.e("Ocurrio un Error: ${e.toString()}");
     } finally {
@@ -190,7 +133,7 @@ class EstadisticaController extends GetxController {
     }
   }
 
-  Future<void> analizarEstadisticaOpenAI(
+  Future<void> analizarEstadisticaSemanalOpenAI(
       List<EstadisticasDiaria> listEstadistica) async {
     try {
       List<String> estadosAnimo = [];
@@ -245,7 +188,7 @@ class EstadisticaController extends GetxController {
       if (response != null && response.choices.isNotEmpty) {
         log.i("Se encuentra respuesta OPENAI");
         fullResponse = response.choices.first.message?.content ?? '';
-         log.i("Respuesta: $fullResponse");
+        log.i("Respuesta: $fullResponse");
       } else {
         log.e("No se pudo obtener respuesta del modelo GPT-3.5");
         throw Exception('No se pudo obtener respuesta del modelo GPT-3.5');
@@ -253,37 +196,164 @@ class EstadisticaController extends GetxController {
 
       List<String> listaFullResponse = fullResponse.split('|');
       List<String> listaLogrosTop3 = listaFullResponse[2].trim().split(',');
-      
+
       final estadisticaSemanal = EstadisticasSemanal(
-        estadoAnimoPromedio: listaFullResponse[0].trim(),
-        mensajeEstadoAnimo: listaFullResponse[1].trim(),
-        progresoLogros: cantidadPlanCumplido,
-        progresoPlanes: cantidadPlanTotal,
-        logros: listaLogrosTop3
-      );
+          estadoAnimoPromedio: listaFullResponse[0].trim(),
+          mensajeEstadoAnimo: listaFullResponse[1].trim(),
+          progresoLogros: cantidadPlanCumplido,
+          progresoPlanes: cantidadPlanTotal,
+          logros: listaLogrosTop3);
 
       //Grabar Estadistica Semanal
       await statsRepository.saveEstadisticaSemanal(estadisticaSemanal);
-
-      EstadisticasSemanal obtenerEstadistica =await statsRepository.getEstadisticaSemanal();
-      estadisticasSemanal.value = obtenerEstadistica;
-
-      if(obtenerEstadistica.logros.length == 3){
-        logroConIcono.value = [
-          Logro(titulo: obtenerEstadistica.logros[0].trim(), icono: Icons.restaurant),
-          Logro(titulo: obtenerEstadistica.logros[1].trim(), icono: Icons.fitness_center),
-          Logro(titulo: obtenerEstadistica.logros[2].trim(), icono: Icons.spa)
-        ];
-      }else{
-        logroConIcono.value = [
-          Logro(titulo: 'Gourmet Saludable', icono: Icons.restaurant),
-          Logro(titulo: 'Dieta Balanceada', icono: Icons.spa),
-          Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center)
-        ];
-      }
-
     } catch (e) {
-      log.e("Ocurrió un error: $e");
+      log.e("Ocurrió un error: ${e.toString()}");
     }
   }
+
+  bool isSubscriptionActive() {
+    return _subscription != null && !_subscription!.isPaused;
+  }
+
+  void stopListening() {
+    log.i("Se canceló stopWeeklyListening");
+    _subscription?.cancel();
+  }
+
+  void startListeningWeeklyStatistics() async{
+    log.i(
+        "startListeningWeeklyStatistics: Comienza startListeningWeeklyStatistics");
+    isLoading.value = true;
+    _subscription =
+        statsRepository.listenToWeeklyStatistics().listen((snapshot) {
+      if (snapshot.exists) {
+        estadisticasSemanal.value = EstadisticasSemanal.fromSnapshot(snapshot);
+        log.i(estadisticasSemanal.value.toString());
+        if (estadisticasSemanal.value.logros.length == 3) {
+          logroConIcono.value = [
+            Logro(
+                titulo: estadisticasSemanal.value.logros[0].trim(),
+                icono: Icons.restaurant),
+            Logro(
+                titulo: estadisticasSemanal.value.logros[1].trim(),
+                icono: Icons.fitness_center),
+            Logro(
+                titulo: estadisticasSemanal.value.logros[2].trim(),
+                icono: Icons.spa)
+          ];
+        } else {
+          logroConIcono.value = [
+            Logro(titulo: 'Gourmet Saludable', icono: Icons.restaurant),
+            Logro(titulo: 'Dieta Balanceada', icono: Icons.spa),
+            Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center)
+          ];
+        }
+      } else {
+        estadisticasSemanal.value = EstadisticasSemanal(
+          estadoAnimoPromedio: TTexts.sinRegistros,
+          mensajeEstadoAnimo: TTexts.sinRegistros,
+          progresoLogros: [0, 0, 0, 0, 0, 0, 0],
+          progresoPlanes: [0, 0, 0, 0, 0, 0, 0],
+          logros: [],
+        );
+      }
+       isLoading.value = false;
+    });
+    log.i(
+        "startListeningWeeklyStatistics: Termina startListeningWeeklyStatistics");
+  }
+
+  void startListeningMonthlylStatistics() async {
+    log.i(
+        "startListeningMonthlylStatistics: Comienza startListeningMonthlylStatistics");
+    isLoading.value = true;
+
+    _subscription =
+        statsRepository.listenToMonthlyStatistics().listen((snapshot) {
+      if (snapshot.exists) {
+        estadisticasSemanal.value = EstadisticasSemanal.fromSnapshot(snapshot);
+        log.i(estadisticasSemanal.value.toString());
+        if (estadisticasSemanal.value.logros.length == 3) {
+          logroConIcono.value = [
+            Logro(
+                titulo: estadisticasSemanal.value.logros[0].trim(),
+                icono: Icons.restaurant),
+            Logro(
+                titulo: estadisticasSemanal.value.logros[1].trim(),
+                icono: Icons.fitness_center),
+            Logro(
+                titulo: estadisticasSemanal.value.logros[2].trim(),
+                icono: Icons.spa)
+          ];
+        } else {
+          logroConIcono.value = [
+            Logro(titulo: 'Gourmet Saludable', icono: Icons.restaurant),
+            Logro(titulo: 'Dieta Balanceada', icono: Icons.spa),
+            Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center)
+          ];
+        }
+      } else {
+        estadisticasSemanal.value = EstadisticasSemanal(
+          estadoAnimoPromedio: TTexts.sinRegistros,
+          mensajeEstadoAnimo: TTexts.sinRegistros,
+          progresoLogros: [0, 0, 0, 0, 0, 0, 0],
+          progresoPlanes: [0, 0, 0, 0, 0, 0, 0],
+          logros: [],
+        );
+      }
+      isLoading.value = false;
+    });
+    log.i(
+        "startListeningMonthlylStatistics: Termina startListeningMonthlylStatistics");
+  }
+
+  Future<void> obtenerEstadisticas() async {
+    try {
+      isLoading.value = true;
+
+      if (selectedDate.value == TTexts.semanal) {
+        if (isSubscriptionActive()) {
+          stopListening();
+        }
+        startListeningWeeklyStatistics();
+      } else {
+        if (isSubscriptionActive()) {
+          stopListening();
+        }
+        startListeningMonthlylStatistics();
+      }
+    } catch (e) {
+      log.e("Ocurrió un error: ${e.toString()}");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /**
+   * 
+   * Codigo que podría servir
+   * 
+          EstadisticasSemanal obtenerEstadistica =
+              await statsRepository.getEstadisticaSemanal();
+          estadisticasSemanal.value = obtenerEstadistica;
+          if (obtenerEstadistica.logros.length == 3) {
+            logroConIcono.value = [
+              Logro(
+                  titulo: obtenerEstadistica.logros[0].trim(),
+                  icono: Icons.restaurant),
+              Logro(
+                  titulo: obtenerEstadistica.logros[1].trim(),
+                  icono: Icons.fitness_center),
+              Logro(
+                  titulo: obtenerEstadistica.logros[2].trim(), icono: Icons.spa)
+            ];
+          } else {
+            logroConIcono.value = [
+              Logro(titulo: 'Gourmet Saludable', icono: Icons.restaurant),
+              Logro(titulo: 'Dieta Balanceada', icono: Icons.spa),
+              Logro(titulo: 'Resiliencia Fitness', icono: Icons.fitness_center)
+            ];
+          }
+   * 
+   */
 }

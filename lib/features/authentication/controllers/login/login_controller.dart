@@ -29,7 +29,7 @@ class LoginController extends GetxController {
   Future<void> emailAndPasswordSignIn() async {
     try {
       TFullScreenLoader.openLoadingDialog(
-          'Iniciando Sesión', TImages.avatarLogo);
+          'Iniciando Sesión', TImages.loadingAnimation);
 
       // Check Internet Connectivity
       final isConnected = await NetworkManager.instance.isConnected();

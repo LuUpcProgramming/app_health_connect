@@ -130,7 +130,7 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
-              const AssistantBox(),
+              assistantBox(controller),
               const SizedBox(height: TSizes.spaceBtwItems),
 
               // Tu Plan del Día section

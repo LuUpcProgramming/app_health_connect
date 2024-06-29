@@ -1,3 +1,4 @@
+
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/features/authentication/models/statistics.dart';
 import 'package:app_health_connect/utils/exceptions/firebase_exceptions.dart';
@@ -12,28 +13,7 @@ class StatisticsRepository extends GetxController {
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final log = logger(StatisticsRepository);
-
-  /* Future<Estadistica> getEstadisticasPorUsuario(String userId) async {
-    try {
-      DocumentSnapshot<Map<String, dynamic>> doc =
-          await _db.collection("History").doc(userId).get();
-      if (doc.exists) {
-        return HistoryAdvice.fromSnapshot(doc);
-      } else {
-        return HistoryAdvice.fromSnapshot(doc);
-        //throw Exception('Error en obtener historial de recomendaciones');
-      }
-    } on TFirebaseException catch (e) {
-      throw TFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw const TFormatException();
-    } on PlatformException catch (e) {
-      throw TPlatformException(e.code).message;
-    } catch (e) {
-      throw 'Algo salió mal, intente de nuevo $e';
-    }
-  }
- */
+ // final RxBool hasDataChanged = false.obs;
 
   Future<EstadisticasDiaria> getEstadisticaDiariaPorFecha(String fecha) async {
     try {
@@ -85,7 +65,33 @@ class StatisticsRepository extends GetxController {
     }
   }
 
-  Future<void> saveEstadisticaDiaria(EstadisticasDiaria estadisticaDiaria,String fecha) async {
+  Future<bool> checkExistsEstadisticaSemanal() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc = await _db
+          .collection('Estadistica')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .collection('semanal')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .get();
+      if (doc.exists) {
+        log.i('checkExistsEstadisticaSemanal: ${doc.data().toString()}');
+        return true;
+      } else {
+        return false;
+      }
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'checkExistsEstadisticaSemanal: Algo salió mal, intente de nuevo';
+    }
+  }
+
+  Future<void> saveEstadisticaDiaria(
+      EstadisticasDiaria estadisticaDiaria, String fecha) async {
     try {
       await _db
           .collection("Estadistica")
@@ -93,7 +99,7 @@ class StatisticsRepository extends GetxController {
           .collection('diario')
           .doc(fecha)
           .set(estadisticaDiaria.toJson());
-         // .set(estadisticaSemanal.toJson(), SetOptions(merge: true));
+      // .set(estadisticaSemanal.toJson(), SetOptions(merge: true));
     } on TFirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -105,7 +111,8 @@ class StatisticsRepository extends GetxController {
     }
   }
 
-  Future<void> saveEstadisticaSemanal(EstadisticasSemanal estadisticaSemanal) async {
+  Future<void> saveEstadisticaSemanal(
+      EstadisticasSemanal estadisticaSemanal) async {
     try {
       await _db
           .collection("Estadistica")
@@ -113,7 +120,7 @@ class StatisticsRepository extends GetxController {
           .collection('semanal')
           .doc('61gBjNkAMk5LfBf5zRty')
           .set(estadisticaSemanal.toJson());
-         // .set(estadisticaSemanal.toJson(), SetOptions(merge: true));
+      // .set(estadisticaSemanal.toJson(), SetOptions(merge: true));
     } on TFirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -122,6 +129,67 @@ class StatisticsRepository extends GetxController {
       throw TPlatformException(e.code).message;
     } catch (e) {
       throw 'Algo salió mal, intente de nuevo';
+    }
+  }
+
+/*   Stream<bool> listenToWeeklyStatistics() {
+    try {
+      return _db
+          .collection('Estadistica')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .collection('semanal')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .snapshots()
+          .map((snapshot) => snapshot.exists);
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      log.e("Error al escuchar cambios: ${e.toString()}");
+      return const Stream.empty();
+    }
+  } */
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> listenToWeeklyStatistics() {
+    try {
+      return _db
+          .collection('Estadistica')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .collection('semanal')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .snapshots();
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      log.e("Error al escuchar cambios: ${e.toString()}");
+      return const Stream.empty();
+    }
+  }
+
+  Stream<DocumentSnapshot<Map<String, dynamic>>> listenToMonthlyStatistics() {
+    try {
+      return _db
+          .collection('Estadistica')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .collection('mensual')
+          .doc('61gBjNkAMk5LfBf5zRty')
+          .snapshots();
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      log.e("Error al escuchar cambios: ${e.toString()}");
+      return const Stream.empty();
     }
   }
 
