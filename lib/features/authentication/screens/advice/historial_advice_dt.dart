@@ -1,7 +1,6 @@
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 void showRecommendationDetail(BuildContext context, HistoryAdviceDetail advice) {
   showModalBottomSheet(

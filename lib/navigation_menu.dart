@@ -4,6 +4,7 @@ import 'package:app_health_connect/features/authentication/controllers/statistic
 import 'package:app_health_connect/features/authentication/screens/advice/historial_advice.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/plan.dart';
 import 'package:app_health_connect/features/authentication/screens/statistics/statistics_screen.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
@@ -95,7 +96,7 @@ class NavigationController extends GetxController {
   final screens = [
     DashboardScreen(),
     const HistorialAdviceScreen(),
-    Container(color: Colors.blue),
+    const DailyPlanScreen(),
     const EstadisticasScreen(),
     Center(
       child: Column(

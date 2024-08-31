@@ -2,7 +2,6 @@ import 'package:app_health_connect/features/authentication/controllers/welcome/w
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class PersonalInfoScreen extends StatelessWidget {
@@ -33,7 +32,7 @@ class _PersonalInfoState extends State<_PersonalInfoView> {
 
   @override
   void dispose() {
-    controller.dateController.dispose();
+    //controller.dateController.dispose();
     super.dispose();
   }
 

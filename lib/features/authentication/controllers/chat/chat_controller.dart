@@ -2,7 +2,6 @@ import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/data/repositories/chat/chat_repository.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
-import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/chat_message.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/navigation_menu.dart';

@@ -15,6 +15,8 @@ class UserDetail {
   List<String> opcionesSalud;
   String analisisIA;
   bool estadoDialogAnalisisIA;
+  String estadoTrabajo;
+  String estadoSalud;
   //AnalisisIA analisis;
 
   UserDetail(
@@ -31,7 +33,9 @@ class UserDetail {
       this.turnoTrabajo = '',
       this.opcionesSalud = const [],
       this.analisisIA = '',
-      this.estadoDialogAnalisisIA = false
+      this.estadoDialogAnalisisIA = false,
+      this.estadoTrabajo = '',
+      this.estadoSalud = '',
       //AnalisisIA? analisis,
       }); //: analisis = analisis ?? AnalisisIA();
 
@@ -52,6 +56,8 @@ class UserDetail {
       'opcionesSalud': opcionesSalud,
       'analisisIA': analisisIA,
       'estadoDialogAnalisisIA': estadoDialogAnalisisIA,
+      'estadoTrabajo':estadoTrabajo,
+      'estadoSalud':estadoSalud,
       // 'analisis': analisis
     };
   }
@@ -73,11 +79,14 @@ class UserDetail {
       opcionesSalud: List<String>.from(json['opcionesSalud']),
       analisisIA: json['analisisIA'],
       estadoDialogAnalisisIA: json['estadoDialogAnalisisIA'],
+      estadoTrabajo: json['estadoTrabajo'],
+      estadoSalud: json['estadoSalud'],
       //analisis: json['analisis'],
     );
   }
 
-  factory UserDetail.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> document) {
+  factory UserDetail.fromSnapshot(
+      DocumentSnapshot<Map<String, dynamic>> document) {
     if (document.data() != null) {
       final data = document.data()!;
       return UserDetail(
@@ -95,6 +104,8 @@ class UserDetail {
         opcionesSalud: List<String>.from(data['opcionesSalud']),
         analisisIA: data['analisisIA'] ?? '',
         estadoDialogAnalisisIA: data['estadoDialogAnalisisIA'] ?? false,
+        estadoTrabajo: data['estadoTrabajo'] ?? '',
+        estadoSalud: data['estadoSalud'] ?? '',
         // analisis: data['analisis'] ?? '',
       );
     }

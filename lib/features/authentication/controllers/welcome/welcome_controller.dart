@@ -194,8 +194,18 @@ class WelcomeController extends GetxController {
       log.i('validarHealthInfo: Antes de analyzeUserInfoWithOpenAI');
       final analysisResponse = await analyzeUserInfoWithOpenAI(userHealthInfo);
       log.i('validarHealthInfo: Despues de  analyzeUserInfoWithOpenAI');
-      userHealthInfo.analisisIA = analysisResponse;
+      
       userHealthInfo.estadoDialogAnalisisIA = true;
+      List<String> lista = analysisResponse.split('|');
+      if (lista.length == 3) {
+        userHealthInfo.analisisIA = lista[0].trim();
+        userHealthInfo.estadoSalud = lista[1].trim();
+        userHealthInfo.estadoTrabajo = lista[2].trim();
+      } else {
+        userHealthInfo.analisisIA = 'Eres una persona saludable con muchas energías, sin embargo hay que cuidar mucho la salud mental. No te preocupes trabajaremos en ello. A esforzarse!';
+        userHealthInfo.estadoTrabajo = 'Intensivo';
+        userHealthInfo.estadoSalud = 'Estresado';
+      }
 
       final userRepository = Get.put(UserRepository());
       await userRepository.saveUserDetails(userHealthInfo);
@@ -276,19 +286,23 @@ class WelcomeController extends GetxController {
     Ahora, sintetiza toda aquella información (Del 1 al 4)  en un párrafo coherente dirigido al paciente en un máximo de 60 palabras.
 
     Luego, separado por el operador "|" agrega lo siguiente:
-    - En una sola palabra indica como se encuentra el paciente respecto a su entorno laboral  en base a tu análisis y diagnóstico. (Solo digita la palabra).
-    - En una sola palabra indica como se encuentra el paciente respecto a su salud mental en base a tu análisis y diagnóstico. (Solo digita la palabra).
+    - Primero, en una sola palabra indica como se encuentra el paciente respecto a su entorno laboral  en base a tu análisis y diagnóstico:
+      Si vez que el estado es positivo puedes usar: Tranquilo, Optimista, Motivado, Feliz, Seguro, Relajado, Resiliente, Confiado, Agradecido.
+      Si vez que el estado es negativo puedes usar: Estresado, Ansioso, Enojado, triste, Deprimido, Inseguro, Agotado, Frustrado, Irritable. (Solo digita la palabra).
+    - Segundo, en una sola palabra indica como se encuentra el paciente respecto a su salud mental en base a tu análisis y diagnóstico. (Solo digita la palabra).
+      Si vez que el estado de salud es positivo puedes usar: Productivo, Motivador, Colaborativo, Innovador, Estimulante, Satisfactorio, Creativo, Gratificante, Organizado.
+      Si vez que el estado de salud es negativo puedes usar: Estresante, Agotador, Caótico, Desmotivador, Toxico, Intenso, Monótono, Confuso, Presionante, Insatisfactorio. (Solo digita la palabra).
 
     Te muestro una lista de ejemplos de como debes responderme:
     Ejemplo 1: Tu edad de 27 años es ideal para el crecimiento personal y profesional. Tu IMC es saludable, lo cual es positivo. 
     Sin embargo, tu entorno laboral es exigente, con largas horas de trabajo. A pesar de enfrentar ansiedad, depresión, cansancio y estrés, 
-    tu conciencia sobre estos problemas es el primer paso hacia la mejora.|Sobrecargado|Estresado
+    tu conciencia sobre estos problemas es el primer paso hacia la mejora.|Desmotivador|Estresado
     Ejemplo 2: Tienes 27 años y, como administrador, has logrado mucho. Tu IMC indica un peso bajo, lo que puede necesitar atención. 
     Trabajas de forma remota y aunque trabajas muchas horas, esto puede ser ajustable. La ansiedad, depresión, cansancio y estrés 
-    que sientes son tratables, y hay muchas estrategias que podemos usar para ayudarte a mejorar.|Laborioso|Ansioso
+    que sientes son tratables, y hay muchas estrategias que podemos usar para ayudarte a mejorar.|Tóxico|Ansioso
     Ejemplo 3: A tus 34 años, has alcanzado una posición sólida como ingeniero de soporte. Tu IMC es saludable. 
     Aunque trabajas muchas horas de forma remota, podemos encontrar un equilibrio. Los problemas de ansiedad, depresión, cansancio y estrés 
-    que enfrentas son manejables y juntos podemos desarrollar estrategias efectivas para tu bienestar.|Intensivo|Decaído 
+    que enfrentas son manejables y juntos podemos desarrollar estrategias efectivas para tu bienestar.|Agotador|Triste 
 
 
     """;

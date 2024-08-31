@@ -1,5 +1,4 @@
 import 'package:app_health_connect/features/authentication/controllers/onboarding/onboarding_controller.dart';
-import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/general.dart';
 import 'package:app_health_connect/utils/device/device_utility.dart';
 import 'package:app_health_connect/utils/helpers/helper_functions.dart';

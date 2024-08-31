@@ -1,4 +1,3 @@
-import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';

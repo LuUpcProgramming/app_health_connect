@@ -41,7 +41,7 @@ class TTexts {
   static const String privacyPolicy = "Política de privacidad";
   static const String termsOfUse = "Términos de Uso";
   static const String verificationCode = "verificationCode";
-  static const String resendEmail = "Resend Email";
+  static const String resendEmail = "Reenviar Correo";
   static const String resendEmailIn = "Resend email in";
 
   // -- Authentication Headings
@@ -54,7 +54,7 @@ class TTexts {
   static const String changeYourPasswordTitle =
       "Correo Electrónico de Restablecimiento de Contraseña Enviado.";
   static const String changeYourPasswordSubTitle =
-      "Your Account Security is Our Priority! We've Sent You a Secure Link to Safely Change Your Password and Keep Your Account Protected.";
+      "¡La seguridad de su cuenta es nuestra prioridad! Le hemos enviado un enlace seguro para cambiar su contraseña de forma segura y mantener su cuenta protegida.";
   static const String confirmEmail = "Verifica tu Correo Electrónico!";
   static const String confirmEmailSubTitle =
       "Felicidades! Por favor, verifica tu correo electrónico para empezar tu viaje hacia un mejor bienestar mental con Health Connect. ¡Estamos aquí para apoyarte!";
@@ -103,4 +103,14 @@ class TTexts {
   static const String semanal = "Semanal";
   static const String mensual = "Mensual";
  // static const String eliminarConversacion = "Eliminar";
+
+ //Actividades
+  static const String activMeditacion = "Meditación";
+  static const String actividadAlimentacion= "Alimentación";
+  static const String actividadFisico = "Actividad Física";
+
+ //Logros
+ static const int logroGourmetSaludable = 1;
+ static const int logroEquilibrioInterior = 2;
+ static const int logroResilienciaFitness = 3;
 }

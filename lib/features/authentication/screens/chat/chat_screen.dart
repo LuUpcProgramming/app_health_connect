@@ -3,13 +3,10 @@ import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/features/authentication/controllers/chat/chat_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/chat/widgets/chat_widgets.dart';
-import 'package:app_health_connect/utils/constants/image_strings.dart';
-import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 
 class ChatScreen extends StatelessWidget {
   static const name = 'chat-screen';

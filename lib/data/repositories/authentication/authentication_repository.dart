@@ -1,8 +1,9 @@
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
-import 'package:app_health_connect/features/authentication/screens/chat/chat_screen.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/features/authentication/screens/onboarding/onboarding.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/plan.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/plan_detalle.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
 import 'package:app_health_connect/features/authentication/screens/welcome/welcome.dart';
 import 'package:app_health_connect/navigation_menu.dart';
@@ -37,7 +38,9 @@ class AuthenticationRepository extends GetxController {
     //Get.offAll(() => const HistorialAdviceScreen());
     //Get.offAll(() => const EstadisticasScreen());
     // Get.offAll(() => const ChatScreen());
-    screenRedirect();
+     Get.offAll(() => const DailyPlanScreen());
+    //  Get.offAll(() => const PlanDiarioDetalle());
+    //screenRedirect();
   }
 
   //Función para Screens relevantes

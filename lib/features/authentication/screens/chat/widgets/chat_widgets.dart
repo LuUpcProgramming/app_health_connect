@@ -1,6 +1,5 @@
 import 'package:app_health_connect/features/authentication/controllers/chat/chat_controller.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
-import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 
 void showCustomDialogSaveChat(BuildContext context, ChatController controller) {

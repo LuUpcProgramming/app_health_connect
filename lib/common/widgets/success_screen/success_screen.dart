@@ -2,7 +2,6 @@ import 'package:app_health_connect/common/styles/spacing_styles.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/sizes.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
-import 'package:app_health_connect/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 

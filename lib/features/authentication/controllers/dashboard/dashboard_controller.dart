@@ -2,6 +2,7 @@ import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
 import 'package:app_health_connect/features/authentication/models/user_detail.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
+import 'package:app_health_connect/features/authentication/screens/login/login.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
@@ -38,33 +39,13 @@ class DashboardController extends GetxController {
     });
   }
 
-
-  //Cargas Data
- /*  Future<void> cargaDatosDashboard() async {
-    try {
-      TFullScreenLoader.openLoadingDialog("Cargando Datos", TImages.loadingAnimation);
-      log.i("Comienza cargaDatosDashboard");
-      await cargaDatosUsuario();
-      await cargaDatosDetalleUsuario();
-      TFullScreenLoader.stopLoading();
-      log.i("Finaliza cargaDatosDashboard");
-    } catch (e) {
-      //Show some generic error to user
-      log.e("Error en cargaDatosDashboard");
-      log.e("Error: ${e.toString()}");
-      TFullScreenLoader.stopLoading();
-      Loaders.errorSnackBar(
-          title: 'Oh, sucedió un error', message: e.toString());
-      throw Exception(e);
-    }
-  } */
-
   Future<void> cargaDatosUsuario() async {
     try {
       //Show Dialog
       log.i("Comienza cargaDatosUsuario");
       profileLoading.value = true;
-      TFullScreenLoader.openLoadingDialog("Espere por favor...", TImages.loadingAnimation);
+      TFullScreenLoader.openLoadingDialog(
+          "Espere por favor...", TImages.loadingAnimation);
       final currentUser = FirebaseAuth.instance.currentUser;
       log.i('currentUser: $currentUser');
       if (currentUser != null) {
@@ -77,13 +58,10 @@ class DashboardController extends GetxController {
         usuario(user);
         //usuario.value = user;
         log.i("Se cargaron datos de usuario");
-       // Get.delete<UserRepository>();
+        // Get.delete<UserRepository>();
       } else {
-        /* log.e("Usuario no está autenticado");
         FirebaseAuth.instance.signOut();
-        Loaders.errorSnackBar(
-            title: 'No Logueado', message: "Usuario no está autenticado.");
-        Get.offAll(() => const LoginScreen()); */
+        Get.offAll(() => const LoginScreen());
         throw Exception('Usuario no está logueado');
       }
       //TFullScreenLoader.stopLoading();
@@ -103,36 +81,11 @@ class DashboardController extends GetxController {
     }
   }
 
-  Future<void> cargaDatosDetalleUsuario() async {
-    try {
-      //Show Dialog
-      final currentUser = FirebaseAuth.instance.currentUser;
-      log.i('currentUser: $currentUser');
-      if (currentUser != null) {
-        final userRepository = Get.put(UserRepository());
-        UserDetail duser =
-            await userRepository.getUserDetails(currentUser.uid.trim());
-        _detalleUsuario.value = duser;
-        log.i('Detalles del usuario cargados: ${duser.toString()}');
-        Get.delete<UserRepository>();
-      } else {
-        throw Exception('Usuario no está logueado');
-      }
-    } catch (e) {
-      log.e('Error en cargaDatosDetalleUsuario');
-      log.e("Error: ${e.toString()}");
-      //Show some generic error to user
-      Loaders.errorSnackBar(
-          title: 'Oh, sucedió un error', message: e.toString());
-      throw Exception(e);
-    }
-  }
-
   void setAnalysisResponse(String response) {
     analysisResponse.value = response;
   }
 
-  Future<void> actualizarEstadoDialog() async {
+  Future<void> actualizardataUserDetail() async {
     /* final currentUser = FirebaseAuth.instance.currentUser;
      final usuario = UserDetail(
           idUsuario: currentUser?.uid ?? "0",
@@ -151,6 +104,14 @@ class DashboardController extends GetxController {
           estadoDialogAnalisisIA: false); */
     log.i("Comienza actualizarEstadoDialog");
     detailuser!.estadoDialogAnalisisIA = false;
+    /* List<String> lista = detailuser!.analisisIA.split('|');
+    if (lista.length == 3) {
+      detailuser!.estadoTrabajo = lista[1].trim();
+      detailuser!.estadoSalud = lista[2].trim();
+    } else {
+      detailuser!.estadoTrabajo = 'Intensivo';
+      detailuser!.estadoSalud = 'Estresado';
+    } */
     final userRepository = Get.put(UserRepository());
     await userRepository.saveUserDetails(detailuser!);
     Get.delete<UserRepository>();
@@ -167,7 +128,7 @@ class DashboardController extends GetxController {
           log.i("Ingresa a showDialogEvaluacionPreliminar");
           showDialogEvaluacionPreliminar(context, detailuser!);
           dialogState.value = false;
-          actualizarEstadoDialog();
+          actualizardataUserDetail();
         }
 
         //Actualizar estado de visualización
@@ -179,8 +140,6 @@ class DashboardController extends GetxController {
 
   Future<dynamic> showDialogEvaluacionPreliminar(
       BuildContext context, UserDetail dt) {
-    List<String> lista = dt.analisisIA.split('|');
-    log.i("showDialogEvaluacionPreliminar: ${lista.toString()}");
     log.i("showDialogEvaluacionPreliminar: Construye Widget dialog");
     return showDialog(
       context: context,
@@ -190,7 +149,7 @@ class DashboardController extends GetxController {
             borderRadius: BorderRadius.circular(16),
           ),
           child: Container(
-            height: 500, // Puedes ajustar la altura según tus necesidades
+            height: 550, // Puedes ajustar la altura según tus necesidades
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -243,7 +202,7 @@ class DashboardController extends GetxController {
                       children: [
                         Text(
                           //"Eres una Persona joven Llena de Vitalidad",
-                          lista[0].trim(),
+                          dt.analisisIA,
                           textAlign: TextAlign.justify,
                           style: const TextStyle(
                               fontSize: 18, fontStyle: FontStyle.italic),
@@ -275,5 +234,28 @@ class DashboardController extends GetxController {
     );
   }
 
-
+  /*  Future<void> cargaDatosDetalleUsuario() async {
+    try {
+      //Show Dialog
+      final currentUser = FirebaseAuth.instance.currentUser;
+      log.i('currentUser: $currentUser');
+      if (currentUser != null) {
+        final userRepository = Get.put(UserRepository());
+        UserDetail duser =
+            await userRepository.getUserDetails(currentUser.uid.trim());
+        _detalleUsuario.value = duser;
+        log.i('Detalles del usuario cargados: ${duser.toString()}');
+        Get.delete<UserRepository>();
+      } else {
+        throw Exception('Usuario no está logueado');
+      }
+    } catch (e) {
+      log.e('Error en cargaDatosDetalleUsuario');
+      log.e("Error: ${e.toString()}");
+      //Show some generic error to user
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+      throw Exception(e);
+    }
+  } */
 }

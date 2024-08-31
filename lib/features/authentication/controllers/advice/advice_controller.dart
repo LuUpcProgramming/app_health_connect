@@ -198,6 +198,8 @@ class AdviceController extends GetxController {
     }finally{
       isLoading.value = false;
       log.i("startListeningAdviceRecommendation: Termina startListeningAdviceRecommendation");
+
+      
     }
 
     

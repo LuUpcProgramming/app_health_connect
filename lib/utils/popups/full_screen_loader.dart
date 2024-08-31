@@ -1,7 +1,6 @@
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 
 class TFullScreenLoader {
   static void openLoadingDialog2(String text, String animation) {

@@ -77,22 +77,11 @@ class DashboardScreen extends StatelessWidget {
                         subContent: '',
                       );
                     } else {
-                      List<String> lista =
-                          controller.detailuser!.analisisIA.split('|');
-                      if(lista.length==3){
-                        return StatusBox(
-                          title: 'Trabajo',
-                          content: '👨‍💼',
-                          subContent: lista[1].trim(),
-                        );
-                      }else{
-                        return const StatusBox(
-                          title: 'Trabajo',
-                          content: '👨‍💼',
-                          subContent: 'Intensivo',
-                        );
-                      }
-                      
+                      return StatusBox(
+                        title: 'Trabajo',
+                        content: '👨‍💼',
+                        subContent: controller.detailuser!.estadoTrabajo,
+                      ); 
                     }
                   }),
                   const SizedBox(width: 16),
@@ -104,20 +93,12 @@ class DashboardScreen extends StatelessWidget {
                         subContent: 'Estresado',
                       );
                     } else {
-                      List<String> lista = controller.detailuser!.analisisIA.split('|');
-                      if(lista.length==3){
                         return StatusBox(
                           title: 'Estado de ánimo',
                           content: '😩',
-                          subContent: lista[2].trim()
+                          subContent:  controller.detailuser!.estadoSalud,
                         );
-                      }else{
-                        return const StatusBox(
-                          title: 'Estado de ánimo',
-                          content: '😩',
-                          subContent: 'Estresado',
-                        );
-                      }                   
+                 
                     }
                   }),
                 ],

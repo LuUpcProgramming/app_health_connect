@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 
 class TSignupForm extends StatelessWidget {
   const TSignupForm({
-    super.key,
+    super.key
   });
 
   @override
@@ -44,7 +44,7 @@ class TSignupForm extends StatelessWidget {
                       labelText: TTexts.lastName,
                       prefixIcon: Icon(Icons.person, color: TColors.primary)),
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: TSizes.spaceBtwInputFields),

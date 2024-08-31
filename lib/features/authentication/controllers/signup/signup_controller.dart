@@ -1,8 +1,10 @@
 import 'package:app_health_connect/data/repositories/authentication/authentication_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
+import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/helpers/network_manager.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
+import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +29,8 @@ class SignupController extends GetxController {
     firstName.text = "Luis";
     lastName.text = "Natividad";
     phoneNumber.text = "934543452";
-    email.text = "luisnatividad97@hotmail.com";
+    //email.text = "luisnatividad97@hotmail.com";
+    email.text = "luis_1997_na@hotmail.com";
     password.text = "L123456%%";
 
     super.onInit();
@@ -38,22 +41,26 @@ class SignupController extends GetxController {
   void signup() async {
     try {
       // Start Loading
-      showDialog(
+      TFullScreenLoader.openLoadingDialog(
+          'Procesando Información...', TImages.loadingAnimation);
+/*       showDialog(
           context: Get.overlayContext!,
           builder: (context) {
             return const Center(
               child: CircularProgressIndicator(),
             );
-          });
+          }); */
       // Check Internet Connectivity
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {
-        Navigator.of(Get.overlayContext!).pop();
+        TFullScreenLoader.stopLoading();
+       // Navigator.of(Get.overlayContext!).pop();
         return;
       }
       // Form Validation
       if (!signupFormKey.currentState!.validate()) {
-        Navigator.of(Get.overlayContext!).pop();
+        TFullScreenLoader.stopLoading();
+        //Navigator.of(Get.overlayContext!).pop();
         return;
       }
 
@@ -63,7 +70,8 @@ class SignupController extends GetxController {
             title: 'Aceptar la política de privacidad',
             message:
                 'En orden para crear la cuenta, usted debe leer y aceptar la política de privacidad y términos de uso');
-        Navigator.of(Get.overlayContext!).pop();
+        TFullScreenLoader.stopLoading();
+        //Navigator.of(Get.overlayContext!).pop();
         return;
       }
 
@@ -94,7 +102,8 @@ class SignupController extends GetxController {
       //Move to Verify Email Screen
       Get.to(() => VerifyEmailScreen(email: email.text.trim()));
     } catch (e) {
-      Navigator.of(Get.overlayContext!).pop();
+      TFullScreenLoader.stopLoading();
+     // Navigator.of(Get.overlayContext!).pop();
       //Show some generic error to user
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
