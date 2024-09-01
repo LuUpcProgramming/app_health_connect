@@ -11,6 +11,7 @@ import 'package:app_health_connect/utils/exceptions/firebase_auth_exceptions.dar
 import 'package:app_health_connect/utils/exceptions/firebase_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/format_exceptions.dart';
 import 'package:app_health_connect/utils/exceptions/platform_exceptions.dart';
+import 'package:app_health_connect/utils/popups/custom_success_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -38,8 +39,9 @@ class AuthenticationRepository extends GetxController {
     //Get.offAll(() => const HistorialAdviceScreen());
     //Get.offAll(() => const EstadisticasScreen());
     // Get.offAll(() => const ChatScreen());
-     Get.offAll(() => const DailyPlanScreen());
-    //  Get.offAll(() => const PlanDiarioDetalle());
+    // Get.offAll(() => const DailyPlanScreen());
+    // Get.offAll(() => const CustomSuccessWidget());
+      Get.offAll(() => const PlanDiarioDetalle());
     //screenRedirect();
   }
 

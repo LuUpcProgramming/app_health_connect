@@ -113,4 +113,19 @@ class TTexts {
  static const int logroGourmetSaludable = 1;
  static const int logroEquilibrioInterior = 2;
  static const int logroResilienciaFitness = 3;
+
+ // -- Planes
+  static const int logroCompletado = 1;
+  static const int logroIncompleto = 0;
+
+  //Dias
+  static const List<String> dias = [
+    'Lunes',
+    'Martes',
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo'
+  ];
 }

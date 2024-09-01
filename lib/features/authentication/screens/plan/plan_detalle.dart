@@ -1,13 +1,16 @@
 import 'package:app_health_connect/features/authentication/controllers/plan/plan_controller.dart';
 import 'package:app_health_connect/features/authentication/screens/plan/plan_actividad_detalle.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/widgets/plan_widgets.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
+import 'package:app_health_connect/utils/constants/image_strings.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class PlanDiarioDetalle extends StatelessWidget {
   const PlanDiarioDetalle({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     final PlanController controller = Get.put(PlanController());
@@ -83,46 +86,54 @@ class PlanDiarioDetalle extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20.0),
-            Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: controller.tareas.length,
-                itemBuilder: (context, index) {
-                  final tarea = controller.tareas[index];
-                  return InkWell(
-                    onTap: () => showPlanDetailDragDetail(context, tarea),
-                    child: TareaCard(
-                      titulo: tarea.nombre,
-                      hora: tarea.hora,
-                      icono: tarea.icono,
-                      logro: tarea.logro,
-                      completada: tarea.completada,
-                      onToggle: () => controller.toggleActividad(index),
+            Expanded(child: Obx(() {
+              if (controller.isLoading.value) {
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: 4, // Número de tarjetas shimmer a mostrar
+                  itemBuilder: (_, index) {
+                    return const ShimmerPlanCard();
+                  },
+                );
+              } else {
+                if (controller.planes.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Image.asset(
+                          TImages.noData,
+                          width: 300,
+                          height: 300,
+                        ),
+                        const Text('Sin Registros',
+                            style: TextStyle(
+                                fontSize: 20, fontStyle: FontStyle.italic))
+                      ],
                     ),
                   );
-                 /*  return ListTile(
-                    leading: Icon(tarea.icono, color: Colors.blue),
-                    title: Text(tarea.nombre),
-                    subtitle: Text(tarea.hora),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, color: Colors.blue),
-                          onPressed: () {
-                            // Implementar lógica para añadir
-                          },
+                } else {
+                  return ListView.builder(
+                    itemCount: controller.planes.length,
+                    itemBuilder: (context, index) {
+                      final plan = controller.planes[index];
+                      return InkWell(
+                        onTap: () => showPlanDetailDragDetail(context, plan),
+                        child: PlanCard(
+                          meta: plan.meta,
+                          hora: plan.hora,
+                          periodo: plan.periodo,
+                          iconoPlan: plan.iconoPlan,
+                          logroPlan: plan.iconoLogro,
+                          completada: plan.completada,
+                          onToggle: () => controller.togglePlan(index),
                         ),
-                        Checkbox(
-                          value: tarea.completada,
-                          onChanged: (_) => controller.toggleActividad(index),
-                          activeColor: Colors.blue,
-                        ),
-                      ],
-                    ), 
-                  );*/
-                },
-              )),
-            ),
+                      );
+                    },
+                  );
+                }
+              }
+            })),
           ],
         ),
       ),
@@ -130,20 +141,22 @@ class PlanDiarioDetalle extends StatelessWidget {
   }
 }
 
-class TareaCard extends StatelessWidget {
-  final String titulo;
+class PlanCard extends StatelessWidget {
+  final String meta;
   final String hora;
-  final IconData icono;
-  final IconData logro;
-  final bool completada;
+  final String periodo;
+  final IconData iconoPlan;
+  final IconData logroPlan;
+  final int completada;
   final Function() onToggle;
 
-  const TareaCard({
+  const PlanCard({
     super.key,
-    required this.titulo,
+    required this.meta,
     required this.hora,
-    required this.icono,
-    required this.logro,
+    required this.periodo,
+    required this.iconoPlan,
+    required this.logroPlan,
     required this.completada,
     required this.onToggle,
   });
@@ -152,7 +165,7 @@ class TareaCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       surfaceTintColor: const Color.fromARGB(255, 230, 229, 229),
-      elevation: 4,
+      elevation: 5,
       borderOnForeground: false,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -161,29 +174,34 @@ class TareaCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 25.0),
         child: Row(
           children: [
-            Icon(icono, color: TColors.primary, size: 24),
+            Icon(iconoPlan, color: TColors.primary, size: 30),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    titulo,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    meta,
+                    softWrap: true,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Hora: $hora',
+                    'Hora: $hora ${periodo.toLowerCase()}',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                 ],
               ),
             ),
-           
             CircleAvatar(
-              backgroundColor: completada ? TColors.primary : const Color.fromARGB(71, 158, 158, 158),  
+              backgroundColor: completada == TTexts.logroCompletado
+                  ? TColors.primary
+                  : const Color.fromARGB(71, 158, 158, 158),
               radius: 25,
-              child: Icon(logro, color: TColors.white, size: 24),
+              child: Icon(logroPlan, color: TColors.white, size: 24),
             ),
             const SizedBox(width: 15),
             InkWell(
@@ -194,9 +212,9 @@ class TareaCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
                   border: Border.all(color: Colors.blue, width: 2),
-                  color: completada ? Colors.blue : Colors.white,
+                  color: completada == TTexts.logroCompletado ? Colors.blue : Colors.white,
                 ),
-                child: completada
+                child: completada == TTexts.logroCompletado
                     ? const Icon(Icons.check, size: 16, color: Colors.white)
                     : null,
               ),

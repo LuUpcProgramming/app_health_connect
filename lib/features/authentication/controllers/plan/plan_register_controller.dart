@@ -1,15 +1,22 @@
+import 'dart:math';
+
+import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
 import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/dashboard_screen.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/plan_detalle.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/helpers/network_manager.dart';
+import 'package:app_health_connect/utils/popups/custom_success_dialog.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
+import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class PlanRegisterController extends GetxController {
   static PlanRegisterController get instance => Get.find();
@@ -17,32 +24,69 @@ class PlanRegisterController extends GetxController {
   final log = logger(PlanRegisterController);
   final TextEditingController metaController = TextEditingController();
   final TextEditingController horaController = TextEditingController();
- 
+
   GlobalKey<FormState> planDiarioFormKey = GlobalKey<FormState>();
-   final selectedActividad = 'Meditación'.obs;
+  final selectedActividad = 'Meditación'.obs;
   TimeOfDay selectedTime = TimeOfDay.now();
-   String selectedHora = '00:00';
+  String selectedHora = '00:00';
   String selectedPeriodo = 'AM';
   //final currentUser = FirebaseAuth.instance.currentUser;
-  final RxInt selectedDay =2.obs; // Inicialmente, 'M' (miércoles) está seleccionado
+  final RxInt selectedDay =
+      2.obs; // Inicialmente, 'M' (miércoles) está seleccionado
   final RxList<int> selectedDays = <int>[].obs;
+
   final List<String> days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  final List<String> daysCompleto = TTexts.dias;
+
+  // Lista reactiva para controlar si un día está habilitado
+  var enabledDays = <bool>[].obs;
   final List<String> tipoActividad = [
     TTexts.activMeditacion,
     TTexts.actividadAlimentacion,
     TTexts.actividadFisico
   ];
 
-  void toggleDay(int index) {
-    if (selectedDays.contains(index)) {
-      selectedDays.remove(index);
-    } else {
-      selectedDays.add(index);
-    }
-    selectedDays.sort(); // Mantener el orden
+  late final OpenAI openAI;
+  final openAiKey = Environment.openAiKey;
+
+  @override
+  void onInit() {
+    super.onInit();
+    openAI = OpenAI.instance.build(
+        token: openAiKey,
+        baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
+        enableLog: true);
+    _initializeDays();
   }
 
-  bool isDaySelected(int index) => selectedDays.contains(index);
+  void _initializeDays() {
+    final currentDayIndex =
+        DateTime.now().weekday - 1; // 0 = Lunes, 6 = Domingo
+
+    // Crear una lista donde los días anteriores al día actual están deshabilitados
+    enabledDays.assignAll(List.generate(days.length, (index) {
+      return index >= currentDayIndex;
+    }));
+
+    // Inicializar los días seleccionados como no seleccionados
+    //selectedDays2.assignAll(List.filled(days.length, false));
+  }
+
+  bool isDaySelected(int index) {
+    return selectedDays.contains(index);
+  }
+
+  void toggleDay(int index) {
+    // Solo permite la selección si el día está habilitado
+    if (enabledDays[index]) {
+      if (selectedDays.contains(index)) {
+        selectedDays.remove(index);
+      } else {
+        selectedDays.add(index);
+      }
+      selectedDays.sort();
+    }
+  }
 
   void selectDay(int index) {
     selectedDay.value = index;
@@ -56,33 +100,36 @@ class PlanRegisterController extends GetxController {
     }
   }
 
-  int obtenerTipoLogro(String tipoActividad){ 
-    if(tipoActividad == 'Meditación'){
+  int obtenerTipoLogro(String tipoActividad) {
+    if (tipoActividad == 'Meditación') {
       return TTexts.logroEquilibrioInterior;
-    }else if(tipoActividad == 'Alimentación'){
+    } else if (tipoActividad == 'Alimentación') {
       return TTexts.logroGourmetSaludable;
-    }else if(tipoActividad == 'Actividad Física'){
+    } else if (tipoActividad == 'Actividad Física') {
       return TTexts.logroResilienciaFitness;
-    }else{
+    } else {
       return 0;
     }
-
   }
 
-  void grabar(){
-      log.i('Grabando plan diario');
-      log.i('Meta: ${metaController.text}');
-      log.i('Hora: ${horaController.text}');
-      log.i('Tipo de actividad: ${selectedActividad.value}');
-      log.i('Periodo: $selectedPeriodo');
-      log.i('Días seleccionados: $selectedDays');
-      log.i('Día seleccionado: ${days[selectedDay.value]}');
-      log.i('Hora seleccionada: $selectedHora');
+  void grabar() {
+    log.i('Grabando plan diario');
+    log.i('Meta: ${metaController.text}');
+    log.i('Hora: ${horaController.text}');
+    log.i('Tipo de actividad: ${selectedActividad.value}');
+    log.i('Periodo: $selectedPeriodo');
+    log.i('Días seleccionados: $selectedDays');
+    log.i('Día seleccionado: ${days[selectedDay.value]}');
+    log.i('Hora seleccionada: $selectedHora');
   }
 
-  void grabarPlanDiario() async{
-    
+  void grabarPlanDiario() async {
     try {
+      DateTime now = DateTime.now();
+      String fechaRegistro = DateFormat('yyyy-MM-dd').format(now);
+      String horaRegistro = DateFormat('HH:mm:ss').format(now);
+      Random random = Random();
+      String identificadorPlan = '${DateFormat('yyyyMMdd').format(now)}_${random.nextInt(1000)}';
       log.i('Grabando plan diario');
       log.i('Meta: ${metaController.text}');
       log.i('Hora: ${horaController.text}');
@@ -106,47 +153,114 @@ class PlanRegisterController extends GetxController {
         return;
       }
 
-      if(selectedActividad.isEmpty){
+      if (selectedActividad.isEmpty) {
         TFullScreenLoader.stopLoading();
-        Loaders.warningSnackBar(title: 'Campo requerido', message: 'Por favor seleccione un tipo de actividad');
+        Loaders.warningSnackBar(
+            title: 'Campo requerido',
+            message: 'Por favor seleccione un tipo de actividad');
         return;
       }
 
-      if(selectedDays.isEmpty){
+      if (selectedDays.isEmpty) {
         TFullScreenLoader.stopLoading();
-        Loaders.warningSnackBar(title: 'Campo requerido', message: 'Por favor seleccione al menos un día');
+        Loaders.warningSnackBar(
+            title: 'Campo requerido',
+            message: 'Por favor seleccione al menos un día');
         return;
       }
 
-      final planDiario = PlanDiario(
-        idUsuario: '1', 
-        meta: metaController.text, 
-        tipoActividad: selectedActividad.value, 
-        dias: selectedDays.map((e) => days[e]).toList(), 
-        hora: selectedHora, 
-        periodo: selectedPeriodo,
-        mensaje: 'Preparar una ensalada fresca para el almuerzo no solo es una elección saludable, ¡es un acto de amor propio! Cuida tu cuerpo, nutre tu mente y siembra la energía positiva que necesitas para brillar durante todo el día ¡Tu puedes hacerlo, y te mereces lo mejor!',
-        recomendacion: '- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.',
-        tipoLogro: obtenerTipoLogro(selectedActividad.value)
-      );
+      // Llamar a Asistente Para Generar mensaje y recomendación
+      final promptPlanDiario = """
+      Actúa como un psicólogo con conocimientos profundos de Terapia Cognitivo Conductual (CBT). El paciente quiere crear un plan diario para mejorar su salud física y mental.
+      Este paciente te envía la siguiente información:
+      -Meta u Objetivo: ${metaController.text}
+      -Tipo de Actividad: ${selectedActividad.value}
+      -Días de la Semana: ${selectedDays.map((e) => daysCompleto[e]).toList()}
+      -Hora: $selectedHora $selectedPeriodo
+      Para ello necesita tu ayuda para generar un:
+      1) Mensaje motivacional para cumplir su plan.
+      2) Tres Recomendaciones que lo inspire a cumplir su plan.
+      Tu respuesta solo debe tener el contenido del mensaje y las recomendaciones separado por el operador "|".
 
+      Ejemplo de formato de respuesta:
+      Preparar una ensalada fresca para el almuerzo no solo es una elección saludable, ¡es un acto de amor propio! Cuida tu cuerpo, nutre tu mente y siembra la energía positiva que necesitas para brillar durante todo el día ¡Tu puedes hacerlo, y te mereces lo mejor!|- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.
+      """;
+
+      List<Map<String, dynamic>> messagesHistory = [];
+      messagesHistory.insert(
+          0, Messages(role: Role.system, content: promptPlanDiario).toJson());
+      final request = ChatCompleteText(
+          messages: messagesHistory,
+          maxToken: 500,
+          temperature: 0.7,
+          model: GptTurbo0125ChatModel());
+
+      log.i("Antes de ejecutar  OPENAI API");
+      final response = await openAI.onChatCompletion(request: request);
+      log.i("Despues de ejecutar OPENAI API");
+      var fullResponse = '';
+      if (response != null && response.choices.isNotEmpty) {
+        log.i("Se encuentra respuesta OPENAI");
+        fullResponse = response.choices.first.message?.content ?? '';
+        log.i("Respuesta: $fullResponse");
+      } else {
+        log.e("No se pudo obtener respuesta del modelo GPT-3.5");
+        throw Exception('No se pudo obtener respuesta del modelo GPT-3.5');
+      }
+
+      List<String> listaFullResponse = fullResponse.split('|');
+      log.i(listaFullResponse);
+
+      var listaDeDias = selectedDays.map((e) => daysCompleto[e]).toList();
       final planRepository = Get.put(PlanRepository());
-      await planRepository.savePlanDiario(planDiario);
+      for (var dia in listaDeDias) {
+        final planDiario = PlanDiario(
+            idUsuario: '1',
+            meta: metaController.text,
+            tipoActividad: selectedActividad.value,
+            dia: dia.trim(),
+            completada: TTexts.logroIncompleto,
+            hora: selectedHora,
+            periodo: selectedPeriodo,
+            mensaje: listaFullResponse[0].trim(),
+            recomendacion: listaFullResponse[1].trim(),
+            tipoLogro: obtenerTipoLogro(selectedActividad.value),
+            fechaRegistro: fechaRegistro,
+            horaRegistro: horaRegistro,
+            identificadorPlan: identificadorPlan);
+
+        await planRepository.savePlanDiario(planDiario);
+        log.i("Se registra para dia: $dia");
+      }
+
+      TFullScreenLoader.stopLoading();
+      Get.delete<PlanRepository>();
+      showSuccessDialog();
 
       // Show Success Hessage
-      Loaders.successSnackBar(
-          title: 'Felicidades',
-          message:'¡Tu Plan ha sido registrado!');
+      /*  Loaders.successSnackBar(
+          title: 'Felicidades', message: '¡Tu Plan ha sido registrado!'); */
 
       //Move to Verify Email Screen
-      //Get.off(() => DashboardScreen());
-      TFullScreenLoader.stopLoading();
+      // Get.off(() => DashboardScreen());
+      //TFullScreenLoader.stopLoading();
     } catch (e) {
       TFullScreenLoader.stopLoading();
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
+      return;
     }
-    
-    
+  }
+
+  void showSuccessDialog() {
+    Get.dialog(CustomSuccessWidget(
+      onPressed: () {
+        log.i("Plan registrado con éxito");
+         Get.delete<PlanRegisterController>();
+        Get.off(() => const PlanDiarioDetalle());
+        // Get.off(() => DashboardScreen());
+       // Get.back();
+      },
+    ));
   }
 }

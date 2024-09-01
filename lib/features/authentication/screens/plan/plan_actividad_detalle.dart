@@ -1,9 +1,13 @@
+import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
-import 'package:app_health_connect/features/authentication/models/actividad.dart';
 
-void showPlanDetailDragDetail(BuildContext context, Tarea actividad) {
+void showPlanDetailDragDetail(BuildContext context, PlanDiario plan) {
+  String descripcionLogro = plan.tipoLogro == TTexts.logroGourmetSaludable ? 'Gourmet Saludable' : 
+                plan.tipoLogro == TTexts.logroEquilibrioInterior ? 'Equilibrio Interior' : 
+                'Resiliencia Fitness';
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -47,7 +51,7 @@ void showPlanDetailDragDetail(BuildContext context, Tarea actividad) {
                         children: [
                           Flexible(
                             child: Text(
-                              actividad.nombre,
+                              plan.meta,
                               softWrap: true,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -75,7 +79,7 @@ void showPlanDetailDragDetail(BuildContext context, Tarea actividad) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                        Text(textAlign: TextAlign.justify,
-                       actividad.mensaje,
+                       plan.mensaje,
                         style: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                       ),
                       const SizedBox(height: 15.0),
@@ -84,11 +88,9 @@ void showPlanDetailDragDetail(BuildContext context, Tarea actividad) {
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                       const SizedBox(height: 8.0),
-                      const Text(
-                        //actividad.nombre,
-                        """- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.
-                        """,
-                        style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                      Text(
+                        plan.recomendacion,
+                        style: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                       ),
                       const SizedBox(height: 2.0),
                       const Text(
@@ -96,18 +98,19 @@ void showPlanDetailDragDetail(BuildContext context, Tarea actividad) {
                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                       ),
                        const SizedBox(height: 8.0),
-                      const Text(
+                      Text(
                        //actividad.nombre,
-                       """ Si superas la meta, obtendrás el logro de "Gourmet Saludable". ¡Tú Puedes!
-                       """,
+                       """ Si superas la meta, obtendrás el logro de "$descripcionLogro". ¡Tú Puedes!""",
                        textAlign: TextAlign.justify,
-                       style: TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
+                       style: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                       ),
-                      const Center(
+                      Center(
                         child: Image(
                           width: 128,
                           height: 128,
-                          image:  AssetImage(TImages.imgAlimento)
+                          image: plan.tipoLogro == TTexts.logroGourmetSaludable ? const AssetImage(TImages.imgAlimento) : 
+                                 plan.tipoLogro == TTexts.logroEquilibrioInterior ? const AssetImage(TImages.imgMeditacion) : 
+                                 const AssetImage(TImages.imgEjercicio),
                         ),
                       ),
 
