@@ -6,8 +6,9 @@ class PlanDiario {
   String meta;
   String tipoActividad;
   List<String> listaDias;
-  String dia;
-  int completada;
+  String diaPlan;
+  String fechaPlan;
+  int estadoPlan;
   String hora;
   String periodo;
   String mensaje;
@@ -21,25 +22,25 @@ class PlanDiario {
   String horaRegistro;
   String identificadorPlan;
 
-  PlanDiario({
-    this.idDocumento = '0',
-    required this.idUsuario,
-    required this.meta,
-    required this.tipoActividad,
-    this.listaDias = const [],
-    required this.dia,
-    this.completada = 0,
-    required this.hora,
-    required this.periodo,
-    this.mensaje = '',
-    this.recomendacion = '',
-    this.tipoLogro = 0,
-    this.iconoLogro = Icons.report_off,
-    this.iconoPlan = Icons.report_off,
-    required this.fechaRegistro,
-    required this.horaRegistro,
-    this.identificadorPlan = ''
-  });
+  PlanDiario(
+      {this.idDocumento = '0',
+      required this.idUsuario,
+      required this.meta,
+      required this.tipoActividad,
+      this.listaDias = const [],
+      required this.diaPlan,
+      required this.fechaPlan,
+      this.estadoPlan = 0,
+      required this.hora,
+      required this.periodo,
+      this.mensaje = '',
+      this.recomendacion = '',
+      this.tipoLogro = 0,
+      this.iconoLogro = Icons.report_off,
+      this.iconoPlan = Icons.report_off,
+      required this.fechaRegistro,
+      required this.horaRegistro,
+      this.identificadorPlan = ''});
 
   // Método para convertir el modelo a un mapa (útil para guardar en Firebase)
   Map<String, dynamic> toJson() {
@@ -48,8 +49,9 @@ class PlanDiario {
       'idUsuario': idUsuario,
       'meta': meta,
       'tipoActividad': tipoActividad,
-      'dia': dia,
-      'completada': completada,
+      'diaPlan': diaPlan,
+      'fechaPlan': fechaPlan,
+      'estadoPlan': estadoPlan,
       'hora': hora,
       'periodo': periodo,
       'mensaje': mensaje,
@@ -68,8 +70,9 @@ class PlanDiario {
       idUsuario: map['idUsuario'],
       meta: map['meta'],
       tipoActividad: map['tipoActividad'],
-      dia: map['dia'],
-      completada: map['completada'],
+      diaPlan: map['diaPlan'],
+      fechaPlan: map['fechaPlan'],
+      estadoPlan: map['estadoPlan'],
       //  dias: List<String>.from(map['dias']),
       //  completados: List<int>.from(map['completados']),
       hora: map['hora'],

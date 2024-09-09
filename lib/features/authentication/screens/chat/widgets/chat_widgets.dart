@@ -1,5 +1,6 @@
 import 'package:app_health_connect/features/authentication/controllers/chat/chat_controller.dart';
 import 'package:app_health_connect/utils/constants/colors.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 
 void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
@@ -27,7 +28,7 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                   ),
                 ),
                 child: const Text(
-                  "¿Quieres finalizar la conversación con el Asistente?",
+                  "Deseas finalizar la conversación con el Asistente y generar un plan diario?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -46,7 +47,7 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                       ElevatedButton(
                         onPressed: () {
                           // Acción al confirmar
-                          controller.procesarConversacion();
+                          controller.procesarConversacion(TTexts.indicadorGenerarPlan);
                           //Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(
@@ -57,10 +58,28 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                           textStyle: const TextStyle(
                               color: Colors.white), // Color del texto
                         ),
-                        child: const Text("Confirmar",
+                        child: const Text("Generar Plan",
                             style: TextStyle(color: Colors.white)),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 7),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Acción al confirmar
+                          controller.procesarConversacion(TTexts.indicadorTerminarChat);
+                          //Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: TColors.primary,
+                          elevation: 10, // Elevación del botón
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                          textStyle: const TextStyle(
+                              color: Colors.white), // Color del texto
+                        ),
+                        child: const Text("Terminar Chat",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      const SizedBox(width: 10,),
                       OutlinedButton(
                         onPressed: () {
                           // Acción al cancelar

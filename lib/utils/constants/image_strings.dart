@@ -19,10 +19,13 @@ class TImages {
   static const String imgAlimento = "assets/images/alimento.png";
   // -- App Fondos
   static const String defaultFondo = "assets/images/fondo1.png";
+  static const String imgPeace = "assets/images/animations/peace.gif";
+  static const String imgMotivacion = "assets/images/motivacion.png";
 
   // -- Social Logos
   static const String google = "assets/logos/google-icon.png";
   static const String facebook = "assets/logos/facebook-icon.png";
+
 
   // -- Category Icons
   static const String sportIcon = "assets/icons/categories/icons8-bowling-64.png";

@@ -41,8 +41,8 @@ class AuthenticationRepository extends GetxController {
     // Get.offAll(() => const ChatScreen());
     // Get.offAll(() => const DailyPlanScreen());
     // Get.offAll(() => const CustomSuccessWidget());
-      Get.offAll(() => const PlanDiarioDetalle());
-    //screenRedirect();
+    //  Get.offAll(() => const PlanDiarioDetalle());
+    screenRedirect();
   }
 
   //Función para Screens relevantes

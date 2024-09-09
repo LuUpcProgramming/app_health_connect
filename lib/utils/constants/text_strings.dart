@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 /// This class contains all the App Text in String formats.
 class TTexts {
   // -- GLOBAL Texts
@@ -13,7 +16,8 @@ class TTexts {
   // -- OnBoarding Texts
   static const String onBoardingTitle1 = "Encuentra la calma en cada día";
   static const String onBoardingTitle2 = "Juntos hacia una mente más saludable";
-  static const String onBoardingTitle3 = "Empieza hoy mismo tu viaje hacia el equilibrio mental";
+  static const String onBoardingTitle3 =
+      "Empieza hoy mismo tu viaje hacia el equilibrio mental";
 
   static const String onBoardingSubTitle1 =
       "Bienvenido(a) a Health Connect - Tu Bienestar es nuestra prioridad!";
@@ -67,7 +71,8 @@ class TTexts {
 
   //Informacion Preliminar con Asistente
   static const String ipPresentationIATitle = 'Hola ';
-  static const String ipPresentationIASubtitle = 'Me llamo Coni y seré tu asistente virtual. Primero Conozcamonos!';
+  static const String ipPresentationIASubtitle =
+      'Me llamo Coni y seré tu asistente virtual. Primero Conozcamonos!';
   static const String ipPersonalInfoTitle = 'Cuéntame sobre ti';
   static const String ipPersonalInfoGenero = 'Género';
   static const String ipPersonalInfoFechaNac = 'Fecha de Nacimiento';
@@ -78,10 +83,10 @@ class TTexts {
   static const String ipWorkInfoModTrabajo = 'Modalidad de Trabajo';
   static const String ipWorkInfoHoraTrabajo = 'Horas de Trabajo';
   static const String ipWorkInfoTipoContrato = 'Tipo de Contrato';
-  static const String ipHealthInfoTitle= 'Cuéntame sobre tu Salud';
-  static const String ipHealthInfoSubtitle= 'Elige las opciones que sientes que están afectando tu salud provocado por tu trabajo';
+  static const String ipHealthInfoTitle = 'Cuéntame sobre tu Salud';
+  static const String ipHealthInfoSubtitle =
+      'Elige las opciones que sientes que están afectando tu salud provocado por tu trabajo';
   static const String ipHealthInfoAnsiedad = 'Ansiedad';
-  
 
   // -- Product
   static const String popularProducts = "Popular Products";
@@ -102,21 +107,29 @@ class TTexts {
   static const String diaria = "Diaria";
   static const String semanal = "Semanal";
   static const String mensual = "Mensual";
- // static const String eliminarConversacion = "Eliminar";
+  // static const String eliminarConversacion = "Eliminar";
 
- //Actividades
+  //Actividades
   static const String activMeditacion = "Meditación";
-  static const String actividadAlimentacion= "Alimentación";
+  static const String actividadAlimentacion = "Alimentación";
   static const String actividadFisico = "Actividad Física";
 
- //Logros
- static const int logroGourmetSaludable = 1;
- static const int logroEquilibrioInterior = 2;
- static const int logroResilienciaFitness = 3;
+  //Logros
+  static const int logroGourmetSaludable = 1;
+  static const int logroEquilibrioInterior = 2;
+  static const int logroResilienciaFitness = 3;
 
- // -- Planes
-  static const int logroCompletado = 1;
+  // -- Planes
+/*   static const int logroCompletado = 1;
   static const int logroIncompleto = 0;
+  static const int confirmado = 1;
+  static const int noConfirmado = 0; */
+  static const int estadoPendiente = 0;
+  static const int estadoCompletado = 1;
+  static const int estadoIncompleto = 2;
+  static const int estadoAnulado = 3;
+  static const int indicadorGenerarPlan = 1;
+  static const int indicadorTerminarChat = 2;
 
   //Dias
   static const List<String> dias = [
@@ -128,4 +141,118 @@ class TTexts {
     'Sábado',
     'Domingo'
   ];
+
+  static IconData obtenerIconoLogro(int tipoLogro) {
+    if (tipoLogro == TTexts.logroGourmetSaludable) {
+      return Icons.soup_kitchen;
+    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
+      return Icons.self_improvement;
+    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
+      return Icons.directions_run;
+    } else {
+      return Icons.report_off;
+    }
+  }
+
+  static IconData obtenerIconoPlan(int tipoLogro) {
+    if (tipoLogro == TTexts.logroGourmetSaludable) {
+      return Icons.local_dining;
+    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
+      return Icons.volunteer_activism;
+    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
+      return Icons.fitness_center;
+    } else {
+      return Icons.report_off;
+    }
+  }
+
+  static String obtenerNombreLogro(int tipoLogro) {
+    if (tipoLogro == TTexts.logroGourmetSaludable) {
+      return 'Gourmet Saludable';
+    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
+      return 'Equilibrio Interior';
+    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
+      return 'Resiliencia Fitness';
+    } else {
+      return 'Desconocido';
+    }
+  }
+
+  static Color obtenerColorLogro(int tipoLogro) {
+    if (tipoLogro == TTexts.logroGourmetSaludable) {
+      return const Color.fromARGB(255, 76, 175, 80);
+    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
+      return const Color.fromARGB(255, 33, 150, 243);
+    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
+      return const Color.fromARGB(255, 255, 87, 34);
+    } else {
+      return Colors.grey;
+    }
+  }
+
+  static int obtenerTipoLogro(String tipoActividad) {
+    if (tipoActividad == activMeditacion) {
+      return TTexts.logroEquilibrioInterior;
+    } else if (tipoActividad == actividadAlimentacion) {
+      return TTexts.logroGourmetSaludable;
+    } else if (tipoActividad == actividadFisico) {
+      return TTexts.logroResilienciaFitness;
+    } else {
+      return 0;
+    }
+  }
+
+  static String convertirFecha(String fecha) {
+    // Parsear el string de la fecha a un objeto DateTime
+    DateTime fechaOriginal = DateTime.parse(fecha);
+
+    // Crear el formato deseado
+    DateFormat formatoDeseado = DateFormat('dd-MM-yyyy');
+
+    // Formatear la fecha y retornarla
+    return formatoDeseado.format(fechaOriginal);
+  }
+
+  static String obtenerFechaDeDia(String dia) {
+    List<String> diasSemana = dias;
+
+    // Formateador de fechas
+    DateFormat formatoFecha = DateFormat('yyyy-MM-dd');
+    // Obtener la fecha actual
+    DateTime fechaActual = DateTime.now();
+    // Obtener el número de día de la semana (1 = Lunes, 7 = Domingo)
+    int diaActualSemana = fechaActual.weekday;
+    // Determinar el primer día de la semana (Lunes)
+    DateTime inicioSemana =
+        fechaActual.subtract(Duration(days: diaActualSemana - 1));
+    // Encontrar el índice del día dado en la lista
+    int indiceDia = diasSemana.indexOf(dia);
+    if (indiceDia == -1) {
+      throw ArgumentError(
+          "Día inválido. Debe ser un día de la semana válido en español.");
+    }
+
+    // Calcular la fecha del día dado sumando el índice del día a partir del inicio de la semana
+    DateTime fechaResultado = inicioSemana.add(Duration(days: indiceDia));
+
+    print(
+        "La fecha correspondiente a $dia es: ${formatoFecha.format(fechaResultado)}");
+    return formatoFecha.format(fechaResultado);
+  }
+
+  static bool validarRepeticionesRecomendaciones(String input) {
+  // Expresión regular que busca la palabra "titulo" en el input (case insensitive)
+    RegExp regExp = RegExp(r'titulo', caseSensitive: false);
+
+    // Encuentra todas las coincidencias
+    Iterable<RegExpMatch> matches = regExp.allMatches(input);
+
+    // Verifica si se encuentra 2 o más veces
+    return matches.length >= 2;
+  }
+
+  static String convertirListaEnStringConSaltosDeLinea(List<String> lista) {
+    // Utiliza join para concatenar los elementos de la lista con un salto de línea entre ellos
+    return lista.join('\n');
+  }
 }

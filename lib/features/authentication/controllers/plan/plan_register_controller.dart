@@ -30,9 +30,7 @@ class PlanRegisterController extends GetxController {
   TimeOfDay selectedTime = TimeOfDay.now();
   String selectedHora = '00:00';
   String selectedPeriodo = 'AM';
-  //final currentUser = FirebaseAuth.instance.currentUser;
-  final RxInt selectedDay =
-      2.obs; // Inicialmente, 'M' (miércoles) está seleccionado
+  final currentUser = FirebaseAuth.instance.currentUser;
   final RxList<int> selectedDays = <int>[].obs;
 
   final List<String> days = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
@@ -88,27 +86,11 @@ class PlanRegisterController extends GetxController {
     }
   }
 
-  void selectDay(int index) {
-    selectedDay.value = index;
-  }
-
   String addLeadingZero(int number) {
     if (number < 10) {
       return '0$number';
     } else {
       return number.toString();
-    }
-  }
-
-  int obtenerTipoLogro(String tipoActividad) {
-    if (tipoActividad == 'Meditación') {
-      return TTexts.logroEquilibrioInterior;
-    } else if (tipoActividad == 'Alimentación') {
-      return TTexts.logroGourmetSaludable;
-    } else if (tipoActividad == 'Actividad Física') {
-      return TTexts.logroResilienciaFitness;
-    } else {
-      return 0;
     }
   }
 
@@ -119,7 +101,6 @@ class PlanRegisterController extends GetxController {
     log.i('Tipo de actividad: ${selectedActividad.value}');
     log.i('Periodo: $selectedPeriodo');
     log.i('Días seleccionados: $selectedDays');
-    log.i('Día seleccionado: ${days[selectedDay.value]}');
     log.i('Hora seleccionada: $selectedHora');
   }
 
@@ -129,14 +110,14 @@ class PlanRegisterController extends GetxController {
       String fechaRegistro = DateFormat('yyyy-MM-dd').format(now);
       String horaRegistro = DateFormat('HH:mm:ss').format(now);
       Random random = Random();
-      String identificadorPlan = '${DateFormat('yyyyMMdd').format(now)}_${random.nextInt(1000)}';
+      String identificadorPlan =
+          '${DateFormat('yyyyMMdd').format(now)}_${random.nextInt(100000)}';
       log.i('Grabando plan diario');
       log.i('Meta: ${metaController.text}');
       log.i('Hora: ${horaController.text}');
       log.i('Tipo de actividad: ${selectedActividad.value}');
       log.i('Periodo: $selectedPeriodo');
       log.i('Días seleccionados: $selectedDays');
-      log.i('Día seleccionado: ${days[selectedDay.value]}');
       TFullScreenLoader.openLoadingDialog(
           'Procesando Información...', TImages.loadingAnimation);
 
@@ -202,29 +183,28 @@ class PlanRegisterController extends GetxController {
       if (response != null && response.choices.isNotEmpty) {
         log.i("Se encuentra respuesta OPENAI");
         fullResponse = response.choices.first.message?.content ?? '';
-        log.i("Respuesta: $fullResponse");
+        //log.i("Respuesta: $fullResponse");
       } else {
         log.e("No se pudo obtener respuesta del modelo GPT-3.5");
         throw Exception('No se pudo obtener respuesta del modelo GPT-3.5');
       }
 
       List<String> listaFullResponse = fullResponse.split('|');
-      log.i(listaFullResponse);
-
       var listaDeDias = selectedDays.map((e) => daysCompleto[e]).toList();
       final planRepository = Get.put(PlanRepository());
       for (var dia in listaDeDias) {
         final planDiario = PlanDiario(
-            idUsuario: '1',
+            idUsuario: currentUser!.uid,
             meta: metaController.text,
             tipoActividad: selectedActividad.value,
-            dia: dia.trim(),
-            completada: TTexts.logroIncompleto,
+            diaPlan: dia.trim(),
+            fechaPlan: obtenerFechaDelDia(dia.trim()),
+            estadoPlan: TTexts.estadoPendiente,
             hora: selectedHora,
             periodo: selectedPeriodo,
             mensaje: listaFullResponse[0].trim(),
             recomendacion: listaFullResponse[1].trim(),
-            tipoLogro: obtenerTipoLogro(selectedActividad.value),
+            tipoLogro: TTexts.obtenerTipoLogro(selectedActividad.value),
             fechaRegistro: fechaRegistro,
             horaRegistro: horaRegistro,
             identificadorPlan: identificadorPlan);
@@ -232,6 +212,7 @@ class PlanRegisterController extends GetxController {
         await planRepository.savePlanDiario(planDiario);
         log.i("Se registra para dia: $dia");
       }
+      limpiar();
 
       TFullScreenLoader.stopLoading();
       Get.delete<PlanRepository>();
@@ -256,11 +237,41 @@ class PlanRegisterController extends GetxController {
     Get.dialog(CustomSuccessWidget(
       onPressed: () {
         log.i("Plan registrado con éxito");
-         Get.delete<PlanRegisterController>();
+        Get.delete<PlanRegisterController>();
         Get.off(() => const PlanDiarioDetalle());
         // Get.off(() => DashboardScreen());
-       // Get.back();
+        // Get.back();
       },
     ));
+  }
+
+  String obtenerFechaDelDia(String diaElegido) {
+    // Obtener el día de la semana actual
+    DateTime now = DateTime.now();
+    int diaActualIndex =
+        now.weekday - 1; // weekday devuelve de 1 (lunes) a 7 (domingo)
+
+    // Buscar el índice del día elegido
+    int diaElegidoIndex = TTexts.dias.indexOf(diaElegido);
+
+    // Calcular la diferencia entre el día actual y el día elegido
+    int diferenciaDias = diaElegidoIndex - diaActualIndex;
+
+    // Obtener la fecha correspondiente sumando la diferencia de días
+    DateTime fechaElegida = now.add(Duration(days: diferenciaDias));
+
+    String fechaFormateada = DateFormat('yyyy-MM-dd').format(fechaElegida);
+
+    return fechaFormateada;
+  }
+
+  void limpiar() {
+    metaController.clear();
+    horaController.clear();
+    selectedActividad.value = TTexts.activMeditacion;
+    selectedTime = TimeOfDay.now();
+    selectedHora = '00:00';
+    selectedPeriodo = 'AM';
+    selectedDays.clear();
   }
 }

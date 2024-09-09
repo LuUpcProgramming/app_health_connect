@@ -4,9 +4,10 @@ import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
 import 'package:app_health_connect/features/authentication/models/actividad.dart';
 import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
+import 'package:app_health_connect/features/authentication/screens/plan/widgets/custom_logro_dialog.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/custom_question_dialog.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
 class PlanController extends GetxController {
@@ -18,11 +19,12 @@ class PlanController extends GetxController {
   final RxList<PlanDiario> planes = <PlanDiario>[].obs;
   var isLoading = true.obs;
   StreamSubscription? _subscriptionPlan;
+  final currentUser = FirebaseAuth.instance.currentUser;
 
   @override
   void onInit() {
     super.onInit();
-    listarPlanesUsuario("1");
+    listarPlanesUsuario(currentUser!.uid);
   }
 
   void listarPlanesUsuario(String userId) async {
@@ -30,9 +32,7 @@ class PlanController extends GetxController {
 
     final planDiarioRepository = Get.put(PlanRepository());
     // Escuchar el stream de Firestore y actualizar la lista reactiva
-    _subscriptionPlan = planDiarioRepository
-        .getStreamPlanesDiariosByUserId(userId)
-        .listen((listaPlanes) {
+    _subscriptionPlan = planDiarioRepository.getStreamPlanesDiariosByUserId(userId).listen((listaPlanes) {
       List<PlanDiario> planesLocal = [];
       for (var plan in listaPlanes) {
         final planDiario = PlanDiario(
@@ -40,82 +40,51 @@ class PlanController extends GetxController {
             idUsuario: plan.idUsuario,
             meta: plan.meta,
             tipoActividad: plan.tipoActividad,
-            dia: plan.dia,
-            completada: plan.completada,
+            diaPlan: plan.diaPlan,
+            fechaPlan: plan.fechaPlan,
+            estadoPlan: plan.estadoPlan,
             hora: plan.hora,
             periodo: plan.periodo,
             mensaje: plan.mensaje,
             recomendacion: plan.recomendacion,
             tipoLogro: plan.tipoLogro,
-            iconoLogro: obtenerIconoLogro(plan.tipoLogro),
-            iconoPlan: obtenerIconoPlan(plan.tipoLogro),
+            iconoLogro: TTexts.obtenerIconoLogro(plan.tipoLogro),
+            iconoPlan: TTexts.obtenerIconoPlan(plan.tipoLogro),
             fechaRegistro: plan.fechaRegistro,
             horaRegistro: plan.horaRegistro,
             identificadorPlan: plan.identificadorPlan);
         planesLocal.add(planDiario);
       }
+
+      // Ordenar por 'completada' ascendente y luego por 'hora' ascendente
+      planesLocal.sort((a, b) {
+        int compareCompletada = a.estadoPlan.compareTo(b.estadoPlan);
+        if (compareCompletada != 0) {
+          return compareCompletada;
+        } else {
+          // Comparar por hora como String. Si es necesario, puedes convertir a DateTime para una comparación más precisa.
+          return a.hora.compareTo(b.hora);
+        }
+      });
+
       planes.assignAll(planesLocal);
     }, onError: (error) {
       log.i("Error al obtener planes diarios: $error");
     });
-
-    //List<PlanDiario> listaPlanes =
-    //    await planDiarioRepository.getPlanesDiariosByUserId(userId);
-
-/*     for (var plan in planes) {
-      final planDiario = PlanDiario(
-          idDocumento: plan.idDocumento,
-          idUsuario: plan.idUsuario,
-          meta: plan.meta,
-          tipoActividad: plan.tipoActividad,
-          dias: plan.dias,
-          hora: plan.hora,
-          periodo: plan.periodo,
-          mensaje: plan.mensaje,
-          recomendacion: plan.recomendacion,
-          tipoLogro: plan.tipoLogro,
-          completada: plan.completada,
-          iconoLogro: obtenerIconoLogro(plan.tipoLogro),
-          iconoPlan: obtenerIconoPlan(plan.tipoLogro));
-      planes.add(planDiario);
-    } */
     log.i(planes.toString());
     isLoading.value = false;
   }
 
-  IconData obtenerIconoLogro(int tipoLogro) {
-    if (tipoLogro == TTexts.logroGourmetSaludable) {
-      return Icons.soup_kitchen;
-    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
-      return Icons.self_improvement;
-    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
-      return Icons.directions_run;
-    } else {
-      return Icons.report_off;
-    }
-  }
-
-  IconData obtenerIconoPlan(int tipoLogro) {
-    if (tipoLogro == TTexts.logroGourmetSaludable) {
-      return Icons.local_dining;
-    } else if (tipoLogro == TTexts.logroEquilibrioInterior) {
-      return Icons.volunteer_activism;
-    } else if (tipoLogro == TTexts.logroResilienciaFitness) {
-      return Icons.fitness_center;
-    } else {
-      return Icons.report_off;
-    }
-  }
-
+ 
   void togglePlan(int index) {
-    int valor = planes[index].completada;
-    if (valor == TTexts.logroIncompleto) {
+    int valor = planes[index].estadoPlan;
+    if (valor == TTexts.estadoPendiente) {
       showQuestionDialog(planes[index]);
     } else {
-      planes[index].completada =
-          (planes[index].completada == TTexts.logroIncompleto)
-              ? TTexts.logroCompletado
-              : TTexts.logroIncompleto;
+      planes[index].estadoPlan =
+          (planes[index].estadoPlan == TTexts.estadoPendiente)
+              ? TTexts.estadoCompletado
+              : TTexts.estadoPendiente;
       planes.refresh();
     }
   }
@@ -125,8 +94,9 @@ class PlanController extends GetxController {
       onPressedConfirm: () {
         log.i("Logro Actualizado");
         final planRepository = Get.find<PlanRepository>();
-        planRepository.updateLogro(plan.idDocumento, TTexts.logroCompletado);
+        planRepository.updateEstadoCompletado(plan.idDocumento, TTexts.estadoCompletado);
         Get.back();
+        showLogroDialog(plan.tipoLogro);
       },
       onPressedCancel: () => Get.back(),
       titulo: '¿Actividad Completada?',
@@ -140,5 +110,17 @@ class PlanController extends GetxController {
     // Cancelar la suscripción cuando el Controller se cierre
     _subscriptionPlan?.cancel();
     super.onClose();
+  }
+
+  void showLogroDialog(int tipoLogro) {
+    Get.dialog(CustomLogroDialog(
+      tipoLogro: tipoLogro,
+      titulo: "¡Felicidades!",
+      descripcion: "Obtuviste el logro de ${TTexts.obtenerNombreLogro(tipoLogro)}. ¡Sigue así! Prioriza tu bienestar.",
+      onPressed: () {
+        log.i("Ganaste un logro felicidades");
+        Get.back();
+      },
+    ));
   }
 }

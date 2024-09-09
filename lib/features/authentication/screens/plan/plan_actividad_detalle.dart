@@ -5,9 +5,6 @@ import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:flutter/material.dart';
 
 void showPlanDetailDragDetail(BuildContext context, PlanDiario plan) {
-  String descripcionLogro = plan.tipoLogro == TTexts.logroGourmetSaludable ? 'Gourmet Saludable' : 
-                plan.tipoLogro == TTexts.logroEquilibrioInterior ? 'Equilibrio Interior' : 
-                'Resiliencia Fitness';
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -99,11 +96,14 @@ void showPlanDetailDragDetail(BuildContext context, PlanDiario plan) {
                       ),
                        const SizedBox(height: 8.0),
                       Text(
-                       //actividad.nombre,
-                       """ Si superas la meta, obtendrás el logro de "$descripcionLogro". ¡Tú Puedes!""",
+                       plan.estadoPlan == TTexts.estadoCompletado ? 
+                       "¡Felicidades! Has completado tu plan diario. Obtuviste el logro de '${TTexts.obtenerNombreLogro(plan.tipoLogro)}'. ¡Sigue así! Prioriza tu bienestar." : 
+                       " Si superas la meta, obtendrás el logro de '${TTexts.obtenerNombreLogro(plan.tipoLogro)}'. ¡Tú Puedes!'",
+                       
                        textAlign: TextAlign.justify,
                        style: const TextStyle(fontSize: 15, fontStyle: FontStyle.italic),
                       ),
+                      const SizedBox(height: 15.0),
                       Center(
                         child: Image(
                           width: 128,
@@ -123,7 +123,7 @@ void showPlanDetailDragDetail(BuildContext context, PlanDiario plan) {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Center(
-                                child: ElevatedButton(
+                                child: plan.estadoPlan == TTexts.estadoCompletado ? const SizedBox.shrink() : ElevatedButton(
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: TColors.primary,
@@ -140,7 +140,7 @@ void showPlanDetailDragDetail(BuildContext context, PlanDiario plan) {
                                 ),
                               ),
                               Center(
-                                child: ElevatedButton(
+                                child: plan.estadoPlan == TTexts.estadoCompletado ? const SizedBox.shrink() : ElevatedButton(
                                   onPressed: () {},
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red[400],

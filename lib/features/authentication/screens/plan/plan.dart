@@ -12,15 +12,15 @@ class DailyPlanScreen extends StatelessWidget {
     final controller = Get.put(PlanRegisterController());
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Volver',
+        title: const Text('Registro',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFF4157FF),
-        leading: IconButton(
+       /*  leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Get.back();
+            Get.to(()=> const NavigationMenu());
           },
-        ),
+        ), */
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -293,30 +293,6 @@ class DailyPlanScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle, size: 40),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
-          ),
-        ],
       ),
     );
   }

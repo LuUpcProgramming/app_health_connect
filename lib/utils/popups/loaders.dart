@@ -10,7 +10,7 @@ class Loaders {
       isDismissible: true,
       shouldIconPulse: true,
       colorText: TColors.white,
-      backgroundColor: Colors.green.shade300,
+      backgroundColor: const Color.fromARGB(243, 43, 172, 116),
       snackPosition: SnackPosition.BOTTOM,
       duration: const Duration (seconds: 4),
       margin: const EdgeInsets.all(20),
@@ -43,6 +43,21 @@ class Loaders {
       duration: const Duration (seconds: 3),
       margin: const EdgeInsets.all(20),
       icon: const Icon(Icons.error,color: TColors.white)
+    );
+  }
+
+  static customSnackBar({required title, message = '',color = Colors.orange}) {
+    Get.snackbar(
+      title, 
+      message,
+      isDismissible: true,
+      shouldIconPulse: true,
+      colorText: TColors.white,
+      backgroundColor: color,
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration (seconds: 4),
+      margin: const EdgeInsets.all(20),
+      icon: const Icon(Icons.warning,color: TColors.white)
     );
   }
 }

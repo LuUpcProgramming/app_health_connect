@@ -14,7 +14,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // _showDialog(context);
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -120,16 +119,17 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
-              const PlanBox(),
+              PlanBox(controller: controller),
               const SizedBox(height: 16),
 
               // Recomendado para ti section
               const Text(
-                'Recomendado para ti',
+                'Tips recomendados para ti',
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
-              const Row(
+              RecomendacionesList(controller: controller),
+/*               const Row(
                 children: [
                   RecommendationBox(
                     icon: Icons.local_florist,
@@ -141,14 +141,12 @@ class DashboardScreen extends StatelessWidget {
                     text: 'Tips para mejorar la alimentación',
                   ),
                 ],
-              ),
+              ), */
             ],
           ),
         ),
       ),
     );
-
-    //const String userName = "Juan";
   }
 
  

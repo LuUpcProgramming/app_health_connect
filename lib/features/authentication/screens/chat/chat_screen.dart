@@ -31,7 +31,6 @@ class _ChatView extends StatefulWidget {
 class _ChatViewState extends State<_ChatView> {
   final _log = logger(_ChatView);
   final _openAiKey = Environment.openAiKey;
-  //final ChatUser _user =ChatUser(id: '1', firstName: "Luis", lastName: 'Natividad');
   final ChatUser _asistenteVirtual = ChatUser(
       id: '2',
       firstName: 'Health',
@@ -106,19 +105,11 @@ class _ChatViewState extends State<_ChatView> {
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.white),
               onPressed: () {
+                //controller.generarPlandiario();
                 showCustomDialogRemoveChat(context, controller);
               },
             )
           ]
-
-          /*
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(25),
-            bottomRight: Radius.circular(25)
-          )
-        ),
-        */
           ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -129,7 +120,7 @@ class _ChatViewState extends State<_ChatView> {
             _messages.add(
               ChatMessage(
                   text:
-                      'Hola ${controller.nombreUsuario ?? ''}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
+                      'Hola ${controller.nombreUsuario}, ¿Cómo estás? \n¿Hay algo en lo que pueda ayudarte o que te gustaría hablar? 😃',
                   user: _asistenteVirtual,
                   createdAt: DateTime.now()),
             );

@@ -91,6 +91,7 @@ class NavigationMenu extends StatelessWidget {
 }
 
 class NavigationController extends GetxController {
+  static NavigationController get instance => Get.find();
   final log = logger(NavigationController);
   final Rx<int> selectedIndex = 0.obs;
   final screens = [
@@ -98,7 +99,58 @@ class NavigationController extends GetxController {
     const HistorialAdviceScreen(),
     const DailyPlanScreen(),
     const EstadisticasScreen(),
-    Center(
+    const Perfil(),
+  ];
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Escucha los cambios en selectedIndex
+    ever(selectedIndex, handleScreenChange);
+  }
+
+  void handleScreenChange(int index) {
+    try {
+      if (index == 1) {
+        log.i("handleScreenChange: Entro a index 1 Historial Recomendaciones");
+        final adviceController = Get.put(AdviceController());
+        if (!adviceController.isSubscriptionActive()) {
+          adviceController.startListeningAdviceRecommendation();
+        }
+      } else if (index == 2) {
+        // Navegación directa a la pantalla "Plan Diario"
+        log.i("handleScreenChange: Entro a Plan Diario");
+/*         Get.off(() => const DailyPlanScreen(),
+            transition: Transition.rightToLeft,
+            duration:const Duration(milliseconds: 500)
+        );  */
+      } else if (index == 3) {
+        log.i("handleScreenChange: Entro a index 3");
+        final estadisticaController = Get.put(EstadisticaController());
+        if (estadisticaController.isSubscriptionActive()) {
+          estadisticaController.stopListening();
+        }
+        estadisticaController.selectedDate.value = TTexts.semanal;
+        estadisticaController.startListeningWeeklyStatistics();
+      } else if (index == 4) {
+        log.i("handleScreenChange: Entro a index 4");
+      }
+    } catch (e) {
+      log.e("Error: ${e.toString()}");
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+    }
+  }
+}
+
+class Perfil extends StatelessWidget {
+  const Perfil({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -118,38 +170,6 @@ class NavigationController extends GetxController {
           )
         ],
       ),
-    )
-  ];
-
-  @override
-  void onInit() {
-    super.onInit();
-    // Escucha los cambios en selectedIndex
-    ever(selectedIndex, handleScreenChange);
-  }
-
-  void handleScreenChange(int index) {
-    try {
-      if (index == 1) {
-        log.i("handleScreenChange: Entro a index 1");
-        final adviceController = Get.put(AdviceController());
-        if(!adviceController.isSubscriptionActive()){
-          adviceController.startListeningAdviceRecommendation();
-        }
-        
-      } else if (index == 3) {
-        log.i("handleScreenChange: Entro a index 3");
-        final estadisticaController = Get.put(EstadisticaController());
-        if (estadisticaController.isSubscriptionActive()) {
-          estadisticaController.stopListening();
-        }
-        estadisticaController.selectedDate.value = TTexts.semanal;
-        estadisticaController.startListeningWeeklyStatistics();
-      }
-    } catch (e) {
-      log.e("Error: ${e.toString()}");
-      Loaders.errorSnackBar(
-          title: 'Oh, sucedió un error', message: e.toString());
-    }
+    );
   }
 }

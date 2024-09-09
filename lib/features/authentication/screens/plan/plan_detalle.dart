@@ -108,7 +108,8 @@ class PlanDiarioDetalle extends StatelessWidget {
                         ),
                         const Text('Sin Registros',
                             style: TextStyle(
-                                fontSize: 20, fontStyle: FontStyle.italic))
+                                fontSize: 20, 
+                                fontStyle: FontStyle.italic))
                       ],
                     ),
                   );
@@ -123,9 +124,10 @@ class PlanDiarioDetalle extends StatelessWidget {
                           meta: plan.meta,
                           hora: plan.hora,
                           periodo: plan.periodo,
+                          tipoLogro: plan.tipoLogro,
                           iconoPlan: plan.iconoPlan,
                           logroPlan: plan.iconoLogro,
-                          completada: plan.completada,
+                          estadoPlan: plan.estadoPlan,
                           onToggle: () => controller.togglePlan(index),
                         ),
                       );
@@ -145,9 +147,10 @@ class PlanCard extends StatelessWidget {
   final String meta;
   final String hora;
   final String periodo;
+  final int tipoLogro;
   final IconData iconoPlan;
   final IconData logroPlan;
-  final int completada;
+  final int estadoPlan;
   final Function() onToggle;
 
   const PlanCard({
@@ -155,9 +158,10 @@ class PlanCard extends StatelessWidget {
     required this.meta,
     required this.hora,
     required this.periodo,
+    required this.tipoLogro,
     required this.iconoPlan,
     required this.logroPlan,
-    required this.completada,
+    required this.estadoPlan,
     required this.onToggle,
   });
 
@@ -197,8 +201,8 @@ class PlanCard extends StatelessWidget {
               ),
             ),
             CircleAvatar(
-              backgroundColor: completada == TTexts.logroCompletado
-                  ? TColors.primary
+              backgroundColor: estadoPlan == TTexts.estadoCompletado
+                  ? TTexts.obtenerColorLogro(tipoLogro)
                   : const Color.fromARGB(71, 158, 158, 158),
               radius: 25,
               child: Icon(logroPlan, color: TColors.white, size: 24),
@@ -211,10 +215,12 @@ class PlanCard extends StatelessWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
-                  border: Border.all(color: Colors.blue, width: 2),
-                  color: completada == TTexts.logroCompletado ? Colors.blue : Colors.white,
+                  border: Border.all(color: TColors.primary, width: 2),
+                  color: estadoPlan == TTexts.estadoCompletado
+                      ? TColors.primary
+                      : Colors.white,
                 ),
-                child: completada == TTexts.logroCompletado
+                child: estadoPlan == TTexts.estadoCompletado
                     ? const Icon(Icons.check, size: 16, color: Colors.white)
                     : null,
               ),

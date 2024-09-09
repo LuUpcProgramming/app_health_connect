@@ -1,11 +1,19 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/data/repositories/chat/chat_repository.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
+import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
+import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/chat_message.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
+import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
+import 'package:app_health_connect/features/authentication/models/recomendacion.dart';
 import 'package:app_health_connect/navigation_menu.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
@@ -40,22 +48,23 @@ class ChatController extends GetxController {
     super.onInit();
     openAI = OpenAI.instance.build(
         token: openAiKey,
-        baseOption: HttpSetup(receiveTimeout: const Duration(seconds: 5)),
+        baseOption: HttpSetup(
+            sendTimeout: const Duration(seconds: 10),
+            receiveTimeout: const Duration(seconds: 10),
+            connectTimeout: const Duration(seconds: 10)),
         enableLog: true);
     log.i("onInit: Se instancia OPENAI");
-     WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       cargaDatosChat();
     });
   }
 
   Future<void> cargaDatosChat() async {
     try {
-      TFullScreenLoader.openLoadingDialog("Cargando Chat..", TImages.loadingAnimation);
+      TFullScreenLoader.openLoadingDialog(
+          "Cargando Chat..", TImages.loadingAnimation);
       isLoading.value = true;
       log.i("cargaDatosChat: Comienza cargaDatosChat");
-
-      // Simular carga de datos con un retraso
-      // await Future.delayed(const Duration(seconds: 1));
 
       // Carga de datos de Usuario
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -80,11 +89,10 @@ class ChatController extends GetxController {
       messagesHistory.assignAll(historial);
       countMessageHistory = messagesHistory.length;
       log.i("cargaDatosChat: Se carga Historial de Chat si lo hubiera");
-      
+
       isLoading.value = false;
       TFullScreenLoader.stopLoading();
       log.i("cargaDatosChat: Finaliza cargaDatosChat");
-      Get.delete<ChatRepository>();
     } catch (e) {
       TFullScreenLoader.stopLoading();
       log.e('Error en cargaDatosChat');
@@ -93,6 +101,45 @@ class ChatController extends GetxController {
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
       throw Exception(e);
+    }
+  }
+
+  Future<void> procesarConversacion(int indicador) async {
+    try {
+      log.i("procesarConversacion: Comienza procesarConversacion");
+      TFullScreenLoader.openLoadingDialog(
+          "Procesando Información...", TImages.loadingAnimation);
+      if (messagesHistory.isNotEmpty) {
+        if (countMessageHistory != messagesHistory.length) {
+          // Aquí va la lógica para procesar la conversación
+          log.i(
+              "procesarConversacion: Entra a ejecutar saveHistoryToFirestore,saveHistoryRecomendacion,generarPlandiario");
+          await saveHistoryToFirestore();
+          await saveHistoryRecomendacion();
+          await generarTipsRecomendacion(indicador);
+          /* if (indicador == TTexts.indicadorGenerarPlan) {
+            await generarPlandiario();
+          } */
+        }
+      }
+
+      Get.delete<ChatController>();
+      Get.delete<ChatRepository>();
+      final dashboard = Get.put(DashboardController());
+      TFullScreenLoader.stopLoading();
+      await dashboard.loadData();
+      Get.to(() => const NavigationMenu());
+      //Get.to(()=> const HistorialAdviceScreen());
+    } catch (e) {
+      log.e('Error en procesarConversacion');
+      log.e("Error: ${e.toString()}");
+      TFullScreenLoader.stopLoading();
+      //Show some generic error to user
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+    } finally {
+      log.i("procesarConversacion : Finaliza procesarConversacion");
+      
     }
   }
 
@@ -150,7 +197,6 @@ class ChatController extends GetxController {
       Puedes hacerlo en cualquier momento del día, incluso en el trabajo cuando te sientas abrumado. Inhala profundamente por tu nariz, retén el aire por un momento
       y luego exhala lentamente por la boca.|22/06/2024|Exceso de actividades en el trabajo y horas extras sin pago.|Estresado.
       """;
-
       messagesHistory
           .add(Messages(role: Role.user, content: promptSave).toJson());
       log.i("saveHistoryRecomendacion: Antes de llamar a OPENAI");
@@ -162,7 +208,7 @@ class ChatController extends GetxController {
       final response = await openAI.onChatCompletion(request: request);
       log.i(
           "saveHistoryRecomendacion: Despues de llamar a OPENAI para procesar Historial de Mensajes");
-      messagesHistory.clear();
+      //messagesHistory.clear();
 
       String fullResponse = '';
       if (response != null && response.choices.isNotEmpty) {
@@ -212,31 +258,247 @@ class ChatController extends GetxController {
     } finally {}
   }
 
-  void procesarConversacion() {
+  final List<String> daysCompleto = TTexts.dias;
+
+  Future<void> generarPlandiario() async {
     try {
-      log.i("procesarConversacion: Comienza procesarConversacion");
-      TFullScreenLoader.openLoadingDialog("Procesando Información...", TImages.loadingAnimation);
-      if (messagesHistory.isNotEmpty) {
-        if (countMessageHistory != messagesHistory.length) {
-          // Aquí va la lógica para procesar la conversación
-          log.i(
-              "procesarConversacion: Entra a ejecutar saveHistoryToFirestore y saveHistoryRecomendacion ");
-          saveHistoryToFirestore();
-          saveHistoryRecomendacion();
-        }
+      TFullScreenLoader.openLoadingDialog(
+          "Generando Plan...", TImages.loadingAnimation);
+      DateTime now = DateTime.now();
+      String fechaRegistro = DateFormat('yyyy-MM-dd').format(now);
+      String horaRegistro = DateFormat('HH:mm:ss').format(now);
+      Random random = Random();
+      String dias = getDiasRestantesDeLaSemana();
+      String identificadorPlan =
+          '${DateFormat('yyyyMMdd').format(now)}_${random.nextInt(100000)}';
+      log.i("generarPlandiario: Comienza generarPlandiario");
+      final promptPlanDiario2 = """
+      Adicionalmente, De todo lo conversado tienes que generar planes diarios que permitan al paciente desarrollar hábitos saludables para mejorar su salud física y mental.
+      Estos planes deben contener la siguiente información:
+      1)Meta: Genera la meta que el paciente desea alcanzar en un máximo de 20 palabras.  Ejemplo: "Ir al gimnasio","Comer saludable", etc.
+      2)Tipo de Actividad: Solo hay tres opciones: ${TTexts.activMeditacion}, ${TTexts.actividadAlimentacion} o ${TTexts.actividadFisico}. Elige uno en base a la meta descrita.
+      3)Día: Selecciona uno de estos días $dias. Ejemplo: Lunes
+      4)Hora: Hora ideal en formato 24 horas para cumplir el plan.
+      5)Periodo: Dependiendo de la hora selecciona "AM" o "PM".
+      6)Mensaje: Mensaje motivacional para cumplir su plan.
+      7)Recomendaciones: Tres Recomendaciones que lo inspire a cumplir su plan.
+      Importante: Tu respuesta solo debe mostrar el contenido de cada punto descrito separado por el operador ||
+      Te muestro un ejemplo de formato de respuesta:
+      Ejemplo 1: Comer Ensalada en el Almuerzo||Alimentación||Lunes||13:00||PM||Preparar una ensalada fresca para el almuerzo no solo es una elección saludable, ¡es un acto de amor propio! Cuida tu cuerpo, nutre tu mente y siembra la energía positiva que necesitas para brillar durante todo el día ¡Tu puedes hacerlo, y te mereces lo mejor!||- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.
+      """;
+      final promptPlanDiario = """
+      A continuación, debes generar planes diarios que permitan al paciente desarrollar hábitos saludables para mejorar su salud física y mental. Los planes deben seguir el siguiente formato de respuesta, utilizando "||" como separador entre los diferentes puntos. 
+
+      1) Meta: Genera la meta que el paciente desea alcanzar en un máximo de 20 palabras. Ejemplo: "Ir al gimnasio","Comer saludable".
+      2) Tipo de Actividad: Selecciona una opción entre las siguientes: ${TTexts.activMeditacion}, ${TTexts.actividadAlimentacion}, ${TTexts.actividadFisico}.
+      3) Día: Selecciona uno de estos días $dias.
+      4) Hora: Indica la hora ideal en formato 24 horas (ejemplo: 13:00).
+      5) Periodo: "AM" o "PM" dependiendo de la hora seleccionada.
+      6) Mensaje: Escribe un mensaje motivacional para que el paciente cumpla su plan.
+      7) Recomendaciones: Proporciona tres recomendaciones inspiradoras separadas por "\n" para que el paciente logre su meta.
+
+      El formato de respuesta debe ser exactamente así, utilizando "||" para separar los campos y "\n" para separar cada recomendación. No incluyas ningún texto adicional ni explicaciones.
+
+      Ejemplo:
+      Comer Ensalada en el Almuerzo||Alimentación||Lunes||13:00||PM||Preparar una ensalada fresca para el almuerzo no solo es una elección saludable, ¡es un acto de amor propio! Cuida tu cuerpo, nutre tu mente y siembra la energía positiva que necesitas para brillar durante todo el día ¡Tú puedes hacerlo, y te mereces lo mejor!||- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.
+      """;
+
+      messagesHistory
+          .add(Messages(role: Role.user, content: promptPlanDiario).toJson());
+      log.i("generarPlandiario: Antes de llamar a OPENAI");
+      final request = ChatCompleteText(
+          messages: messagesHistory,
+          maxToken: 1000,
+          temperature: 0.3,
+          model: GptTurbo0125ChatModel());
+      final response = await openAI.onChatCompletion(request: request);
+      log.i(
+          "generarPlandiario: Despues de llamar a OPENAI para generar Plan Diario");
+
+      String fullResponse = '';
+      if (response != null && response.choices.isNotEmpty) {
+        log.i("generarPlandiario: Se muestra respuesta OPENAI");
+        fullResponse = response.choices.first.message?.content ?? '';
+      } else {
+        throw Exception('No se pudo obtener respuesta del modelo GPT-3.5');
       }
-      TFullScreenLoader.stopLoading();
-      Get.delete<ChatController>();
-      Get.off(() => const NavigationMenu());
-      //Get.to(()=> const HistorialAdviceScreen());
+      log.i(fullResponse);
+      List<String> listaFullResponse = fullResponse.split('||');
+
+      if (listaFullResponse.length == 7) {
+        List<String> selectedDays = listaFullResponse[2].trim().split(',');
+
+        final planRepository = Get.put(PlanRepository());
+
+        for (var dia in selectedDays) {
+          final planDiario = PlanDiario(
+              idUsuario: currentUser!.uid,
+              meta: listaFullResponse[0].trim(),
+              tipoActividad: listaFullResponse[1].trim(),
+              diaPlan: dia.trim(),
+              fechaPlan: TTexts.obtenerFechaDeDia(
+                  dia.trim()), // Se obtiene la fecha del día seleccionado
+              estadoPlan: TTexts.estadoPendiente,
+              hora: listaFullResponse[3].trim(),
+              periodo: listaFullResponse[4].trim(),
+              mensaje: listaFullResponse[5].trim(),
+              recomendacion: listaFullResponse[6].trim(),
+              tipoLogro: TTexts.obtenerTipoLogro(listaFullResponse[1].trim()),
+              fechaRegistro: fechaRegistro,
+              horaRegistro: horaRegistro,
+              identificadorPlan: identificadorPlan);
+          await planRepository.savePlanDiario(planDiario);
+          log.i("Se registra para dia: $dia");
+        }
+        messagesHistory.clear();
+        log.i("generarPlandiario: Se generó Plan Diario");
+      }
     } catch (e) {
-      log.e('Error en procesarConversacion');
+      log.e('Error en generarPlandiario');
       log.e("Error: ${e.toString()}");
       //Show some generic error to user
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
     } finally {
-      log.i("procesarConversacion : Finaliza procesarConversacion");
+      log.i("generarPlandiario: Termina generarPlandiario");
+    }
+  }
+
+  Future<void> generarTipsRecomendacion(int indicador) async {
+    try {
+      DateTime now = DateTime.now();
+      String fechaRegistro = DateFormat('yyyy-MM-dd').format(now);
+      String horaRegistro = DateFormat('HH:mm:ss').format(now);
+      log.i("generarTipsRecomendacion: Comienza generarTipsRecomendacion");
+      const promptRecomendaciones = """
+Genera una lista de recomendaciones que ayuden al paciente a mejorar su salud física y mental (cada uno debe tener titulo,descripcion y beneficios). Devuelve el resultado en formato JSON siguiendo esta estructura:
+
+[
+  {
+    "titulo": "string",
+    "descripcion": [
+      "string",
+      "string",
+      "string"
+    ],
+    "beneficios": [
+      "string",
+      "string",
+      "string"
+    ]
+  },
+  {
+    "titulo": "string",
+    "descripcion": [
+      "string",
+      "string",
+      "string"
+    ],
+    "beneficios": [
+      "string",
+      "string",
+      "string"
+    ]
+  }
+]
+
+Cada recomendación debe contener un "título", una "descripción" con al menos 3 pasos detallados y prácticos, y "beneficios" con al menos 3 puntos. No incluyas ningún texto adicional ni explicaciones. Solo devuelve el JSON.
+
+Ejemplo:
+  {
+    "titulo": "Leer un libro",
+    "descripcion": [
+      "Escoge tu libro favorito, lo puedes descargar o comprar en una librería.",
+      "Elige un espacio ideal y sin ruido para que leas tu libro de forma tranquila y sin interrupciones.",
+      "Disfruta leyendo cada capítulo haciendo pausas y, si es posible, leyéndolo en voz alta."
+    ],
+    "beneficios": [
+      "Te dará una sensación de paz y tranquilidad.",
+      "Mejorará tu capacidad de concentración y productividad en el trabajo.",
+      "Aumentará tu habilidad de análisis y comprensión lectora."
+    ]
+  }
+Genera 3 objetos diferentes del formato del ejemplo que te he mostrado.
+
+""";
+
+      messagesHistory.add(
+          Messages(role: Role.user, content: promptRecomendaciones).toJson());
+      log.i("generarTipsRecomendacion: Antes de llamar a OPENAI");
+      final request = ChatCompleteText(
+          messages: messagesHistory,
+          maxToken: 500,
+          temperature: 0.5,
+          responseFormat: ResponseFormat.jsonObject,
+          model: GptTurbo0125ChatModel());
+      final response = await openAI.onChatCompletion(request: request);
+      log.i(
+          "generarTipsRecomendacion: Despues de llamar a OPENAI para generar Plan Diario");
+
+      String fullResponse = '';
+      if (response != null && response.choices.isNotEmpty) {
+        log.i("generarTipsRecomendacion: Se muestra respuesta OPENAI");
+        fullResponse = response.choices.first.message?.content ?? '';
+      } else {
+        throw Exception('No se pudo obtener respuesta del modelo GPT-3.5');
+      }
+      log.i(fullResponse);
+      //List<String> listaFullResponse = fullResponse.trim().split('||');
+      // Convertir el String a un objeto JSON
+      final planRepository = Get.put(PlanRepository());
+      if (TTexts.validarRepeticionesRecomendaciones(fullResponse)) {
+        List<dynamic> jsonList = jsonDecode(fullResponse);
+        List<Recomendacion> listaRecomendaciones =
+            jsonList.map((json) => Recomendacion.fromJson(json)).toList();
+        if (listaRecomendaciones.isNotEmpty) {
+          for (var recomendacion in listaRecomendaciones) {
+            final objeto = Recomendacion(
+                idUsuario: currentUser!.uid,
+                titulo: recomendacion.titulo,
+                descripcion: recomendacion.descripcion,
+                beneficios: recomendacion.beneficios,
+                fechaRegistro: fechaRegistro,
+                horaRegistro: horaRegistro);
+            await planRepository.saveRecomendacion(objeto);
+          }
+        }
+      } else {
+        Map<String, dynamic> jsonMap = jsonDecode(fullResponse);
+        Recomendacion recomendacion = Recomendacion.fromJson(jsonMap);
+        recomendacion.idUsuario = currentUser!.uid;
+        recomendacion.fechaRegistro = fechaRegistro;
+        recomendacion.horaRegistro = horaRegistro;
+
+        await planRepository.saveRecomendacion(recomendacion);
+      }
+
+      if (indicador == TTexts.indicadorTerminarChat) {
+        messagesHistory.clear();
+      }
+      log.i("generarTipsRecomendacion: Se generó Recomendaciones");
+    } on OpenAIAuthError catch (err) {
+      log.i('OpenAIAuthError ->${err.data?.error.toMap()}');
+      Loaders.errorSnackBar(
+          title: 'Ocurrió un problema...',
+          message: 'El asistente virtual no está disponible en este momento.');
+    } on OpenAIRateLimitError catch (err) {
+      log.i('OpenAIRateLimitError ->${err.data?.error.toMap()}');
+      Loaders.errorSnackBar(
+          title: 'Ocurrió un problema...',
+          message: 'El asistente virtual no está disponible en este momento.');
+    } on OpenAIServerError catch (err) {
+      log.i('OpenAIServerError ->${err.data?.error.toMap()}');
+      Loaders.errorSnackBar(
+          title: 'Ocurrió un problema...',
+          message: 'El asistente virtual no está disponible en este momento.');
+    } catch (e) {
+      log.e('Error en generarTipsRecomendacion');
+      log.e("Error: ${e.toString()}");
+      //Show some generic error to user
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+    } finally {
+      log.i("generarTipsRecomendacion: Termina generarTipsRecomendacion");
     }
   }
 
@@ -259,5 +521,15 @@ class ChatController extends GetxController {
       log.i("eliminarConversacion: Termina eliminarConversacion");
       isLoading.value = false;
     }
+  }
+
+  String getDiasRestantesDeLaSemana() {
+    final diaActualIndex = DateTime.now().weekday -
+        1; // weekday devuelve 1 para Lunes y 7 para Domingo
+    List<String> diasRestantes = TTexts.dias.sublist(diaActualIndex);
+    String diasRestantesString = diasRestantes.join(',');
+    log.i("Dias Restantes: $diasRestantes");
+    log.i("Dias Restantes: $diasRestantesString");
+    return diasRestantesString.trim();
   }
 }
