@@ -35,7 +35,8 @@ class EstadisticasDiaria {
   String descripcionAnimo;
   int cantPlanTotal;
   int cantPlanCumplido;
-  List<String> logros;
+  List<int> logros;
+  DateTime fechaRegistro;
 
   EstadisticasDiaria({
     this.fecha = '',
@@ -44,7 +45,12 @@ class EstadisticasDiaria {
     this.cantPlanTotal = 0,
     this.cantPlanCumplido = 0,
     this.logros = const [],
-  });
+    required DateTime? fechaRegistro,
+    }
+  ) : fechaRegistro = fechaRegistro ?? DateTime.now();
+
+  //Crea un constructor vacio
+  EstadisticasDiaria.empty() : fecha = '', estadoAnimo = '', descripcionAnimo = '', cantPlanTotal = 0, cantPlanCumplido = 0, logros = [], fechaRegistro = DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
@@ -54,6 +60,7 @@ class EstadisticasDiaria {
       'cantPlanTotal': cantPlanTotal,
       'cantPlanCumplido': cantPlanCumplido,
       'logros': logros,
+      'fechaRegistro': Timestamp.fromDate(fechaRegistro),
     };
   }
 
@@ -64,7 +71,8 @@ class EstadisticasDiaria {
       descripcionAnimo: json['descripcionAnimo'] ?? '',
       cantPlanTotal: json['cantPlanTotal'] ?? 0,
       cantPlanCumplido: json['cantPlanCumplido'] ?? 0,
-      logros: List<String>.from(json['logros'] ?? []),
+      logros: List<int>.from(json['logros'] ?? []),
+      fechaRegistro: (json['fechaRegistro'] as Timestamp).toDate(),
     );
   }
 
@@ -78,7 +86,8 @@ class EstadisticasDiaria {
         descripcionAnimo: data['descripcionAnimo'] ?? '',
         cantPlanTotal: data['cantPlanTotal'] ?? 0,
         cantPlanCumplido: data['cantPlanCumplido'] ?? 0,
-        logros: List<String>.from(data['logros'] ?? []),
+        logros: List<int>.from(data['logros'] ?? []),
+        fechaRegistro: (data['fechaRegistro'] as Timestamp).toDate(),
       );
     } else {
       return EstadisticasDiaria(
@@ -88,6 +97,7 @@ class EstadisticasDiaria {
         cantPlanTotal: 0,
         cantPlanCumplido: 0,
         logros: [],
+        fechaRegistro: DateTime.now(),
       );
     }
   }
@@ -100,7 +110,7 @@ class EstadisticasSemanal {
    List<int> progresoPlanes;
   // final List<int> progresoSemanal;
   // final List<int> progresoMensual;
-   List<String> logros;
+   List<int> logros;
 
   EstadisticasSemanal({
      this.estadoAnimoPromedio='',
@@ -126,7 +136,7 @@ class EstadisticasSemanal {
       mensajeEstadoAnimo: json['mensajeEstadoAnimo'] ?? '',
       progresoLogros: json['progresoLogros'] ?? 0,
       progresoPlanes: json['progresoPlanes'] ?? 0,
-      logros: List<String>.from(json['logros'] ?? []),
+      logros: List<int>.from(json['logros'] ?? []),
     );
   }
 
@@ -139,7 +149,7 @@ class EstadisticasSemanal {
         mensajeEstadoAnimo: data['mensajeEstadoAnimo'] ?? '',
         progresoLogros: List<int>.from(data['progresoLogros'] ?? []),
         progresoPlanes: List<int>.from(data['progresoPlanes'] ?? []),
-        logros: List<String>.from(data['logros'] ?? []),
+        logros: List<int>.from(data['logros'] ?? []),
       );
     } else {
       return EstadisticasSemanal(

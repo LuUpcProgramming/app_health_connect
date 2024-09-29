@@ -12,6 +12,7 @@ class TImages {
   static const String officialLogo = "assets/images/logo_v2.png";
   static const String avatarLogo = "assets/logos/avatar.png";
   static const String noData = "assets/images/no_data.png";
+  static const String welcomeImage = "assets/images/bg1.png";
 
   // -- Imagenes Genericas
   static const String imgMeditacion = "assets/images/meditacion.png";
@@ -68,6 +69,7 @@ class TImages {
   static const String onBoardingImage1 = "assets/images/on_boarding_images/sammy-line-searching.gif";
   static const String onBoardingImage2 = "assets/images/on_boarding_images/sammy-line-shopping.gif";
   static const String onBoardingImage3 = "assets/images/on_boarding_images/sammy-line-delivery.gif";
+ 
 
   // -- Products
   static const String productImage1 = "assets/images/products/nike-shoes.png";

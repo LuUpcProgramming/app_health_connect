@@ -26,23 +26,29 @@ Widget buildMoodCard(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
                 color: Colors.white, fontSize: 23, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.sentiment_dissatisfied,
-                  color: Colors.yellow, size: 40),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  // 'Ligeramente Estresado',
-                  estadoAnimoPromedio,
+          Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  TTexts.obtenerEmojiPorEmocion(estadoAnimoPromedio),
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500),
+                      fontSize: 45),
                 ),
-              ),
-            ],
+               // const Icon(Icons.sentiment_dissatisfied,color: Colors.yellow, size: 40),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    // 'Ligeramente Estresado',
+                    estadoAnimoPromedio,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
           Text(
@@ -121,7 +127,6 @@ Widget buildMoodCardV2(String estadoAnimoPromedio, String mensajeEstadoAnimo) {
     ),
   );
 }
-
 
 Widget buildWeeklyProgressChart(EstadisticaController stat) {
   return Card(
@@ -356,8 +361,6 @@ Widget buildWeeklyProgressChartV2(EstadisticaController stat) {
   );
 }
 
-
-
 Widget buildMonthlyProgressChart(EstadisticaController stat) {
   return Card(
     color: TColors.primary,
@@ -422,37 +425,18 @@ Widget buildMonthlyProgressChart(EstadisticaController stat) {
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         );
-                        // Obtener el mes actual
-                        final currentMonth = DateTime.now().month;
-                        // Lista de nombres de los meses
-                        final List<String> months = [
-                          'E',
-                          'F',
-                          'M',
-                          'A',
-                          'M',
-                          'J',
-                          'J',
-                          'A',
-                          'S',
-                          'O',
-                          'N',
-                          'D'
-                        ];
-                        // Crear una lista de los últimos 6 meses
-                        final List<String> lastSixMonths =
-                            List.generate(6, (index) {
-                          int monthIndex = (currentMonth - 6 + index + 12) % 12;
-                          return months[monthIndex];
-                        });
-                        Widget text;
-                        if (value.toInt() >= 0 && value.toInt() < 6) {
-                          text =
-                              Text(lastSixMonths[value.toInt()], style: style);
-                        } else {
-                          text = const Text('', style: style);
-                        }
-                        /*                       switch (value.toInt()) {
+
+                        // Etiquetas para las semanas
+                        final List<String> weeks = ['Sem1', 'Sem2', 'Sem3', 'Sem4'];
+
+
+                       Widget text;
+                      if (value.toInt() >= 0 && value.toInt() < weeks.length) {
+                        text = Text(weeks[value.toInt()], style: style);
+                      } else {
+                        text = const Text('', style: style);
+                      }
+                       /*                       switch (value.toInt()) {
                           case 0:
                             text = const Text('E', style: style);
                             break;
@@ -503,9 +487,30 @@ List<BarChartGroupData> _buildBarGroups( String selectedDate, EstadisticasSemana
 
   assert(datalogros.length == dataplanes.length);
 
-  return List.generate(datalogros.length, (index) {
+  // Suponiendo que los datos están ordenados cronológicamente
+  // y `dataplanes.length` es 28 o menos para las últimas 4 semanas
+  
+  // Inicializa listas para sumar los datos por semana
+ /*  List<int> weeklyLogros = List.filled(4, 0);
+  List<int> weeklyPlanes = List.filled(4, 0);
+
+  // Acumula los datos en las listas semanales
+  for (int i = 0; i < dataplanes.length; i++) {
+    int weekIndex = i ~/ 7; // Calcula el índice de la semana
+    if (weekIndex < 4) { // Asegúrate de no exceder las 4 semanas
+      weeklyLogros[weekIndex] += datalogros[i];
+      weeklyPlanes[weekIndex] += dataplanes[i];
+    }
+  }
+ */
+   // Genera los grupos de barras para cada semana
+  return List.generate(dataplanes.length, (index) {
     return _buildBarGroup(index, datalogros[index], dataplanes[index]);
   });
+
+/*   return List.generate(dataplanes.length, (index) {
+    return _buildBarGroup(index, datalogros[index], dataplanes[index]);
+  }); */
 
   /* return [
     _buildBarGroup(0, 5, 3),

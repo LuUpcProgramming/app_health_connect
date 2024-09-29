@@ -14,12 +14,14 @@ class SignupController extends GetxController {
 
   //Variables
   final hidePassword = true.obs;
+  final hideConfirmarPassword = true.obs;
   final privacyPolicy = true.obs;
   final email = TextEditingController();
   final firstName = TextEditingController();
   final lastName = TextEditingController();
   //final username = TextEditingController();
   final password = TextEditingController();
+  final confirmarPassword = TextEditingController();
   //final confirmPassword = TextEditingController();
   final phoneNumber = TextEditingController();
   GlobalKey<FormState> signupFormKey = GlobalKey<FormState>();
@@ -28,10 +30,11 @@ class SignupController extends GetxController {
   void onInit() {
     firstName.text = "Luis";
     lastName.text = "Natividad";
-    phoneNumber.text = "934543452";
+    //phoneNumber.text = "934543452";
     //email.text = "luisnatividad97@hotmail.com";
-    email.text = "luis_1997_na@hotmail.com";
+    email.text = "luisnatividad97@hotmail.com";
     password.text = "L123456%%";
+    confirmarPassword.text = "L123456%%";
 
     super.onInit();
   }
@@ -43,13 +46,7 @@ class SignupController extends GetxController {
       // Start Loading
       TFullScreenLoader.openLoadingDialog(
           'Procesando Información...', TImages.loadingAnimation);
-/*       showDialog(
-          context: Get.overlayContext!,
-          builder: (context) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }); */
+
       // Check Internet Connectivity
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {
@@ -64,8 +61,14 @@ class SignupController extends GetxController {
         return;
       }
 
+      if(password.text != confirmarPassword.text){
+        TFullScreenLoader.stopLoading();
+        Loaders.warningSnackBar(title: "Verificar Contraseña", message: "Las contraseñas no coinciden");
+        return;
+      }
+
       // Privacy Policy Check
-      if (!privacyPolicy.value) {
+ /*      if (!privacyPolicy.value) {
         Loaders.warningSnackBar(
             title: 'Aceptar la política de privacidad',
             message:
@@ -73,7 +76,7 @@ class SignupController extends GetxController {
         TFullScreenLoader.stopLoading();
         //Navigator.of(Get.overlayContext!).pop();
         return;
-      }
+      } */
 
       // Register user in the Firebase Authentication S Save user data in the Firebase
       final userCredential = await AuthenticationRepository.instance
@@ -87,7 +90,8 @@ class SignupController extends GetxController {
           firstName: firstName.text.trim(),
           lastName: lastName.text.trim(),
           email: email.text.trim(),
-          phoneNumber: phoneNumber.text.trim(),
+          //phoneNumber: phoneNumber.text.trim(),
+          phoneNumber: '',
           profilePicture: '');
 
       final userRepository = Get.put(UserRepository());

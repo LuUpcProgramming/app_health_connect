@@ -168,4 +168,19 @@ class UserRepository extends GetxController {
       throw 'Algo salió mal, intente de nuevo';
     }
   }
+
+   Future<void> updateEmocionUsuario(String idUsuario, String estadoSalud, String estadoTrabajo) async {
+    try {
+      await _db.collection("UserDetails").doc(idUsuario).update({
+        'estadoSalud': estadoSalud,
+        'estadoTrabajo':estadoTrabajo
+      });
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo';
+    }
+  }
 }

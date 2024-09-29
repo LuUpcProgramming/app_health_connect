@@ -46,6 +46,8 @@ Esto puede incluir ejercicios de respiración, técnicas de mindfulness, o suger
 6.Confidencialidad: Asegura a las personas que sus conversaciones contigo son confidenciales y que pueden confiar en ti.
 """;
 
+
+
 /* 
   #######################  LISTA DE MENSAJES #############################
 

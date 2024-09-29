@@ -2,13 +2,19 @@ import 'dart:async';
 
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
+import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
 import 'package:app_health_connect/features/authentication/models/actividad.dart';
 import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
 import 'package:app_health_connect/features/authentication/screens/plan/widgets/custom_logro_dialog.dart';
+import 'package:app_health_connect/navigation_menu.dart';
+import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/custom_question_dialog.dart';
+import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class PlanController extends GetxController {
   static PlanController get instance => Get.find();
@@ -18,6 +24,9 @@ class PlanController extends GetxController {
   final RxList<Tarea> tareas = <Tarea>[].obs;
   final RxList<PlanDiario> planes = <PlanDiario>[].obs;
   var isLoading = true.obs;
+  var isLoadingTareas = false.obs;
+  var isLoadingStats = false.obs;
+  int indicadorConfirmado = 0;
   StreamSubscription? _subscriptionPlan;
   final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -32,7 +41,9 @@ class PlanController extends GetxController {
 
     final planDiarioRepository = Get.put(PlanRepository());
     // Escuchar el stream de Firestore y actualizar la lista reactiva
-    _subscriptionPlan = planDiarioRepository.getStreamPlanesDiariosByUserId(userId).listen((listaPlanes) {
+    _subscriptionPlan = planDiarioRepository
+        .getStreamPlanesDiariosByUserId(userId)
+        .listen((listaPlanes) {
       List<PlanDiario> planesLocal = [];
       for (var plan in listaPlanes) {
         final planDiario = PlanDiario(
@@ -75,34 +86,85 @@ class PlanController extends GetxController {
     isLoading.value = false;
   }
 
- 
   void togglePlan(int index) {
     int valor = planes[index].estadoPlan;
     if (valor == TTexts.estadoPendiente) {
       showQuestionDialog(planes[index]);
-    } else {
-      planes[index].estadoPlan =
-          (planes[index].estadoPlan == TTexts.estadoPendiente)
-              ? TTexts.estadoCompletado
-              : TTexts.estadoPendiente;
-      planes.refresh();
     }
   }
 
   void showQuestionDialog(PlanDiario plan) {
-    Get.dialog(CustomQuestionWidget(
-      onPressedConfirm: () {
-        log.i("Logro Actualizado");
-        final planRepository = Get.find<PlanRepository>();
-        planRepository.updateEstadoCompletado(plan.idDocumento, TTexts.estadoCompletado);
-        Get.back();
-        showLogroDialog(plan.tipoLogro);
-      },
-      onPressedCancel: () => Get.back(),
-      titulo: '¿Actividad Completada?',
-      descripcion:
-          'Solo acepta si has completado la actividad correspondiente. De ti depende tu bienestar.',
-    ));
+    try {
+      Get.dialog(CustomQuestionWidget(
+        onPressedConfirm: () {
+          confirmacionLogro(plan);
+        },
+        onPressedCancel: () => Get.back(),
+        titulo: '¿Actividad Completada?',
+        color: TColors.primary,
+        descripcion:
+            'Solo acepta si has completado la actividad correspondiente. De ti depende tu bienestar.',
+      ));
+    } catch (e) {
+      log.i("showQuestionDialog: Error: $e");
+    }
+  }
+
+  void confirmacionLogro(PlanDiario plan) async {
+    try {
+      isLoadingTareas.value = true;
+      final planRepository = Get.find<PlanRepository>();
+      planRepository.updateEstadoCompletado(
+          plan.idDocumento, TTexts.estadoCompletado);
+      isLoadingTareas.value = false;
+      log.i("Logro Actualizado");
+      indicadorConfirmado++;
+      Get.back();
+      showLogroDialog(plan.tipoLogro);
+    } catch (e) {
+      log.i("showQuestionDialog: Error: $e");
+    }
+  }
+
+  void procesarEstadistica() async{
+    try {
+      if (indicadorConfirmado > 0) {
+        isLoadingStats.value = true;
+        final statsRepository = Get.put(StatisticsRepository());
+        await statsRepository.procesarPlanesEstadisticaDiaria(DateTime.now());
+        isLoadingStats.value = false;
+      }
+
+      Get.back();
+      //Get.off(() => const NavigationMenu());
+    } catch (e) {
+      log.i("procesarEstadistica: Error: $e");
+    }
+  }
+
+  void showQuestionDeleteDialog(PlanDiario plan) {
+    try {
+      Get.dialog(CustomQuestionWidget(
+        onPressedConfirm: () {
+          log.i("Logro eliminado");
+          final planRepository = Get.find<PlanRepository>();
+          planRepository.deletePlan(plan.idDocumento);
+          indicadorConfirmado++;
+          Get.back();
+          Loaders.successSnackBar(
+            title: 'Plan Eliminado Exitosamente',
+            message: 'El plan se ha eliminado correctamente.',
+          );
+        },
+        onPressedCancel: () => Get.back(),
+        titulo: '¿Desea eliminar el Plan?',
+        color: const Color.fromARGB(240, 255, 0, 0),
+        descripcion:
+            'Solo acepta si ya no deseas completar el plan. De ti depende tu bienestar.',
+      ));
+    } catch (e) {
+      log.i("showQuestionDialog: Error: $e");
+    }
   }
 
   @override
@@ -116,7 +178,8 @@ class PlanController extends GetxController {
     Get.dialog(CustomLogroDialog(
       tipoLogro: tipoLogro,
       titulo: "¡Felicidades!",
-      descripcion: "Obtuviste el logro de ${TTexts.obtenerNombreLogro(tipoLogro)}. ¡Sigue así! Prioriza tu bienestar.",
+      descripcion:
+          "Obtuviste el logro de ${TTexts.obtenerNombreLogro(tipoLogro)}. ¡Sigue así! Prioriza tu bienestar.",
       onPressed: () {
         log.i("Ganaste un logro felicidades");
         Get.back();

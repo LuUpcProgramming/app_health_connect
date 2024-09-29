@@ -27,9 +27,9 @@ Widget buildDefaultMoodCard() {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(TImages.noData,width: 130, height: 130,),
+              Image.asset(TImages.noData,width: 100, height: 100,),
               const Text('Sin Registros',
-              style: TextStyle(fontSize: 25,fontStyle: FontStyle.italic,color: TColors.white)),
+              style: TextStyle(fontSize: 20,fontStyle: FontStyle.italic,color: TColors.white)),
             ],
           ),
         ],

@@ -6,13 +6,17 @@ class CustomQuestionWidget extends StatelessWidget {
   final VoidCallback? onPressedCancel;
   final String titulo;
   final String descripcion;
+  final bool isCompleted;
+  final Color color;
 
   const CustomQuestionWidget(
       {super.key,
       this.onPressedConfirm,
       this.onPressedCancel,
       this.titulo = '¿Estás seguro?',
-      this.descripcion = '¿Estás seguro de realizar esta acción?'});
+      this.descripcion = '¿Estás seguro de realizar esta acción?',
+      this.isCompleted = false,
+      this.color = TColors.primary});
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +37,9 @@ class CustomQuestionWidget extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.only(top: 60.0, bottom: 20.0),
-                  decoration: const BoxDecoration(
-                    color: TColors.primary,
-                    borderRadius: BorderRadius.vertical(
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(10.0),
                     ),
                   ),
@@ -54,7 +58,7 @@ class CustomQuestionWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.only(left: 12,right: 12),
+              padding: const EdgeInsets.only(left: 12, right: 12),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -65,7 +69,7 @@ class CustomQuestionWidget extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                   const SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     descripcion,
                     textAlign: TextAlign.center,
@@ -79,8 +83,6 @@ class CustomQuestionWidget extends StatelessWidget {
                 ],
               ),
             ),
-            
-            
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -95,7 +97,9 @@ class CustomQuestionWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(25.0),
                       ),
                     ),
-                    child: const Text(
+                    child: isCompleted ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ) : const Text(
                       'Aceptar',
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),

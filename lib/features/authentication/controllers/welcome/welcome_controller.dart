@@ -1,7 +1,9 @@
-
 import 'package:app_health_connect/config/constants/environment.dart';
 import 'package:app_health_connect/config/helper/logging.dart';
+import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
+import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
+import 'package:app_health_connect/features/authentication/models/recomendacion.dart';
 import 'package:app_health_connect/features/authentication/models/user_detail.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
@@ -9,12 +11,14 @@ import 'package:app_health_connect/features/authentication/screens/welcome/work_
 import 'package:app_health_connect/features/authentication/screens/welcome/health_info.dart';
 import 'package:app_health_connect/navigation_menu.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:chat_gpt_sdk/chat_gpt_sdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class WelcomeController extends GetxController {
   static WelcomeController get instance => Get.find();
@@ -31,7 +35,7 @@ class WelcomeController extends GetxController {
   final TextEditingController dateController = TextEditingController();
   final TextEditingController alturaController = TextEditingController();
   final TextEditingController pesoController = TextEditingController();
-  String? selectedDropdownGeneroValue;
+  String? selectedDropdownGeneroValue = 'Masculino';
   //DateTime? selectedDate;
   //*Work Information*/
   var itemsModTrabajo = ['Trabajo Remoto', 'Trabajo Híbrido'];
@@ -194,7 +198,7 @@ class WelcomeController extends GetxController {
       log.i('validarHealthInfo: Antes de analyzeUserInfoWithOpenAI');
       final analysisResponse = await analyzeUserInfoWithOpenAI(userHealthInfo);
       log.i('validarHealthInfo: Despues de  analyzeUserInfoWithOpenAI');
-      
+
       userHealthInfo.estadoDialogAnalisisIA = true;
       List<String> lista = analysisResponse.split('|');
       if (lista.length == 3) {
@@ -202,18 +206,21 @@ class WelcomeController extends GetxController {
         userHealthInfo.estadoSalud = lista[1].trim();
         userHealthInfo.estadoTrabajo = lista[2].trim();
       } else {
-        userHealthInfo.analisisIA = 'Eres una persona saludable con muchas energías, sin embargo hay que cuidar mucho la salud mental. No te preocupes trabajaremos en ello. A esforzarse!';
-        userHealthInfo.estadoTrabajo = 'Intensivo';
-        userHealthInfo.estadoSalud = 'Estresado';
+        userHealthInfo.analisisIA =
+            'Eres una persona saludable con muchas energías, sin embargo hay que cuidar mucho la salud mental. No te preocupes trabajaremos en ello. A esforzarse!';
+        userHealthInfo.estadoTrabajo = 'Estresado';
+        userHealthInfo.estadoSalud = 'Ansioso';
       }
 
       final userRepository = Get.put(UserRepository());
       await userRepository.saveUserDetails(userHealthInfo);
       log.i('validarHealthInfo: Se Guarda detalles del usuario en Firestore');
-      TFullScreenLoader.stopLoading();
 
-      Get.delete<WelcomeController>();
-
+      final statictisRepository = Get.put(StatisticsRepository());
+      await statictisRepository.cargaEstadisticas();
+      log.i('Se cargan las estadísticas iniciales del usuario');
+      await generarTipsInicialRecomendacion();
+      //TFullScreenLoader.stopLoading();
       Get.offAll(
         () => const NavigationMenu(),
         transition: Transition.fadeIn, // Transición de deslizar
@@ -228,40 +235,6 @@ class WelcomeController extends GetxController {
   }
 
   Future<String> analyzeUserInfoWithOpenAI(UserDetail userHealthInfo) async {
-    final prompt = """
-    Actúa como un psicólogo con conocimientos de Terapia Cognitivo Conductual (CBT). 
-    Analiza la siguiente información del usuario:
-
-    Género: ${userHealthInfo.genero}
-    Fecha de Nacimiento: ${userHealthInfo.fechaNacimiento}
-    Altura: ${userHealthInfo.altura}
-    Peso: ${userHealthInfo.peso}
-    Ocupación: ${userHealthInfo.ocupacion}
-    Modalidad de Trabajo: ${userHealthInfo.modalidadTrabajo}
-    Horas de Trabajo: ${userHealthInfo.horasTrabajo}
-    Tipo de Contrato: ${userHealthInfo.tipoContrato}
-    Turno de Trabajo: ${userHealthInfo.turnoTrabajo}
-    Problemas de Salud: ${userHealthInfo.opcionesSalud.join(', ')}
-
-    Proporciona un análisis en base a la información proporcionada.La información de tu respuesta debe contener lo siguiente:
-    -personal: Análisis breve sobre el género y edad de la persona. Debe ser respuesta breve con 30 palabras como máximo.
-      Ejemplo: Persona joven llena de vitalidad.
-    -imc: Análisis del Índice de masa corporal en base a su altura y peso. Debe ser respuesta breve e informativa con 20 palabras como máximo.
-      Ejemplo: 23: Rango normal.
-    -trabajo: Análisis breve del entorno laboral. Debe ser respuesta corta con 20 palabras como máximo.
-      Ejemplo: Trabajo intensivo con largas horas laborales.
-    -salud: Análisis breve de los problemas de salud. Debe ser respuesta corta, positiva y motivadora con 30 palabras como máximo.
-      Ejemplo: Es necesario recibir atención temprana en salud mental. Mejoremos juntos.
-    -ind_trabajo: En base al análisis brinda el estado laboral de la persona en una sola palabra.
-      Ejemplo: Intensivo.
-    -ind_salud: En base al análisis brinda el estado de salud mental de la persona en una sola palabra.
-     Ejemplo: Estresado.
-
-     El formato de tu respuesta debe ser lo siguiente: 
-     'personal||imc||trabajo||salud||ind_trabajo||ind_salud'
-
-
-    """;
     final promptv2 = """
     Actúa como un psicólogo con altos conocimientos de Terapia Cognitivo Conductual (CBT). 
     Analiza la siguiente información del usuario:
@@ -278,7 +251,7 @@ class WelcomeController extends GetxController {
     Problemas de Salud: ${userHealthInfo.opcionesSalud.join(', ')}
 
     Para tu análisis y diagnóstico preliminar ten en cuenta la información proporcionada y los siguientes criterios (No me des las respuestas de cada punto aún):
-    1. Análisis personal: Análisis breve y positiva sobre el género y edad de la persona.
+    1. Análisis personal: Análisis breve y positiva sobre la edad de la persona.
     2. Análisis del IMC: Análisis breve e informativo del Índice de Masa Corporal en base a su altura y peso.
     3. Análisis del entorno laboral: Análisis breve del entorno laboral del usuario.
     4. Análisis de la salud mental: Análisis breve, positivo y motivador sobre los problemas de salud mencionados.
@@ -287,29 +260,25 @@ class WelcomeController extends GetxController {
 
     Luego, separado por el operador "|" agrega lo siguiente:
     - Primero, en una sola palabra indica como se encuentra el paciente respecto a su entorno laboral  en base a tu análisis y diagnóstico:
-      Si vez que el estado es positivo puedes usar: Tranquilo, Optimista, Motivado, Feliz, Seguro, Relajado, Resiliente, Confiado, Agradecido.
-      Si vez que el estado es negativo puedes usar: Estresado, Ansioso, Enojado, triste, Deprimido, Inseguro, Agotado, Frustrado, Irritable. (Solo digita la palabra).
+      La palabra que elijas debe ser estar dentro de la siguiente lista:  ${TTexts.emocionesTrabajo.join(', ')} . 
+     
     - Segundo, en una sola palabra indica como se encuentra el paciente respecto a su salud mental en base a tu análisis y diagnóstico. (Solo digita la palabra).
-      Si vez que el estado de salud es positivo puedes usar: Productivo, Motivador, Colaborativo, Innovador, Estimulante, Satisfactorio, Creativo, Gratificante, Organizado.
-      Si vez que el estado de salud es negativo puedes usar: Estresante, Agotador, Caótico, Desmotivador, Toxico, Intenso, Monótono, Confuso, Presionante, Insatisfactorio. (Solo digita la palabra).
+      La palabra que elijas debe ser estar dentro de la siguiente lista:  ${TTexts.obtenerEstadosDeAnimo().join(', ')} .
 
     Te muestro una lista de ejemplos de como debes responderme:
     Ejemplo 1: Tu edad de 27 años es ideal para el crecimiento personal y profesional. Tu IMC es saludable, lo cual es positivo. 
     Sin embargo, tu entorno laboral es exigente, con largas horas de trabajo. A pesar de enfrentar ansiedad, depresión, cansancio y estrés, 
-    tu conciencia sobre estos problemas es el primer paso hacia la mejora.|Desmotivador|Estresado
+    tu conciencia sobre estos problemas es el primer paso hacia la mejora.|Desmotivado|Triste
     Ejemplo 2: Tienes 27 años y, como administrador, has logrado mucho. Tu IMC indica un peso bajo, lo que puede necesitar atención. 
     Trabajas de forma remota y aunque trabajas muchas horas, esto puede ser ajustable. La ansiedad, depresión, cansancio y estrés 
-    que sientes son tratables, y hay muchas estrategias que podemos usar para ayudarte a mejorar.|Tóxico|Ansioso
+    que sientes son tratables, y hay muchas estrategias que podemos usar para ayudarte a mejorar.|Relajado|Ansioso
     Ejemplo 3: A tus 34 años, has alcanzado una posición sólida como ingeniero de soporte. Tu IMC es saludable. 
     Aunque trabajas muchas horas de forma remota, podemos encontrar un equilibrio. Los problemas de ansiedad, depresión, cansancio y estrés 
-    que enfrentas son manejables y juntos podemos desarrollar estrategias efectivas para tu bienestar.|Agotador|Triste 
-
+    que enfrentas son manejables y juntos podemos desarrollar estrategias efectivas para tu bienestar.|Agotado|Irritado 
 
     """;
     try {
       log.i('OpenAIKey: $openAiKey');
-      log.i("prompt: $prompt");
-
       List<Map<String, dynamic>> messagesHistory = [];
 
       messagesHistory.insert(
@@ -336,6 +305,74 @@ class WelcomeController extends GetxController {
     } catch (e) {
       log.e("Ocurrió un error: $e");
       return "Ocurrió un error: $e";
+    }
+  }
+
+  Future<void> generarTipsInicialRecomendacion() async {
+    try {
+      DateTime now = DateTime.now();
+      String fechaRegistro = DateFormat('yyyy-MM-dd').format(now);
+      String horaRegistro = DateFormat('HH:mm:ss').format(now);
+      log.i(
+          "generarTipsInicialRecomendacion: Comienza generarTipsInicialRecomendacion");
+      final planRepository = Get.put(PlanRepository());
+
+      List<Recomendacion> listaRecomendaciones = [
+        Recomendacion(
+            idUsuario: _user.value?.id ?? "0",
+            titulo: 'Gestionar el Estrés',
+            fechaRegistro: fechaRegistro,
+            horaRegistro: horaRegistro,
+            beneficios: [
+              'Mejora la concentración y la productividad',
+              'Reduce la fatiga y el estrés',
+              'Mejora la calidad del sueño'
+            ],
+            descripcion: [
+              'Realiza pausas activas cada 2 horas, estira tus músculos, respira profundo y toma agua.',
+              'Organiza tu espacio de trabajo, mantén ordenado tu escritorio y elimina distracciones.',
+              'Establece horarios de trabajo y descanso, evita trabajar en exceso y desconéctate al final del día.',
+            ]),
+        Recomendacion(
+            idUsuario: _user.value?.id ?? "0",
+            titulo: 'Alimentación Saludable',
+            fechaRegistro: fechaRegistro,
+            horaRegistro: horaRegistro,
+            beneficios: [
+              'Mejora la salud y el bienestar',
+              'Aumenta la energía y la vitalidad',
+              'Fortalece el sistema inmunológico'
+            ],
+            descripcion: [
+              'Consume alimentos ricos en fibra, frutas, verduras y proteínas magras.',
+              'Evita el consumo de alimentos procesados, azúcares y grasas saturadas.',
+              'Mantén horarios regulares de comida, evita saltarte comidas y come en porciones adecuadas.',
+            ]),
+        Recomendacion(
+            idUsuario: _user.value?.id ?? "0",
+            titulo: 'Ejercicio Físico',
+            fechaRegistro: fechaRegistro,
+            horaRegistro: horaRegistro,
+            beneficios: [
+              'Mejora la salud cardiovascular y la resistencia',
+              'Fortalece los músculos y los huesos',
+              'Reduce el riesgo de enfermedades crónicas'
+            ],
+            descripcion: [
+              'Realiza actividad física moderada por lo menos 30 minutos al día, 5 días a la semana.',
+              'Elige actividades que disfrutes, como caminar, correr, nadar o bailar.',
+              'Establece metas realistas, inicia con ejercicios sencillos y aumenta la intensidad gradualmente.',
+            ])
+      ];
+
+      for (var recomendacion in listaRecomendaciones) {
+        await planRepository.saveRecomendacion(recomendacion);
+      }
+      log.i(
+          "generarTipsInicialRecomendacion: Se guardan las recomendaciones iniciales");
+    } catch (e) {
+      log.e('generarTipsInicialRecomendacion: Sucedió un error: $e');
+      throw Exception(e);
     }
   }
 }

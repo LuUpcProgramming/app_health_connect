@@ -4,6 +4,8 @@ import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/authentication/authentication_repository.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/timezone.dart';
 
 final log = logger(FirebaseApiMessaging);
 
@@ -84,5 +86,59 @@ class FirebaseApiMessaging {
     log.i('PushTokenFirebase:  $fCMToken');
     initPushNotifications();
     initLocalNotifications();
+  }
+
+    //Programar notificación para un plan diario localmente
+  Future<void> scheduleNotificationForPlanDiario(String fechaPlan, String hora, String titulo, String mensaje) async {
+    try {
+      // Combinar fecha y hora para generar un DateTime
+      final DateTime date = DateTime.parse(fechaPlan); // Tu fecha en formato DateTime
+
+      // Combinar fecha y hora en un solo DateTime
+      final DateTime fechaHora = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        int.parse(hora.split(":")[0]), // hora
+        int.parse(hora.split(":")[1]), // minutos
+        int.parse('00'), // segundos
+      );
+
+      var androidDetails = const AndroidNotificationDetails(
+        'plan_diario_channel', // Debe coincidir con el ID del canal
+        'Plan_Diario', // Nombre del canal
+        channelDescription: 'Notificaciones de recordatorios importantes', // Breve descripción de la notificación
+        icon: '@drawable/logo', // Icono de la notificación
+        priority: Priority.high, // Alta prioridad
+        playSound: true, // Reproduce sonido
+        enableVibration: true, // Vibración habilitada
+      );
+
+      var platformDetails = NotificationDetails(android: androidDetails);
+
+      // Convertir a TZDateTime
+      final tz.TZDateTime scheduledDate = convertToTZDateTime(fechaHora);
+
+      // Programar la notificación para la fecha y hora especificada
+      await _localNotifications.zonedSchedule(
+        0, // ID de la notificación
+        titulo, // Título de la notificación
+        mensaje, // Cuerpo de la notificación
+        scheduledDate, // Fecha y hora para mostrar la notificación
+        platformDetails,
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time, // Notificación a la hora exacta
+      );
+
+      log.i("Notificación programada para el $fechaPlan a las $hora");
+    } catch (e) {
+      log.e("Error al programar la notificación: $e");
+    }
+  }
+
+  TZDateTime convertToTZDateTime(DateTime dateTime) {
+    final tz.TZDateTime scheduledDate = tz.TZDateTime.from(dateTime, tz.local);
+    return scheduledDate;
   }
 }

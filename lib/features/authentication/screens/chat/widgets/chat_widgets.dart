@@ -28,7 +28,7 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                   ),
                 ),
                 child: const Text(
-                  "Deseas finalizar la conversación con el Asistente y generar un plan diario?",
+                  "Deseas finalizar la conversación con el Asistente?",
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20,
@@ -44,7 +44,7 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
+                      /* ElevatedButton(
                         onPressed: () {
                           // Acción al confirmar
                           controller.procesarConversacion(TTexts.indicadorGenerarPlan);
@@ -61,7 +61,7 @@ void showCustomDialogSaveChat(BuildContext context, ChatController controller) {
                         child: const Text("Generar Plan",
                             style: TextStyle(color: Colors.white)),
                       ),
-                      const SizedBox(width: 7),
+                      const SizedBox(width: 7), */
                       ElevatedButton(
                         onPressed: () {
                           // Acción al confirmar
@@ -155,7 +155,6 @@ void showCustomDialogRemoveChat(BuildContext context,ChatController controller) 
                         onPressed: () {
                           // Acción al confirmar
                           controller.eliminarConversacion();
-                          Navigator.of(context).pop();
                           // Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(

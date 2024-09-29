@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
-import 'package:app_health_connect/features/authentication/screens/login/login.dart';
+import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 
 class AdviceController extends GetxController {
   static AdviceController get instance => Get.find();
@@ -17,11 +17,11 @@ class AdviceController extends GetxController {
   //***************Variables***************/
   final log = logger(AdviceController);
   final selectedYear = '2024'.obs;
-  final selectedMonth = 'junio'.obs;
-  final _history = Rx<HistoryAdvice?>(null);
+  final selectedMonth = TTexts.listaMeses[DateTime.now().month - 1].obs;
+  // final _history = Rx<HistoryAdvice?>(null);
   var countHistorialMessages = 0.obs;
-  HistoryAdvice? get historial => _history.value;
-  var isLoading = true.obs;
+  // HistoryAdvice? get historial => _history.value;
+  var isLoading = false.obs;
   final currentUser = FirebaseAuth.instance.currentUser;
   //List<HistoryAdviceDetail> listaHistorial = [];
   RxList<HistoryAdviceDetail> listaHistorial = <HistoryAdviceDetail>[].obs;
@@ -31,72 +31,9 @@ class AdviceController extends GetxController {
   // final cacheDuration = const Duration(minutes: 1); // Duración del caché
   StreamSubscription<DocumentSnapshot>? _subscriptionAdvice;
   final historyRepository = Get.put(HistoryRepository());
-  final List<String> years = ['2024', '2025', '2026', '2027'];
-  final List<String> months = [
-    'enero',
-    'febrero',
-    'marzo',
-    'abril',
-    'mayo',
-    'junio',
-    'julio',
-    'agosto',
-    'septiembre',
-    'octubre',
-    'noviembre',
-    'diciembre'
-  ];
+  final List<String> years = TTexts.years;
+  final List<String> months = TTexts.listaMeses;
 
-/*   @override
-  void onInit() {
-    super.onInit();
-    /* WidgetsBinding.instance.addPostFrameCallback((_) {
-      cargaHistorialRecomendaciones();
-    }); */
-    //TODO: Descomentar si se necesita optimizar llamado de data
-    /* ever(selectedYear, (value) => refreshIfNeeded());
-    ever(selectedMonth, (value) => refreshIfNeeded()); */
-  }
- */
-  //TODO: Descomentar si se necesita optimizar llamado de data
-  /*   void refreshIfNeeded() {
-    if (lastUpdateTime == null || DateTime.now().difference(lastUpdateTime!) > cacheDuration) {
-      cargaHistorialRecomendaciones();
-    }
-  } */
-
-/*   final List<HistoryAdviceDetail> lista = [
-    HistoryAdviceDetail(
-        title: 'Practica la Respiración Profunda',
-        description:
-            'Cuando sientas el peso del estrés, recuerda el poder de la respiración profunda. En cada inhalación, encuentras calma; en cada exhalación, liberas tensión.',
-        date: '29 Mie'),
-    HistoryAdviceDetail(
-        title: 'Meditación por las mañanas',
-        description:
-            'Comienza cada mañana con la tranquilidad que solo la meditación puede brindarte. Al dedicar unos minutos a calmar tu mente, estableces un poderoso precedente para el día.',
-        date: '28 Mar'),
-    HistoryAdviceDetail(
-        title: 'No descuides tu alimentación',
-        description:
-            'Incluso en los momentos mas estresantes, recuerda que tu cuerpo es aliado mas importante. Alimentarte adecuadamente te brinda la energía y la claridad mental que necesitas para superar cualquier obstáculo.',
-        date: '27 Lun'),
-    HistoryAdviceDetail(
-        title: 'Practica la Respiración Profunda',
-        description:
-            'Cuando sientas el peso del estrés, recuerda el poder de la respiración profunda. En cada inhalación, encuentras calma; en cada exhalación, liberas tensión.',
-        date: '26 Dom'),
-    HistoryAdviceDetail(
-        title: 'Meditación por las mañanas',
-        description:
-            'Comienza cada mañana con la tranquilidad que solo la meditación puede brindarte. Al dedicar unos minutos a calmar tu mente, estableces un poderoso precedente para el día.',
-        date: '25 Sab'),
-    HistoryAdviceDetail(
-        title: 'No descuides tu alimentación',
-        description:
-            'Incluso en los momentos mas estresantes, recuerda que tu cuerpo es aliado mas importante. Alimentarte adecuadamente te brinda la energía y la claridad mental que necesitas para superar cualquier obstáculo.',
-        date: '24 Vie'),
-  ]; */
   @override
   onInit() {
     super.onInit();
@@ -111,7 +48,7 @@ class AdviceController extends GetxController {
 
   //***************Métodos***************/
 
-  Future<void> cargaHistorialRecomendaciones() async {
+/*   Future<void> cargaHistorialRecomendaciones() async {
     try {
       //Show Dialog
       /* if (listaHistorial.isNotEmpty) {
@@ -132,14 +69,11 @@ class AdviceController extends GetxController {
 
       HistoryAdvice dHistory = await historyRepository
           .getHistoryRecommendationByUser(currentUser!.uid.trim());
-      historial?.value = dHistory;
+      //historial?.value = dHistory;
       listaHistorial.value = dHistory.listaHistorialDetalle;
       countHistorialMessages.value = dHistory.listaHistorialDetalle.length;
-      //TODO: Descomentar si se necesita optimizar llamado de data
-      //lastUpdateTime = DateTime.now();
       log.i("Se cargaron las recomendaciones");
       isLoading.value = false;
-      //TFullScreenLoader.stopLoading();
     } catch (e) {
       //Show some generic error to user
       log.e("Error: ${e.toString()}");
@@ -150,9 +84,9 @@ class AdviceController extends GetxController {
       log.i("Finaliza cargaHistorialRecomendaciones");
       //TFullScreenLoader.stopLoading();
     }
-  }
+  } */
 
-  List<HistoryAdviceDetail> get filteredHistorial {
+  /* List<HistoryAdviceDetail> get filteredHistorial {
     initializeDateFormatting();
     return listaHistorial.where((advice) {
       final adviceDate = DateFormat("dd/MM/yyyy").parse(advice.date.trim());
@@ -161,7 +95,7 @@ class AdviceController extends GetxController {
       return adviceYear == selectedYear.value &&
           adviceMonth == selectedMonth.value;
     }).toList();
-  }
+  } */
 
   bool isSubscriptionActive() {
     return _subscriptionAdvice != null && !_subscriptionAdvice!.isPaused;
@@ -172,37 +106,77 @@ class AdviceController extends GetxController {
     _subscriptionAdvice?.cancel();
   }
 
-  void startListeningAdviceRecommendation() async {
+  void startListeningAdviceRecommendation(DateTime fecInicioMes,DateTime fecFinMes) async {
     log.i(
         "startListeningAdviceRecommendation: Comienza startListeningAdviceRecommendation");
     try {
       isLoading.value = true;
-      _subscriptionAdvice = historyRepository.listenToAdviceRecommendations().listen((snapshot) {
+      _subscriptionAdvice =
+          historyRepository.listenToAdviceRecommendations().listen((snapshot) {
         if (snapshot.exists) {
           HistoryAdvice dHistory = HistoryAdvice.fromSnapshot(snapshot);
-          historial?.value = dHistory;
-          listaHistorial.value = dHistory.listaHistorialDetalle;
+          // historial?.value = dHistory;
+          // Filtrar por el mes actual
+          DateTime inicioMes = DateTime(fecInicioMes.year, fecInicioMes.month, 1);
+          DateTime finMes = DateTime(fecFinMes.year, fecFinMes.month + 1, 1)
+              .subtract(const Duration(seconds: 1));
+
+          // Filtrar las recomendaciones del mes actual
+          List<HistoryAdviceDetail> listaHistorialFiltrada =
+              dHistory.listaHistorialDetalle.where((item) {
+            return item.fechaRegistro.isAfter(inicioMes) &&
+                item.fechaRegistro.isBefore(finMes);
+          }).toList();
+
+          listaHistorialFiltrada.sort((a, b) => b.fechaRegistro.compareTo(a.fechaRegistro));
+
+          listaHistorial.assignAll(listaHistorialFiltrada);
           //countHistorialMessages.value = dHistory.listaHistorialDetalle.length;
-          log.i("startListeningAdviceRecommendation: Se cargaron las recomendaciones");
+          log.i(
+              "startListeningAdviceRecommendation: Se cargaron las recomendaciones");
         } else {
-          historial?.value = HistoryAdvice(idUsuario: '0', listaHistorialDetalle: []);
+          // historial?.value = HistoryAdvice(idUsuario: '0', listaHistorialDetalle: []);
           listaHistorial.value = [];
         }
-        
       });
-
     } catch (e) {
       log.e("Error: ${e.toString()}");
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
-    }finally{
+    } finally {
       isLoading.value = false;
-      log.i("startListeningAdviceRecommendation: Termina startListeningAdviceRecommendation");
-
-      
+      log.i(
+          "startListeningAdviceRecommendation: Termina startListeningAdviceRecommendation");
     }
+  }
 
-    
-    
+  // Este método genera el rango de fechas (inicio y fin) según el mes y año seleccionado
+  DateTimeRange getSelectedDateRange() {
+    int year = int.parse(selectedYear.value); // Obtiene el año seleccionado
+    int month = TTexts.obtenerNumeroMes(
+        selectedMonth.value); // Convierte el mes seleccionado a número
+
+    // Fecha de inicio del mes
+    DateTime startOfMonth = DateTime(year, month, 1);
+
+    // Fecha de fin del mes (el último día del mes)
+    DateTime endOfMonth =
+        DateTime(year, month + 1, 1).subtract(const Duration(days: 1));
+
+    return DateTimeRange(start: startOfMonth, end: endOfMonth);
+  }
+
+  // Método para filtrar las recomendaciones según el rango de fechas seleccionado
+  void filterRecommendationsBySelectedDate() {
+    DateTimeRange dateRange = getSelectedDateRange();
+
+    // Llama a tu método de filtrado de recomendaciones pasándole el rango de fechas
+    /*List<HistoryAdviceDetail> filtro = listaHistorial.where((item) {
+      return item.fechaRegistro.isAfter(dateRange.start) &&
+          item.fechaRegistro.isBefore(dateRange.end);
+    }).toList();
+*/
+    startListeningAdviceRecommendation(dateRange.start,dateRange.end);
+
   }
 }

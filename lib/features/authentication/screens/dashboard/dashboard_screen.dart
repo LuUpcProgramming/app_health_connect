@@ -78,7 +78,7 @@ class DashboardScreen extends StatelessWidget {
                     } else {
                       return StatusBox(
                         title: 'Trabajo',
-                        content: '👨‍💼',
+                        content: TTexts.obtenerEmojiPorEmocionTrabajo(controller.detailuser!.estadoTrabajo),
                         subContent: controller.detailuser!.estadoTrabajo,
                       ); 
                     }
@@ -94,7 +94,7 @@ class DashboardScreen extends StatelessWidget {
                     } else {
                         return StatusBox(
                           title: 'Estado de ánimo',
-                          content: '😩',
+                          content: TTexts.obtenerEmojiPorEmocion(controller.detailuser!.estadoSalud),
                           subContent:  controller.detailuser!.estadoSalud,
                         );
                  

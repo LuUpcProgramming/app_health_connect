@@ -9,6 +9,7 @@ import 'package:app_health_connect/features/authentication/screens/plan/plan_det
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:app_health_connect/utils/constants/text_strings.dart';
 import 'package:app_health_connect/utils/helpers/network_manager.dart';
+import 'package:app_health_connect/utils/notification/config_notification.dart';
 import 'package:app_health_connect/utils/popups/custom_success_dialog.dart';
 import 'package:app_health_connect/utils/popups/full_screen_loader.dart';
 import 'package:app_health_connect/utils/popups/loaders.dart';
@@ -191,6 +192,7 @@ class PlanRegisterController extends GetxController {
 
       List<String> listaFullResponse = fullResponse.split('|');
       var listaDeDias = selectedDays.map((e) => daysCompleto[e]).toList();
+      final FirebaseApiMessaging firebaseApiMessaging = FirebaseApiMessaging();
       final planRepository = Get.put(PlanRepository());
       for (var dia in listaDeDias) {
         final planDiario = PlanDiario(
@@ -210,6 +212,9 @@ class PlanRegisterController extends GetxController {
             identificadorPlan: identificadorPlan);
 
         await planRepository.savePlanDiario(planDiario);
+
+        await firebaseApiMessaging.scheduleNotificationForPlanDiario(
+            planDiario.fechaPlan, planDiario.hora, planDiario.meta, "Es hora de cumplir con tu meta diaria. ¡Vamos a por ello!");
         log.i("Se registra para dia: $dia");
       }
       limpiar();

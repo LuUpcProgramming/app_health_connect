@@ -1,9 +1,12 @@
 import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
 import 'package:app_health_connect/features/authentication/screens/login/login.dart';
+import 'package:app_health_connect/features/authentication/screens/login/login.dart';
+import 'package:app_health_connect/features/authentication/screens/login/welcome_login.dart';
 import 'package:app_health_connect/features/authentication/screens/onboarding/onboarding.dart';
 import 'package:app_health_connect/features/authentication/screens/plan/plan.dart';
 import 'package:app_health_connect/features/authentication/screens/plan/plan_detalle.dart';
+import 'package:app_health_connect/features/authentication/screens/signup/signup.dart';
 import 'package:app_health_connect/features/authentication/screens/signup/verify_email.dart';
 import 'package:app_health_connect/features/authentication/screens/welcome/welcome.dart';
 import 'package:app_health_connect/navigation_menu.dart';
@@ -42,6 +45,8 @@ class AuthenticationRepository extends GetxController {
     // Get.offAll(() => const DailyPlanScreen());
     // Get.offAll(() => const CustomSuccessWidget());
     //  Get.offAll(() => const PlanDiarioDetalle());
+    //Get.offAll(() => const LoginScreen());
+    //Get.offAll(() => const OnboardingScreen());
     screenRedirect();
   }
 
@@ -104,7 +109,7 @@ class AuthenticationRepository extends GetxController {
     } on PlatformException catch (e) {
       throw TPlatformException(e.code).message;
     } catch (e) {
-      throw 'Algo salió mal, intente de nuevo ';
+      throw 'Credenciales Incorrectas. Por Favor Intente de Nuevo';
     }
   }
 
@@ -130,7 +135,7 @@ class AuthenticationRepository extends GetxController {
   /// [Email Verificationj Verificacion de Email
   Future<void> sendEmailVerification() async {
     try {
-      await _auth.currentUser?.sendEmailVerification();
+      await _auth.currentUser?.sendEmailVerification();     
     } on TFirebaseAuthException catch (e) {
       throw TFirebaseAuthException(e.code).message;
     } on TFirebaseException catch (e) {
@@ -143,6 +148,24 @@ class AuthenticationRepository extends GetxController {
       throw 'Algo salió mal, intente de nuevo';
     }
   }
+
+  /// Forget Password
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);     
+    } on TFirebaseAuthException catch (e) {
+      throw TFirebaseAuthException(e.code).message;
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo';
+    }
+  }
+
 
   /// [ReAuthenticate)
 

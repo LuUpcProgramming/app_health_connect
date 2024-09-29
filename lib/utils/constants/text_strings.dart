@@ -31,13 +31,14 @@ class TTexts {
   static const String lastName = "Apellidos";
   static const String email = "Correo Electrónico";
   static const String password = "Contraseña";
+  static const String confirmarPassword = "Confirmar Contraseña";
   static const String newPassword = "New Password";
   static const String username = "Username";
   static const String phoneNo = "Teléfono";
   static const String rememberMe = "Recuérdame";
   static const String forgetPassword = "¿Olvidó su contraseña?";
   static const String signIn = "Iniciar Sesión";
-  static const String createAccount = "Crea una Cuenta";
+  static const String createAccount = "Regístrate";
   static const String registerAccount = "Registrarme";
   static const String orSignInWith = "o inicia sesión con";
   static const String orSignUpWith = "or sign up with";
@@ -115,6 +116,7 @@ class TTexts {
   static const String actividadFisico = "Actividad Física";
 
   //Logros
+  static const int sinLogro = 0;
   static const int logroGourmetSaludable = 1;
   static const int logroEquilibrioInterior = 2;
   static const int logroResilienciaFitness = 3;
@@ -130,6 +132,63 @@ class TTexts {
   static const int estadoAnulado = 3;
   static const int indicadorGenerarPlan = 1;
   static const int indicadorTerminarChat = 2;
+
+  static int obtenerNumeroMes(String monthName) {
+    switch (monthName) {
+      case 'Enero':
+        return 1;
+      case 'Febrero':
+        return 2;
+      case 'Marzo':
+        return 3;
+      case 'Abril':
+        return 4;
+      case 'Mayo':
+        return 5;
+      case 'Junio':
+        return 6;
+      case 'Julio':
+        return 7;
+      case 'Agosto':
+        return 8;
+      case 'Setiembre':
+        return 9;
+      case 'Octubre':
+        return 10;
+      case 'Noviembre':
+        return 11;
+      case 'Diciembre':
+        return 12;
+      default:
+        return 1; // Por defecto, enero
+    }
+  }
+
+  static List<String> listaMeses = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Setiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre'
+  ];
+
+  static List<String> years = [
+    '2024',
+    '2025',
+    '2026',
+    '2027',
+    '2028',
+    '2029',
+    '2030',
+    '2031'
+  ];
 
   //Dias
   static const List<String> dias = [
@@ -149,6 +208,8 @@ class TTexts {
       return Icons.self_improvement;
     } else if (tipoLogro == TTexts.logroResilienciaFitness) {
       return Icons.directions_run;
+    } else if (tipoLogro == TTexts.sinLogro) {
+      return Icons.report_off;
     } else {
       return Icons.report_off;
     }
@@ -161,7 +222,7 @@ class TTexts {
       return Icons.volunteer_activism;
     } else if (tipoLogro == TTexts.logroResilienciaFitness) {
       return Icons.fitness_center;
-    } else {
+    }  else {
       return Icons.report_off;
     }
   }
@@ -173,6 +234,8 @@ class TTexts {
       return 'Equilibrio Interior';
     } else if (tipoLogro == TTexts.logroResilienciaFitness) {
       return 'Resiliencia Fitness';
+    } else if (tipoLogro == TTexts.sinLogro) {
+      return 'Sin Logro';
     } else {
       return 'Desconocido';
     }
@@ -235,8 +298,6 @@ class TTexts {
     // Calcular la fecha del día dado sumando el índice del día a partir del inicio de la semana
     DateTime fechaResultado = inicioSemana.add(Duration(days: indiceDia));
 
-    print(
-        "La fecha correspondiente a $dia es: ${formatoFecha.format(fechaResultado)}");
     return formatoFecha.format(fechaResultado);
   }
 
@@ -254,5 +315,179 @@ class TTexts {
   static String convertirListaEnStringConSaltosDeLinea(List<String> lista) {
     // Utiliza join para concatenar los elementos de la lista con un salto de línea entre ellos
     return lista.join('\n');
+  }
+
+  static List<String> obtenerEstadosDeAnimo() {
+    return [
+      'Feliz',
+      'Triste',
+      'Enojado',
+      'Pensativo',
+      'Incomódo',
+      'Ansioso',
+      'Entusiasmado',
+      'Frustrado',
+      'Relajado',
+      'Motivado',
+      'Cansado',
+      'Sorprendido',
+      'Confiado',
+      'Deprimido',
+      'Esperanzado',
+      'Agradecido',
+      'Irritado',
+      'Nervioso',
+      'Melancólico',
+      'Eufórico',
+      'Aburrido',
+      'Orgulloso',
+      'Confundido',
+      'Aliviado',
+      'Avergonzado',
+      'Preocupado'
+    ];
+  }
+
+  static String obtenerEmojiPorEmocion(String emocion) {
+    final Map<String, String> emocionEmojiMap = {
+      'Feliz': '😊',
+      'Triste': '😢',
+      'Tristeza': '😢',
+      'Enojado': '😠',
+      'Pensativo': '🤔',
+      'Incomódo': '😕',
+      'Ansioso': '😟',
+      'Entusiasmado': '😃',
+      'Frustrado': '😤',
+      'Relajado': '😌',
+      'Motivado': '💪',
+      'Cansado': '😴',
+      'Sorprendido': '😮',
+      'Confiado': '😏',
+      'Deprimido': '😞',
+      'Esperanzado': '🤞',
+      'Agradecido': '🙏',
+      'Irritado': '😡',
+      'Nervioso': '😬',
+      'Melancólico': '😔',
+      'Eufórico': '🤩',
+      'Aburrido': '😒',
+      'Orgulloso': '😎',
+      'Confundido': '😕',
+      'Aliviado': '😅',
+      'Avergonzado': '😳',
+      'Preocupado': '😟',
+      'Estresado': '😰'
+    };
+
+    // Recorre las claves del mapa y busca si alguna palabra está en la frase
+    for (String clave in emocionEmojiMap.keys) {
+      if (emocion.toLowerCase().contains(clave.toLowerCase())) {
+        return emocionEmojiMap[clave]!;
+      }
+    }
+
+    return emocionEmojiMap[emocion] ?? '🤷'; // Retorna un emoji de "no lo sé" si no encuentra la emoción
+  }
+
+  static List<String> emocionesTrabajo = [
+    'Saturado',
+    'Relajado',
+    'Motivado',
+    'Estresado',
+    'Aburrido',
+    'Creativo',
+    'Enfocado',
+    'Distraído',
+    'Productivo',
+    'Frustrado',
+    'Exitoso',
+    'Agotado',
+    'Organizado',
+    'Ansioso',
+    'Feliz',
+    'Confundido',
+    'Optimista',
+    'Desmotivado',
+    'Presionado',
+    'Agradecido'
+  ];
+
+  static String obtenerEmojiPorEmocionTrabajo(String emocion) {
+    switch (emocion) {
+      case 'Saturado':
+        return '😫'; // Carita agotada
+      case 'Relajado':
+        return '😌'; // Carita relajada
+      case 'Motivado':
+        return '💪'; // Brazo fuerte
+      case 'Estresado':
+        return '😓'; // Carita con sudor
+      case 'Aburrido':
+        return '😐'; // Carita neutral
+      case 'Creativo':
+        return '🎨'; // Paleta de pintura
+      case 'Enfocado':
+        return '🎯'; // Dardo en el blanco
+      case 'Distraído':
+        return '🙄'; // Carita con ojos hacia arriba
+      case 'Productivo':
+        return '🚀'; // Cohete
+      case 'Frustrado':
+        return '😠'; // Carita enojada
+      case 'Exitoso':
+        return '🏆'; // Trofeo
+      case 'Agotado':
+        return '😴'; // Carita dormida
+      case 'Organizado':
+        return '🗂️'; // Archivos organizados
+      case 'Ansioso':
+        return '😰'; // Carita de ansiedad
+      case 'Deliz':
+        return '😊'; // Carita feliz
+      case 'Confundido':
+        return '🤔'; // Carita pensativa
+      case 'Optimista':
+        return '🌟'; // Estrella
+      case 'Desmotivado':
+        return '😕'; // Carita de preocupación
+      case 'Presionado':
+        return '💼'; // Maletín
+      case 'Agradecido':
+        return '🙏'; // Manos en oración
+      default:
+        //return '❓'; // Pregunta para emociones no reconocidas
+        return '🤷'; // Carita de "no lo sé"
+    }
+  }
+
+  static List<DateTime> obtenerUltimos7Dias() {
+    List<DateTime> ultimos7Dias = [];
+
+    // Fecha actual
+    DateTime fechaActual = DateTime.now();
+
+    // Recorre los últimos 7 días y los agrega a la lista
+    for (int i = 0; i < 7; i++) {
+      DateTime dia = fechaActual.subtract(Duration(days: i));
+      ultimos7Dias.add(dia);
+    }
+
+    return ultimos7Dias;
+  }
+
+  static List<DateTime> obtenerUltimos30Dias() {
+    List<DateTime> ultimos30Dias = [];
+
+    // Fecha actual
+    DateTime fechaActual = DateTime.now();
+
+    // Recorre los últimos 7 días y los agrega a la lista
+    for (int i = 0; i < 28; i++) {
+      DateTime dia = fechaActual.subtract(Duration(days: i));
+      ultimos30Dias.add(dia);
+    }
+
+    return ultimos30Dias;
   }
 }

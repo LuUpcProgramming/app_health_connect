@@ -182,7 +182,7 @@ class _ChatViewState extends State<_ChatView> {
       final openAI = OpenAI.instance.build(
           token: _openAiKey,
           baseOption: HttpSetup(
-            receiveTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 10),
           ),
           enableLog: true);
 

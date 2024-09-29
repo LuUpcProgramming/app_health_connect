@@ -18,14 +18,17 @@ class PlanDiarioDetalle extends StatelessWidget {
     final DateFormat formatoDia = DateFormat('E', 'es');
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Volver',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Obx(() => controller.isLoadingStats.value
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : const Text('Volver',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
         backgroundColor: TColors.primary,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Get.back();
-          },
+          onPressed: () => controller.procesarEstadistica(),
         ),
       ),
       body: Padding(
@@ -108,8 +111,7 @@ class PlanDiarioDetalle extends StatelessWidget {
                         ),
                         const Text('Sin Registros',
                             style: TextStyle(
-                                fontSize: 20, 
-                                fontStyle: FontStyle.italic))
+                                fontSize: 20, fontStyle: FontStyle.italic))
                       ],
                     ),
                   );
@@ -119,7 +121,8 @@ class PlanDiarioDetalle extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final plan = controller.planes[index];
                       return InkWell(
-                        onTap: () => showPlanDetailDragDetail(context, plan),
+                        onTap: () =>
+                            showPlanDetailDragDetail(context, plan, controller),
                         child: PlanCard(
                           meta: plan.meta,
                           hora: plan.hora,
@@ -208,21 +211,27 @@ class PlanCard extends StatelessWidget {
               child: Icon(logroPlan, color: TColors.white, size: 24),
             ),
             const SizedBox(width: 15),
-            InkWell(
-              onTap: onToggle,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  border: Border.all(color: TColors.primary, width: 2),
-                  color: estadoPlan == TTexts.estadoCompletado
-                      ? TColors.primary
-                      : Colors.white,
+            GestureDetector(
+              onTap: estadoPlan == TTexts.estadoCompletado ? null : onToggle,
+              child: Opacity(
+                opacity: estadoPlan == TTexts.estadoCompletado ? 0.5 : 1,
+                child: InkWell(
+                  onTap: onToggle,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      border: Border.all(color: TColors.primary, width: 2),
+                      color: estadoPlan == TTexts.estadoCompletado
+                          ? TColors.primary
+                          : Colors.white,
+                    ),
+                    child: estadoPlan == TTexts.estadoCompletado
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        : null,
+                  ),
                 ),
-                child: estadoPlan == TTexts.estadoCompletado
-                    ? const Icon(Icons.check, size: 16, color: Colors.white)
-                    : null,
               ),
             ),
           ],

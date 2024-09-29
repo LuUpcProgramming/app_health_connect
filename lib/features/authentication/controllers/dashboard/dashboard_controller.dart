@@ -1,10 +1,14 @@
 import 'dart:async';
 
 import 'package:app_health_connect/config/helper/logging.dart';
+import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
+import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
+import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
 import 'package:app_health_connect/features/authentication/models/recomendacion.dart';
+import 'package:app_health_connect/features/authentication/models/statistics.dart';
 import 'package:app_health_connect/features/authentication/models/user_detail.dart';
 import 'package:app_health_connect/features/authentication/models/user_model.dart';
 import 'package:app_health_connect/features/authentication/screens/dashboard/widgets/confirm_logro_dialog.dart';
@@ -18,6 +22,7 @@ import 'package:app_health_connect/utils/popups/loaders.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class DashboardController extends GetxController {
   static DashboardController get instance => Get.find();
@@ -42,6 +47,7 @@ class DashboardController extends GetxController {
   var isLoading = true.obs;
   var isLoadingPlanes = false.obs;
   var isLoadingRecomendaciones = false.obs;
+  final currentUser = FirebaseAuth.instance.currentUser;
 
   //***************Métodos***************/
 
@@ -58,17 +64,16 @@ class DashboardController extends GetxController {
 
   Future<void> loadData() async {
     try {
-      //Show Dialog
       log.i("loadData: Comienza loadData");
       profileLoading.value = true;
       isLoadingRecomendaciones.value = true;
       TFullScreenLoader.openLoadingDialog(
           "Espere por favor...", TImages.loadingAnimation);
-      final currentUser = FirebaseAuth.instance.currentUser;
       log.i('loadData: currentUser: $currentUser');
       if (currentUser != null) {
         final userRepository = Get.put(UserRepository());
-        final duserdetail = await userRepository.getUserDetails(currentUser.uid.trim());
+        final duserdetail =
+            await userRepository.getUserDetails(currentUser!.uid.trim());
         _detalleUsuario.value = duserdetail;
         //inal user = await userRepository.getUserRecord(currentUser.uid.trim());
         final user = await userRepository.fethUserRecord();
@@ -77,12 +82,15 @@ class DashboardController extends GetxController {
         log.i("loadData: Se cargaron datos de usuario");
         final planRepository = Get.put(PlanRepository());
         List<PlanDiario> planes = await planRepository
-            .getPlanesDiariosParaConfirmacion(currentUser.uid.trim());
+            .getPlanesDiariosParaConfirmacion(currentUser!.uid.trim());
         planesConfirmar.assignAll(planes);
-        List<Recomendacion> recomendaciones = await planRepository.getRecomendaciones(currentUser.uid.trim());     
+        log.i("loadData: Se cargaron planes diarios");
+        List<Recomendacion> recomendaciones =
+            await planRepository.getRecomendaciones(currentUser!.uid.trim());
         tipsRecomendaciones.assignAll(recomendaciones);
+        log.i("loadData: Se cargaron recomendaciones");
         isLoadingRecomendaciones.value = false;
-        listarPlanes(currentUser.uid.trim());
+        listarPlanes(currentUser!.uid.trim());
       } else {
         FirebaseAuth.instance.signOut();
         Get.offAll(() => const LoginScreen());
@@ -141,28 +149,31 @@ class DashboardController extends GetxController {
     //});
   }
 
-  Future<dynamic> showDialogEvaluacionPreliminar(
-      BuildContext context, UserDetail dt) {
-    log.i("showDialogEvaluacionPreliminar: Construye Widget dialog");
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+Future<dynamic> showDialogEvaluacionPreliminar(
+    BuildContext context, UserDetail dt) {
+  log.i("showDialogEvaluacionPreliminar: Construye Widget dialog");
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.8, // Limitar al 80% de la altura de la pantalla
           ),
-          child: Container(
-            height: 550, // Puedes ajustar la altura según tus necesidades
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            //padding: const EdgeInsets.all(20),
-            child: SingleChildScrollView(
+          child: IntrinsicHeight(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
+                  // Header del diálogo
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: const BoxDecoration(
@@ -172,39 +183,33 @@ class DashboardController extends GetxController {
                         topRight: Radius.circular(16),
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Evaluación Preliminar",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            IconButton(
-                              icon:
-                                  const Icon(Icons.close, color: Colors.white),
-                              onPressed: () => Navigator.pop(context),
-                            ),
-                          ],
+                        const Text(
+                          "Evaluación Preliminar",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () => Navigator.pop(context),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
-                  //Text("Personal: ${analisis.personal}"),
+                  
+                  // Contenido dinámico del texto
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          //"Eres una Persona joven Llena de Vitalidad",
                           dt.analisisIA,
                           textAlign: TextAlign.justify,
                           style: const TextStyle(
@@ -215,7 +220,6 @@ class DashboardController extends GetxController {
                         const Center(
                           child: Text(
                             "¡Comencemos el viaje a tu bienestar y tranquilidad mental!",
-                            // lista[4].trim(),
                             style: TextStyle(
                                 fontSize: 18,
                                 fontStyle: FontStyle.italic,
@@ -232,10 +236,12 @@ class DashboardController extends GetxController {
               ),
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   //Metodos sobre Planes Diarios
   void showPlanDetalle(PlanDiario plan) {
@@ -310,112 +316,107 @@ class DashboardController extends GetxController {
   }
 
   void procesarPlanesConfirmar() async {
-    bool todosIncompletos = planesConfirmar
-        .every((plan) => plan.estadoPlan == TTexts.estadoPendiente);
-    final planRepository = Get.put(PlanRepository());
-    isLoadingPlanes.value = true;
+    try {
+      bool todosIncompletos = planesConfirmar
+          .every((plan) => plan.estadoPlan == TTexts.estadoPendiente);
+      //Verificar que todos los planes esten completos
+      bool todosCompletos = planesConfirmar
+          .every((plan) => plan.estadoPlan == TTexts.estadoCompletado);
+      //Verificar que solo algunos planes esten completos
+      bool algunosCompletos = planesConfirmar
+          .any((plan) => plan.estadoPlan == TTexts.estadoCompletado);
+      //Contar planes completos
+      int planesCompletos = planesConfirmar
+          .where((plan) => plan.estadoPlan == TTexts.estadoCompletado)
+          .length;
+      final planRepository = Get.put(PlanRepository());
+      isLoadingPlanes.value = true;
 
-    for (var plan in planesConfirmar) {
-      if (plan.estadoPlan == TTexts.estadoPendiente) {
-        plan.estadoPlan = TTexts.estadoIncompleto;
+      for (var plan in planesConfirmar) {
+        if (plan.estadoPlan == TTexts.estadoPendiente) {
+          plan.estadoPlan = TTexts.estadoIncompleto;
+        }
+        await planRepository.updateEstadoCompletado(
+            plan.idDocumento, plan.estadoPlan);
+        await registrarEstadisticaDiaria(DateTime.parse(plan.fechaPlan));
       }
-      planRepository.updateEstadoCompletado(plan.idDocumento, plan.estadoPlan);
-    }
-    log.i("Planes Confirmados Exitosamente");
-    isLoadingPlanes.value = false;
-    Get.back();
 
-    if (todosIncompletos) {
-      Loaders.customSnackBar(
-          title: 'No cumpliste ninguna Meta 😢',
-          message: 'No te desanimes y sigue adelante. Confía en ti. Tu puedes!',
-          color: const Color.fromARGB(242, 33, 148, 158));
-      return;
-    } else {
-      Loaders.successSnackBar(
-          title: 'Planes Confirmados Exitosamente 😀',
-          message:
-              'No olvides de seguir cumpliendo tus metas. ¡Sigue adelante!');
+      log.i("Planes Confirmados Exitosamente");
+      isLoadingPlanes.value = false;
+      Get.back();
+
+      if (todosIncompletos) {
+        Loaders.customSnackBar(
+            title: 'No cumpliste ninguna Meta 😢',
+            message:
+                'No te desanimes y sigue adelante. Confía en ti. Tu puedes!',
+            color: const Color.fromARGB(242, 33, 148, 158));
+        return;
+      } else if (todosCompletos) {
+        Loaders.successSnackBar(
+            title: 'Planes Confirmados Exitosamente 😀',
+            message:
+                'Felicitaciones! Cumpliste todas tus metas.\nNo olvides de seguir cumpliendo tus objetivos. ¡Sigue adelante!');
+      } else if (algunosCompletos) {
+        Loaders.customSnackBar(
+            title: 'Planes Confirmados Exitosamente 😀',
+            message:
+                'Cumpliste $planesCompletos metas. Puedes Esforzarte más. ¡Sigue adelante!',
+            color: const Color.fromARGB(241, 220, 140, 11));
+      }
+    } catch (e) {
+      log.e("Error: ${e.toString()}");
+      Get.back();
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
     }
   }
 
-/*   void showRecomendacionDialog(Recomendacion recomendacion) {
-    Get.dialog(
-      AlertDialog(
-        title: Text(recomendacion.titulo),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(recomendacion.descripcion),
-            const SizedBox(height: 10),
-            Text(recomendacion.descripcion2, style: const TextStyle(fontStyle: FontStyle.italic)),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
+  Future<void> registrarEstadisticaDiaria(DateTime fecha) async {
+    log.i("registrarEstadisticaDiaria: Inicio");
+    try {
+      String fechaRegistro = DateFormat('yyyy-MM-dd').format(fecha);
+      final planRepository = Get.find<PlanRepository>();
+      List<PlanDiario> planes =
+          await planRepository.obtenerPlanesDiariosPorUsuarioFechaPlan(
+              currentUser!.uid.trim(), fechaRegistro);
+
+      // Calcular la cantidad total de planes
+      int totalPlanes = planes.length;
+      // Filtrar los planes cumplidos (estadoPlan == 1)
+      List<PlanDiario> planesCumplidos = planes
+          .where((plan) => plan.estadoPlan == TTexts.estadoCompletado)
+          .toList();
+
+      // Calcular la cantidad de planes cumplidos
+      int totalPlanesCumplidos = planesCumplidos.length;
+      // Obtener la lista de tipoLogro de los planes cumplidos
+      List<int> tipoLogrosCumplidos =
+          planesCumplidos.map((plan) => plan.tipoLogro).toList();
+
+      final estadisticaRepository = Get.put(StatisticsRepository());
+      final historyRepository = Get.put(HistoryRepository());
+      HistoryAdviceDetail? historyAdviceDetail = await historyRepository
+          .obtenerHistorialRecomendacion(currentUser!.uid.trim(), fecha);
+
+      var estadisticaDiaria = EstadisticasDiaria(
+        fecha: fechaRegistro,
+        estadoAnimo: historyAdviceDetail?.estadoAnimo ?? '',
+        descripcionAnimo: historyAdviceDetail?.title ?? '',
+        cantPlanTotal: totalPlanes,
+        cantPlanCumplido: totalPlanesCumplidos,
+        logros: tipoLogrosCumplidos,
+        fechaRegistro: fecha,
+      );
+
+      await estadisticaRepository.saveEstadisticaDiaria(
+          estadisticaDiaria, fechaRegistro, currentUser!.uid.trim());
+      log.i("registrarEstadisticaDiaria: Se registró la estadística diaria");
+    } catch (e) {
+      log.e("Error: ${e.toString()}");
+      throw Exception(e);
+    } finally {
+      log.i("registrarEstadisticaDiaria: Fin");
+    }
   }
- */
-
-  List<Recomendacion> recomendacionesPrueba = [
-    Recomendacion(
-      idDocumento: '12345',
-      idUsuario: 'u123',
-      titulo: 'Hacer ejercicio',
-      descripcion: [
-        'Establecer rutina',
-        'Hacer 30 minutos de cardio',
-        'Realizar estiramientos'
-      ],
-      beneficios: [
-        'Mejora el estado físico',
-        'Reduce el estrés',
-        'Aumenta la energía'
-      ],
-      fechaRegistro: '2024-09-10',
-      horaRegistro: '08:00',
-    ),
-    Recomendacion(
-      idDocumento: '12345',
-      idUsuario: 'u123',
-      titulo: 'Hacer ejercicio',
-      descripcion: [
-        'Establecer rutina',
-        'Hacer 30 minutos de cardio',
-        'Realizar estiramientos'
-      ],
-      beneficios: [
-        'Mejora el estado físico',
-        'Reduce el estrés',
-        'Aumenta la energía'
-      ],
-      fechaRegistro: '2024-09-10',
-      horaRegistro: '08:00',
-    ),
-    Recomendacion(
-      idDocumento: '12345',
-      idUsuario: 'u123',
-      titulo: 'Hacer ejercicio',
-      descripcion: [
-        'Establecer rutina',
-        'Hacer 30 minutos de cardio',
-        'Realizar estiramientos'
-      ],
-      beneficios: [
-        'Mejora el estado físico',
-        'Reduce el estrés',
-        'Aumenta la energía'
-      ],
-      fechaRegistro: '2024-09-10',
-      horaRegistro: '08:00',
-    ),
-  ];
-
- 
 }

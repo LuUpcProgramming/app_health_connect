@@ -5,6 +5,7 @@ import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/image_strings.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HistorialAdviceScreen extends StatelessWidget {
@@ -74,9 +75,10 @@ class HistorialAdviceScreen extends StatelessWidget {
                           isExpanded: true,
                           underline: const SizedBox(),
                           onChanged: (newvalue) {
-                             controller.selectedYear.value = newvalue!;
-                             controller.cargaHistorialRecomendaciones();
-                          },  
+                            controller.selectedYear.value = newvalue!;
+                            //controller.cargaHistorialRecomendaciones();
+                            controller.filterRecommendationsBySelectedDate();
+                          },
                           items: controller.years
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
@@ -109,8 +111,9 @@ class HistorialAdviceScreen extends StatelessWidget {
                           isExpanded: true,
                           underline: const SizedBox(),
                           onChanged: (newvalue) {
-                             controller.selectedMonth.value = newvalue!;
-                          controller.startListeningAdviceRecommendation();
+                            controller.selectedMonth.value = newvalue!;
+                            //controller.startListeningAdviceRecommendation();
+                            controller.filterRecommendationsBySelectedDate();
                           },
                           items: controller.months
                               .map<DropdownMenuItem<String>>((String value) {
@@ -139,15 +142,20 @@ class HistorialAdviceScreen extends StatelessWidget {
                       },
                     );
                   } else {
-                     var filteredList = controller.filteredHistorial;
-                  //  if (controller.listaHistorial.isEmpty) {
+                    var filteredList = controller.listaHistorial;
+                    //  if (controller.listaHistorial.isEmpty) {
                     if (filteredList.isEmpty) {
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Image.asset(TImages.noData,width: 350, height: 350,),
+                          Image.asset(
+                            TImages.noData,
+                            width: 350,
+                            height: 350,
+                          ),
                           const Text('Sin Registros',
-                          style: TextStyle(fontSize: 20,fontStyle: FontStyle.italic))
+                              style: TextStyle(
+                                  fontSize: 20, fontStyle: FontStyle.italic))
                         ],
                       );
                     } else {
@@ -176,6 +184,7 @@ class RecomendacionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String fechaRegistro = DateFormat('dd-MM-yyyy').format(advice.fechaRegistro);
     return Card(
       surfaceTintColor: const Color.fromARGB(255, 230, 229, 229),
       elevation: 10,
@@ -210,7 +219,7 @@ class RecomendacionCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: Text(
-                  advice.date,
+                  fechaRegistro,
                   style: const TextStyle(
                     color: Colors.grey,
                   ),

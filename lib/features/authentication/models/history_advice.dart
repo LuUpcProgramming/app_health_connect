@@ -51,22 +51,32 @@ class HistoryAdviceDetail {
   String date;
   String problema;
   String estadoAnimo;
+  //String fechaRegistro;
+  //String horaRegistro;
+  DateTime fechaRegistro;
 
-  HistoryAdviceDetail({
-    this.title = '',
-    this.description = '',
-    this.date = '',
-    this.problema = '',
-    this.estadoAnimo = ''
-  });
+  HistoryAdviceDetail(
+      {this.title = '',
+      this.description = '',
+      this.date = '',
+      this.problema = '',
+      this.estadoAnimo = '',
+    //  required this.fechaRegistro,
+    //  required this.horaRegistro
+      required DateTime? fechaRegistro,
+    }
+  ) : fechaRegistro = fechaRegistro ?? DateTime.now();
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
       'date': date,
-      'problema':problema,
-      'estadoAnimo':estadoAnimo
+      'problema': problema,
+      'estadoAnimo': estadoAnimo,
+      'fechaRegistro': Timestamp.fromDate(fechaRegistro),
+      //'fechaRegistro': fechaRegistro,
+      //'horaRegistro': horaRegistro,
       //'createdAt': createdAt,
     };
   }
@@ -79,6 +89,9 @@ class HistoryAdviceDetail {
       date: json['date'] ?? "",
       problema: json['problema'] ?? "",
       estadoAnimo: json['estadoAnimo'] ?? "",
+      fechaRegistro: (json['fechaRegistro'] as Timestamp).toDate(),
+      //fechaRegistro: json['fechaRegistro'],
+      //horaRegistro: json['horaRegistro'],
     );
   }
 }

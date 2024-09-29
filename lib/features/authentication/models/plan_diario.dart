@@ -5,7 +5,7 @@ class PlanDiario {
   String idUsuario; // ID del usuario al que pertenece el plan diario
   String meta;
   String tipoActividad;
-  List<String> listaDias;
+  //List<String> listaDias;
   String diaPlan;
   String fechaPlan;
   int estadoPlan;
@@ -27,7 +27,7 @@ class PlanDiario {
       required this.idUsuario,
       required this.meta,
       required this.tipoActividad,
-      this.listaDias = const [],
+      //this.listaDias = const [],
       required this.diaPlan,
       required this.fechaPlan,
       this.estadoPlan = 0,

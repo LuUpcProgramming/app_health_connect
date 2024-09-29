@@ -32,7 +32,9 @@ class OnBoardingController extends GetxController {
       }
 
       storage.write('IsFirstTime', false);
-      Get.offAll(() => const LoginScreen());
+      Get.offAll(() => const LoginScreen(),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 600));
     } else {
       int page = currentPageIndex.value + 1;
       pageController.animateToPage(

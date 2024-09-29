@@ -1,4 +1,5 @@
 import 'package:app_health_connect/features/authentication/controllers/onboarding/onboarding_controller.dart';
+import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:app_health_connect/utils/constants/general.dart';
 import 'package:app_health_connect/utils/device/device_utility.dart';
 import 'package:app_health_connect/utils/helpers/helper_functions.dart';
@@ -37,18 +38,12 @@ class OnBoardingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-     // padding: const EdgeInsets.all(TSizes.defaultSpace),
-      padding:  EdgeInsets.only(
-        top: THelperFunctions.screenHeight() * 0.08,
-        left: TSizes.defaultSpace,
-        right: TSizes.defaultSpace,
-        bottom: THelperFunctions.screenHeight() * 0.08
-      ),
+      padding: const EdgeInsets.only(bottom: 5),
       child: Column(
         children: [
           Image(
               width: THelperFunctions.screenWidth() * 0.8,
-              height: THelperFunctions.screenHeight() * 0.5,
+              height: THelperFunctions.screenHeight() * 0.3,
               image: AssetImage(image)),
           Text(
             title,
@@ -79,8 +74,8 @@ class OnBoardingDotNavigation extends StatelessWidget {
     final controller = OnBoardingController.instance;
     //final dark = THelperFunctions.isDarkMode(context);
     return Positioned(
-        bottom:  (THelperFunctions.screenHeight() * 0.24),
-        left: THelperFunctions.screenWidth() * 0.40,
+        bottom:  (THelperFunctions.screenHeight() * 0.15),
+        left: THelperFunctions.screenWidth() * 0.10,
         child: SmoothPageIndicator(
             controller: controller.pageController,
             onDotClicked: controller.dotNavigationClick,
@@ -99,20 +94,21 @@ class OnBoardingNextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     //final dark = THelperFunctions.isDarkMode(context);
     return Positioned(
-        right: TSizes.defaultSpace,
-        bottom: THelperFunctions.screenHeight() * 0.08,
+        right: THelperFunctions.screenWidth() * 0.05,
+        bottom: THelperFunctions.screenHeight() * 0.13,
         child: ElevatedButton(
           onPressed: () {
             OnBoardingController.instance.nextPage(); 
           },
           style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              backgroundColor: const Color.fromRGBO(65, 87, 255, 1)),
-          child: const Icon(
-            Icons.arrow_right,
-            color: Colors.white,
-            size: 70,
+            backgroundColor: TColors.primary,
+
+            elevation: 5, // Elevación del botón
+            padding: const EdgeInsets.symmetric(
+                horizontal: 40, vertical: 18), // Color del texto
           ),
+          child: const Text("Siguiente",
+                          style: TextStyle(color: TColors.white, fontSize: 14)),
         ));
   }
 }

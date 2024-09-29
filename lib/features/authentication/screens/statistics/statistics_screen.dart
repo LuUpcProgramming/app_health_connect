@@ -120,7 +120,8 @@ class EstadisticasScreen extends StatelessWidget {
                   return buildShimmerTopAchievements();
                 } 
 
-                var logros = controller.estadisticasSemanal.value.logros;
+                //var logros = controller.estadisticasSemanal.value.logros;
+                var logros = controller.logroConIcono;
                 if (logros.isEmpty) {
                   return buildDefaultTopAchievements();
                 } else {

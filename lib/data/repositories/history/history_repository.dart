@@ -15,14 +15,14 @@ class HistoryRepository extends GetxController {
   final log = logger(HistoryRepository);
 
 
-   Future<HistoryAdvice> getHistoryRecommendationByUser(String userId) async {
+   Future<HistoryAdvice?> getHistoryRecommendationByUser(String userId) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> doc =
           await _db.collection("History").doc(userId).get();
       if (doc.exists) {
         return HistoryAdvice.fromSnapshot(doc);
       } else {
-        return HistoryAdvice.fromSnapshot(doc);
+        return null;
         //throw Exception('Error en obtener historial de recomendaciones');
       }
     } on TFirebaseException catch (e) {
@@ -39,6 +39,7 @@ class HistoryRepository extends GetxController {
   
   Stream<DocumentSnapshot<Map<String, dynamic>>> listenToAdviceRecommendations() {
     try {
+      //Retorna un stream de la colección de historial de recomendaciones por usuario y ordenado por fecha de maximo una semana
       return _db
           .collection('History')
           .doc(AuthenticationRepository.instance.authUser?.uid ?? '0')
@@ -54,6 +55,61 @@ class HistoryRepository extends GetxController {
       return const Stream.empty();
     }
   }
+
+  Future<HistoryAdviceDetail?> obtenerHistorialRecomendacionReciente(String userId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc =
+          await _db.collection("History").doc(userId).get();
+      if (doc.exists) {
+        HistoryAdvice historyAdvice = HistoryAdvice.fromSnapshot(doc);
+        HistoryAdviceDetail historyAdviceDetail = historyAdvice.listaHistorialDetalle.lastWhere((detail) => detail.fechaRegistro == historyAdvice.listaHistorialDetalle.last.fechaRegistro);
+        if (historyAdviceDetail.estadoAnimo.isNotEmpty && historyAdviceDetail.title.isNotEmpty) {
+          return historyAdviceDetail;
+        }else{
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo $e';
+    }
+  }
+
+   Future<HistoryAdviceDetail?> obtenerHistorialRecomendacion(String userId,DateTime fecha) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc =
+          await _db.collection("History").doc(userId).get();
+      if (doc.exists) {
+        HistoryAdvice historyAdvice = HistoryAdvice.fromSnapshot(doc);
+        HistoryAdviceDetail historyAdviceDetail = historyAdvice.listaHistorialDetalle.
+        lastWhere((detail) => (DateTime(detail.fechaRegistro.year,detail.fechaRegistro.month,detail.fechaRegistro.day) == DateTime(fecha.year,fecha.month,fecha.day)),orElse: () => HistoryAdviceDetail(fechaRegistro: DateTime.now()));
+        //        lastWhere((detail) => (detail.fechaRegistro.year == fecha.year && detail.fechaRegistro.month == fecha.year && detail.fechaRegistro.year == fecha.day));
+        if (historyAdviceDetail.estadoAnimo.isNotEmpty && historyAdviceDetail.title.isNotEmpty) {
+          return historyAdviceDetail;
+        }else{
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } on TFirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo $e';
+    }
+  }
+
 
 
 

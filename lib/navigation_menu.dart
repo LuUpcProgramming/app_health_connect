@@ -109,13 +109,14 @@ class NavigationController extends GetxController {
     ever(selectedIndex, handleScreenChange);
   }
 
-  void handleScreenChange(int index) {
+  void handleScreenChange(int index) async{
     try {
       if (index == 1) {
         log.i("handleScreenChange: Entro a index 1 Historial Recomendaciones");
+        DateTime now = DateTime.now();
         final adviceController = Get.put(AdviceController());
         if (!adviceController.isSubscriptionActive()) {
-          adviceController.startListeningAdviceRecommendation();
+          adviceController.startListeningAdviceRecommendation(now, now);
         }
       } else if (index == 2) {
         // Navegación directa a la pantalla "Plan Diario"
@@ -127,11 +128,12 @@ class NavigationController extends GetxController {
       } else if (index == 3) {
         log.i("handleScreenChange: Entro a index 3");
         final estadisticaController = Get.put(EstadisticaController());
+        //await estadisticaController.cargaEstadisticas();
         if (estadisticaController.isSubscriptionActive()) {
           estadisticaController.stopListening();
         }
         estadisticaController.selectedDate.value = TTexts.semanal;
-        estadisticaController.startListeningWeeklyStatistics();
+        await estadisticaController.startListeningWeeklyStatistics();
       } else if (index == 4) {
         log.i("handleScreenChange: Entro a index 4");
       }

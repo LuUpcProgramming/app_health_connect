@@ -2,11 +2,12 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:app_health_connect/config/constants/environment.dart';
+import 'package:app_health_connect/config/helper/logging.dart';
 import 'package:app_health_connect/data/repositories/chat/chat_repository.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
+import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
 import 'package:app_health_connect/data/repositories/user/user_repository.dart';
-import 'package:app_health_connect/features/authentication/controllers/dashboard/dashboard_controller.dart';
 import 'package:app_health_connect/features/authentication/models/chat_message.dart';
 import 'package:app_health_connect/features/authentication/models/history_advice.dart';
 import 'package:app_health_connect/features/authentication/models/plan_diario.dart';
@@ -21,8 +22,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import '../../../../config/helper/logging.dart';
 
 class ChatController extends GetxController {
   static ChatController get instance => Get.find();
@@ -113,7 +112,7 @@ class ChatController extends GetxController {
         if (countMessageHistory != messagesHistory.length) {
           // Aquí va la lógica para procesar la conversación
           log.i(
-              "procesarConversacion: Entra a ejecutar saveHistoryToFirestore,saveHistoryRecomendacion,generarPlandiario");
+              "procesarConversacion: Entra a ejecutar saveHistoryToFirestore,saveHistoryRecomendacion,generarTipsRecomendacion");
           await saveHistoryToFirestore();
           await saveHistoryRecomendacion();
           await generarTipsRecomendacion(indicador);
@@ -125,10 +124,10 @@ class ChatController extends GetxController {
 
       Get.delete<ChatController>();
       Get.delete<ChatRepository>();
-      final dashboard = Get.put(DashboardController());
-      TFullScreenLoader.stopLoading();
-      await dashboard.loadData();
-      Get.to(() => const NavigationMenu());
+      //final dashboard = Get.put(DashboardController());
+      //TFullScreenLoader.stopLoading();
+      //await dashboard.loadData();
+      Get.off(() => const NavigationMenu());
       //Get.to(()=> const HistorialAdviceScreen());
     } catch (e) {
       log.e('Error en procesarConversacion');
@@ -139,7 +138,6 @@ class ChatController extends GetxController {
           title: 'Oh, sucedió un error', message: e.toString());
     } finally {
       log.i("procesarConversacion : Finaliza procesarConversacion");
-      
     }
   }
 
@@ -174,28 +172,25 @@ class ChatController extends GetxController {
   }
 
   Future<void> saveHistoryRecomendacion() async {
-    DateTime now = DateTime.now();
-    String formattedDate = DateFormat('dd/MM/yyyy').format(now);
     try {
       log.i("saveHistoryRecomendacion: Comienza saveHistoryRecomendacion");
       final promptSave = """
       De todo lo que hemos conversado, sintetiza toda la información en una recomendación resumida,  
-      generando 3 datos:
+      generando 4 datos:
       - Primero genera un título corto y llamativo que resuma la recomendación. Solo digita el título y sepáralo por el operador "|".
       - Luego una descripcion detallada explicando la recomendación. Solo digita la descripción y sepáralo por el operador "|".
-      - Luego, La fecha $formattedDate (Solo digita la fecha). Solo digita la fecha y sepáralo por el operador "|".
       - Luego, une descripción resumida de la situación o problema. Solo digita la descripción y sepáralo por el operador "|".
-      - Finalmente, el estado de ánimo sintetizado en 1 palabra. Solo digite la palabra.
+      - Luegoo, solo 1 estado de ánimo de acuerdo a esta lista: ${TTexts.obtenerEstadosDeAnimo().join(', ')}.
+      - Finalmente, solo 1 estado de trabajo de acuerdo a esta lista: ${TTexts.emocionesTrabajo.join(', ')}.
 
       Te muestro ejemplos de como debes darme tus respuestas:
       Ejemplo 1: Recupera tu equilibrio emocional|Encuentra momentos para expresar tus emociones, ya sea a través de la música, 
-      actividades que disfrutes o conversaciones honestas.Practica la comunicación asertiva para abordar conflictos y cuida de ti mismo en situaciones estresantes.|
-      24/06/2024|Conflictos y situaciones estresantes en el trabajo.|Resiliencia.
+      actividades que disfrutes o conversaciones honestas.Practica la comunicación asertiva para abordar conflictos y cuida de ti mismo en situaciones estresantes.|Conflictos y situaciones estresantes en el trabajo.|Deprimido|Confundido
       Ejemplo 2: Recuperando el ánimo|Tómate un tiempo para ti, habla sobre tus sentimientos con alguien de confianza, 
-      dedica tiempo a actividades que disfrutes como tocar la guitarra y practica la autocompasión.|23/06/2024|Enojo por conflicto con el jefe del trabajo.|Triste.
-      Ejemplo 2: Practica la respiración profunda|Cuando sientas el peso del estrés recuerda el poder la respiración profunda. 
+      dedica tiempo a actividades que disfrutes como tocar la guitarra y practica la autocompasión.|Enojo por conflicto con el jefe del trabajo.|Triste|Presionado
+      Ejemplo 3: Practica la respiración profunda|Cuando sientas el peso del estrés recuerda el poder la respiración profunda. 
       Puedes hacerlo en cualquier momento del día, incluso en el trabajo cuando te sientas abrumado. Inhala profundamente por tu nariz, retén el aire por un momento
-      y luego exhala lentamente por la boca.|22/06/2024|Exceso de actividades en el trabajo y horas extras sin pago.|Estresado.
+      y luego exhala lentamente por la boca.|Exceso de actividades en el trabajo y horas extras sin pago.|Estresado|Frustrado
       """;
       messagesHistory
           .add(Messages(role: Role.user, content: promptSave).toJson());
@@ -208,7 +203,6 @@ class ChatController extends GetxController {
       final response = await openAI.onChatCompletion(request: request);
       log.i(
           "saveHistoryRecomendacion: Despues de llamar a OPENAI para procesar Historial de Mensajes");
-      //messagesHistory.clear();
 
       String fullResponse = '';
       if (response != null && response.choices.isNotEmpty) {
@@ -219,34 +213,47 @@ class ChatController extends GetxController {
       }
 
       List<String> listaFullResponse = fullResponse.split('|');
+      DateTime now = DateTime.now();
+      if (listaFullResponse.length == 5) {
+        var historyAdvice = HistoryAdvice(idUsuario: currentUser!.uid.trim());
 
-      var historyAdvice = HistoryAdvice(idUsuario: currentUser!.uid.trim());
+        var historyadvicedt = HistoryAdviceDetail(
+            title: listaFullResponse[0].trim(),
+            description: listaFullResponse[1].trim(),
+            problema: listaFullResponse[2].trim(),
+            estadoAnimo: listaFullResponse[3].trim(),
+            fechaRegistro: now);
 
-      var historyadvicedt = HistoryAdviceDetail(
-          title: listaFullResponse[0].trim(),
-          description: listaFullResponse[1].trim(),
-          date: listaFullResponse[2],
-          problema: listaFullResponse[3].trim(),
-          estadoAnimo: listaFullResponse[4].trim());
+        final historyRepository = Get.put(HistoryRepository());
+        log.i("saveHistoryRecomendacion: Se instancia HistoryRepository");
+        HistoryAdvice? dHistory = await historyRepository
+            .getHistoryRecommendationByUser(currentUser!.uid.trim());
+        log.i(
+            "saveHistoryRecomendacion: Se obtiene lista de recomendaciones guardadas en Firestore");
+        if (dHistory == null) {
+          historyAdvice.listaHistorialDetalle = [];
+          historyAdvice.listaHistorialDetalle.add(historyadvicedt);
+        } else {
+          historyAdvice.listaHistorialDetalle = dHistory.listaHistorialDetalle;
+          historyAdvice.listaHistorialDetalle.add(historyadvicedt);
+        }
 
-      final historyRepository = Get.put(HistoryRepository());
-      log.i("saveHistoryRecomendacion: Se instancia HistoryRepository");
-      HistoryAdvice dHistory = await historyRepository
-          .getHistoryRecommendationByUser(currentUser!.uid.trim());
-      log.i(
-          "saveHistoryRecomendacion: Se obtiene lista de recomendaciones guardadas en Firestore");
-      if (dHistory.idUsuario == "0") {
-        historyAdvice.listaHistorialDetalle = [];
-        historyAdvice.listaHistorialDetalle.add(historyadvicedt);
-      } else {
-        historyAdvice.listaHistorialDetalle = dHistory.listaHistorialDetalle;
-        historyAdvice.listaHistorialDetalle.add(historyadvicedt);
+        final chatController = Get.put(ChatRepository());
+        await chatController.saveHistorialRecomendacion(historyAdvice);
+        log.i(
+            "saveHistoryRecomendacion: Se guarda nueva Historial de Recomendación en Firestore");
+        final statisticsRepository = Get.put(StatisticsRepository());
+        await statisticsRepository.procesarRecomendacionEstadisticaDiaria(now);
+        Get.delete<StatisticsRepository>();
+        log.i(
+            "saveHistoryRecomendacion: Se procesa Estadistica de Recomendación Diaria");
+        final userRepository = Get.put(UserRepository());
+        await userRepository.updateEmocionUsuario(
+            currentUser!.uid.trim(), listaFullResponse[3].trim(), listaFullResponse[4].trim());
+        log.i(
+            "saveHistoryRecomendacion: Se Actualizó emociones del Usuario");
       }
 
-      final chatController = Get.put(ChatRepository());
-      await chatController.saveHistorialRecomendacion(historyAdvice);
-      log.i(
-          "saveHistoryRecomendacion: Se guarda nueva Historial de Recomendación en Firestore");
       log.i("saveHistoryRecomendacion: Finaliza saveHistoryRecomendacion");
     } catch (e) {
       log.e('Error en saveHistoryRecomendacion');
@@ -272,20 +279,6 @@ class ChatController extends GetxController {
       String identificadorPlan =
           '${DateFormat('yyyyMMdd').format(now)}_${random.nextInt(100000)}';
       log.i("generarPlandiario: Comienza generarPlandiario");
-      final promptPlanDiario2 = """
-      Adicionalmente, De todo lo conversado tienes que generar planes diarios que permitan al paciente desarrollar hábitos saludables para mejorar su salud física y mental.
-      Estos planes deben contener la siguiente información:
-      1)Meta: Genera la meta que el paciente desea alcanzar en un máximo de 20 palabras.  Ejemplo: "Ir al gimnasio","Comer saludable", etc.
-      2)Tipo de Actividad: Solo hay tres opciones: ${TTexts.activMeditacion}, ${TTexts.actividadAlimentacion} o ${TTexts.actividadFisico}. Elige uno en base a la meta descrita.
-      3)Día: Selecciona uno de estos días $dias. Ejemplo: Lunes
-      4)Hora: Hora ideal en formato 24 horas para cumplir el plan.
-      5)Periodo: Dependiendo de la hora selecciona "AM" o "PM".
-      6)Mensaje: Mensaje motivacional para cumplir su plan.
-      7)Recomendaciones: Tres Recomendaciones que lo inspire a cumplir su plan.
-      Importante: Tu respuesta solo debe mostrar el contenido de cada punto descrito separado por el operador ||
-      Te muestro un ejemplo de formato de respuesta:
-      Ejemplo 1: Comer Ensalada en el Almuerzo||Alimentación||Lunes||13:00||PM||Preparar una ensalada fresca para el almuerzo no solo es una elección saludable, ¡es un acto de amor propio! Cuida tu cuerpo, nutre tu mente y siembra la energía positiva que necesitas para brillar durante todo el día ¡Tu puedes hacerlo, y te mereces lo mejor!||- Mantén tus ensaladas interesantes probando diferentes combinaciones de vegetales, proteínas y aderezos.\n- Piensa en cómo te sientes después de comer algo fresco y saludable, y cómo esto contribuye a tu bienestar general.\n- Dedica un tiempo a preparar tus ingredientes con antelación para que sea fácil y rápido armar tu ensalada cada día.
-      """;
       final promptPlanDiario = """
       A continuación, debes generar planes diarios que permitan al paciente desarrollar hábitos saludables para mejorar su salud física y mental. Los planes deben seguir el siguiente formato de respuesta, utilizando "||" como separador entre los diferentes puntos. 
 
@@ -504,22 +497,27 @@ Genera 3 objetos diferentes del formato del ejemplo que te he mostrado.
 
   void eliminarConversacion() async {
     try {
-      isLoading.value = true;
+      TFullScreenLoader.openLoadingDialog(
+          "Eliminando Chat...", TImages.loadingAnimation);
       log.i("eliminarConversacion: Comienza eliminarConversacion");
       final chatRepository = Get.put(ChatRepository());
 
       await chatRepository.removeConversacion(currentUser!.uid.trim());
       log.i("eliminarConversacion: Se eliminó Conversacion del Chat");
       messagesHistory.clear();
+
+      Get.delete<ChatController>();
+      Get.delete<ChatRepository>();
+      Get.off(() => const NavigationMenu());
     } catch (e) {
       log.e('Error en eliminarConversacion');
       log.e("Error: ${e.toString()}");
       //Show some generic error to user
+      TFullScreenLoader.stopLoading();
       Loaders.errorSnackBar(
           title: 'Oh, sucedió un error', message: e.toString());
     } finally {
       log.i("eliminarConversacion: Termina eliminarConversacion");
-      isLoading.value = false;
     }
   }
 

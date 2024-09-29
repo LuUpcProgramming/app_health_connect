@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class LoginController extends GetxController {
+  static LoginController get instance => Get.find();
   //** Variables */
   final rememberMe = false.obs;
   final hidePassword = true.obs;
@@ -16,9 +17,14 @@ class LoginController extends GetxController {
   final password = TextEditingController();
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
 
+  var rememberPassword = true.obs;
+
 
   @override
   void onInit() {
+
+    email.text = localStorage.read('REMEMBER_ME_EMAIL')??"";
+    password.text = localStorage.read('REMEMBER_ME_PASSWORD')??""; 
     
    // email.text = localStorage.read('REMEMBER_ME_EMAIL')??"luisnatividad97@hotmail.com";
     email.text = localStorage.read('REMEMBER_ME_EMAIL')??"luis_1997_na@hotmail.com";
@@ -36,6 +42,7 @@ class LoginController extends GetxController {
       final isConnected = await NetworkManager.instance.isConnected();
       if (!isConnected) {
         TFullScreenLoader.stopLoading();
+        Loaders.warningSnackBar(title: "Sin Conexión a Internet", message: "Por favor, verifica tu conexión a internet");
         return;
       }
 
@@ -48,6 +55,9 @@ class LoginController extends GetxController {
       if (rememberMe.value) {
         localStorage.write('REMEMBER_ME_EMAIL', email.text.trim());
         localStorage.write('REMEMBER_ME_PASSWORD', password.text.trim());
+      }else{
+        localStorage.remove('REMEMBER_ME_EMAIL');
+        localStorage.remove('REMEMBER_ME_PASSWORD');
       }
 
       final userCredentials = await AuthenticationRepository.instance
@@ -58,7 +68,7 @@ class LoginController extends GetxController {
       AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       TFullScreenLoader.stopLoading();
-      Loaders.errorSnackBar(title: 'Oh Algo Salió Mal', message: e.toString());
+      Loaders.errorSnackBar(title: 'Oh! Algo Salió Mal', message: e.toString());
     }
   }
 }

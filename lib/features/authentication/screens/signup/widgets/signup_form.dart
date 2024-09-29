@@ -16,7 +16,7 @@ class TSignupForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(SignupController());
     return Form(
-      key: controller.signupFormKey,
+     // key: controller.signupFormKey,
       child: Column(
         children: [
           const SizedBox(height: TSizes.spaceBtwSections),
@@ -48,19 +48,6 @@ class TSignupForm extends StatelessWidget {
             ],
           ),
           const SizedBox(height: TSizes.spaceBtwInputFields),
-
-          /*
-          //Username
-          TextFormField(
-            expands: false,
-            decoration: const InputDecoration(
-                labelText: TTexts.username,
-                prefixIcon: Icon(Icons.person_2_rounded,
-                    color: TColors.primary)),
-          ),
-          
-          const SizedBox(height: TSizes.spaceBtwInputFields),
-          */
           //Email
           TextFormField(
             controller: controller.email,
