@@ -1,11 +1,12 @@
 import 'package:app_health_connect/utils/constants/colors.dart';
 import 'package:flutter/material.dart';
 
-
 class CustomSuccessWidget extends StatelessWidget {
   final VoidCallback? onPressed;
+  final String titulo;
+  final String mensaje;
 
-  const CustomSuccessWidget({super.key, this.onPressed});
+  const CustomSuccessWidget({super.key, this.onPressed,  this.titulo='Éxito',  this.mensaje='Registro Exitoso'});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class CustomSuccessWidget extends StatelessWidget {
                   left: 0,
                   right: 0,
                   child: Column(
-                    children:  [
+                    children: [
                       Icon(Icons.task_alt, size: 85, color: Colors.white),
                     ],
                   ),
@@ -46,19 +47,21 @@ class CustomSuccessWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
-              '¡Éxito!',
-              style: TextStyle(
+             Text(
+              titulo,
+              style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Text(
-              'Registro Exitoso',
-              style: TextStyle(
+             Text(
+              mensaje,
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w400,
               ),
+              maxLines: 3,
+              softWrap: true,
             ),
             const SizedBox(height: 32),
             Center(

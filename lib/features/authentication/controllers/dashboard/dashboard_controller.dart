@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:app_health_connect/config/helper/logging.dart';
+import 'package:app_health_connect/data/repositories/authentication/authentication_repository.dart';
 import 'package:app_health_connect/data/repositories/history/history_repository.dart';
 import 'package:app_health_connect/data/repositories/plan/plan_repository.dart';
 import 'package:app_health_connect/data/repositories/statistics/statistics_repository.dart';
@@ -30,6 +31,7 @@ class DashboardController extends GetxController {
   //***************Variables***************/
   final log = logger(DashboardController);
   Rx<UserModel?> usuario = UserModel.empty().obs;
+
   //UserModel? get user => usuario.value;
   final _detalleUsuario = Rx<UserDetail?>(null);
   UserDetail? get detailuser => _detalleUsuario.value;
@@ -62,6 +64,40 @@ class DashboardController extends GetxController {
     });
   }
 
+  void updateDetalleUsuarioTrabajo(
+      String ocupacion,
+      String modalidadTrabajo,
+      String tipoContrato,
+      String turnoTrabajo,
+      String horasTrabajo,
+      String tipoHorasTrabajo) {
+    _detalleUsuario.update((usuario) {
+      usuario?.ocupacion = ocupacion;
+      usuario?.modalidadTrabajo = modalidadTrabajo;
+      usuario?.tipoContrato = tipoContrato;
+      usuario?.turnoTrabajo = turnoTrabajo;
+      usuario?.horasTrabajo = horasTrabajo;
+      usuario?.tipoHorasTrabajo = tipoHorasTrabajo;
+    });
+  }
+
+  void updateGenericoUsuario(String firstname, String lastname) {
+    usuario.update((obj) {
+      obj?.firstName = firstname;
+      obj?.lastName = lastname;
+    });
+  }
+
+  void updateDetalleUsuarioPersonal(
+      String genero, String fechaNacimiento, String altura, String peso) {
+    _detalleUsuario.update((obj) {
+      obj?.genero = genero;
+      obj?.fechaNacimiento = fechaNacimiento;
+      obj?.altura = altura;
+      obj?.peso = peso;
+    });
+  }
+
   Future<void> loadData() async {
     try {
       log.i("loadData: Comienza loadData");
@@ -75,9 +111,11 @@ class DashboardController extends GetxController {
         final duserdetail =
             await userRepository.getUserDetails(currentUser!.uid.trim());
         _detalleUsuario.value = duserdetail;
+
         //inal user = await userRepository.getUserRecord(currentUser.uid.trim());
         final user = await userRepository.fethUserRecord();
-        usuario(user);
+        //usuario(user);
+        usuario.value = user;
         //usuario.value = user;
         log.i("loadData: Se cargaron datos de usuario");
         final planRepository = Get.put(PlanRepository());
@@ -149,99 +187,99 @@ class DashboardController extends GetxController {
     //});
   }
 
-Future<dynamic> showDialogEvaluacionPreliminar(
-    BuildContext context, UserDetail dt) {
-  log.i("showDialogEvaluacionPreliminar: Construye Widget dialog");
-  return showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.8, // Limitar al 80% de la altura de la pantalla
+  Future<dynamic> showDialogEvaluacionPreliminar(
+      BuildContext context, UserDetail dt) {
+    log.i("showDialogEvaluacionPreliminar: Construye Widget dialog");
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: IntrinsicHeight(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  // Header del diálogo
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      color: TColors.primary,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        topRight: Radius.circular(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height *
+                  0.8, // Limitar al 80% de la altura de la pantalla
+            ),
+            child: IntrinsicHeight(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    // Header del diálogo
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                        color: TColors.primary,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Evaluación Preliminar",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Evaluación Preliminar",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Contenido dinámico del texto
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dt.analisisIA,
-                          textAlign: TextAlign.justify,
-                          style: const TextStyle(
-                              fontSize: 18, fontStyle: FontStyle.italic),
-                          softWrap: true,
-                        ),
-                        const SizedBox(height: 10),
-                        const Center(
-                          child: Text(
-                            "¡Comencemos el viaje a tu bienestar y tranquilidad mental!",
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontStyle: FontStyle.italic,
-                                fontWeight: FontWeight.w700),
+                    const SizedBox(height: 20),
+
+                    // Contenido dinámico del texto
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            dt.analisisIA,
+                            textAlign: TextAlign.justify,
+                            style: const TextStyle(
+                                fontSize: 18, fontStyle: FontStyle.italic),
                             softWrap: true,
-                            textAlign: TextAlign.center,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          const Center(
+                            child: Text(
+                              "¡Comencemos el viaje a tu bienestar y tranquilidad mental!",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w700),
+                              softWrap: true,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   //Metodos sobre Planes Diarios
   void showPlanDetalle(PlanDiario plan) {
@@ -418,5 +456,23 @@ Future<dynamic> showDialogEvaluacionPreliminar(
     } finally {
       log.i("registrarEstadisticaDiaria: Fin");
     }
+  }
+
+  void cerrarSesion() async {
+    try {
+      await AuthenticationRepository.instance.logout();
+
+      Get.offAll(() => const LoginScreen(),
+          transition: Transition.rightToLeft,
+          duration: const Duration(milliseconds: 600));
+      Loaders.successSnackBar(
+          title: "Sesión Cerrada", message: "Sesión Cerrada Exitosamente");
+    } catch (e) {
+      log.e("Error: ${e.toString()}");
+      Loaders.errorSnackBar(
+          title: 'Oh, sucedió un error', message: e.toString());
+    }
+    //Cerrar Sesión
+    //Get.offAll(() => const WelcomeScreen());
   }
 }

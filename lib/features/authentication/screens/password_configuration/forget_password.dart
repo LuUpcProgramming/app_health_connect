@@ -58,7 +58,7 @@ class ForgetPassword extends StatelessWidget {
                       controller: controller.emailFP,
                       validator: (value) => TValidator.validateEmail(value),
                       decoration: InputDecoration(
-                        label: const Text('Coreo Electrónico'),
+                        label: const Text('Correo Electrónico'),
                         hintText: 'Ingresa tu Correo',
                         hintStyle: const TextStyle(
                           color: Colors.black26,

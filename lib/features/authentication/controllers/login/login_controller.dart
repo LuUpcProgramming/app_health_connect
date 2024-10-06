@@ -63,9 +63,10 @@ class LoginController extends GetxController {
       final userCredentials = await AuthenticationRepository.instance
           .loginWithEmailAndPassword(email.text.trim(), password.text.trim());
 
-      TFullScreenLoader.stopLoading();
+      
 
       AuthenticationRepository.instance.screenRedirect();
+      TFullScreenLoader.stopLoading();
     } catch (e) {
       TFullScreenLoader.stopLoading();
       Loaders.errorSnackBar(title: 'Oh! Algo Salió Mal', message: e.toString());

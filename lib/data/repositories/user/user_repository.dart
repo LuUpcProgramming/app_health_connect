@@ -18,7 +18,7 @@ class UserRepository extends GetxController {
   Future<void> saveUserRecord(UserModel user) async {
     try {
       await _db.collection("Users").doc(user.id).set(user.toJson());
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -35,7 +35,7 @@ class UserRepository extends GetxController {
           .collection("UserDetails")
           .doc(userDetail.idUsuario)
           .set(userDetail.toJson());
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -57,7 +57,7 @@ class UserRepository extends GetxController {
       } else {
         throw Exception('Usuario no encontrado');
       }
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -78,7 +78,7 @@ class UserRepository extends GetxController {
       } else {
         throw Exception('Usuario no encontrado');
       }
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -99,7 +99,7 @@ class UserRepository extends GetxController {
       } else {
         throw Exception('Usuario no encontrado');
       }
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -116,7 +116,7 @@ class UserRepository extends GetxController {
           await _db.collection("UserDetails").doc(userId).get();
 
       return doc.exists;
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -130,7 +130,7 @@ class UserRepository extends GetxController {
   Future<void> updateUserRecord(UserModel user) async {
     try {
       await _db.collection("Users").doc(user.id).update(user.toJson());
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -144,7 +144,7 @@ class UserRepository extends GetxController {
    Future<void> updateSingleField(Map<String, dynamic> json) async {
     try {
       await _db.collection("Users").doc(AuthenticationRepository.instance.authUser?.uid).update(json);
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -158,7 +158,7 @@ class UserRepository extends GetxController {
    Future<void> removeUserRecord(String userId) async {
     try {
       await _db.collection("Users").doc(userId).delete();
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
       throw const TFormatException();
@@ -175,8 +175,65 @@ class UserRepository extends GetxController {
         'estadoSalud': estadoSalud,
         'estadoTrabajo':estadoTrabajo
       });
-    } on TFirebaseException catch (e) {
+    } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo';
+    }
+  }
+
+  Future<void> updateNamesUser(UserModel user) async {
+    try {
+     await _db.collection("Users").doc(user.id).update({
+        'FirstName': user.firstName,
+        'LastName': user.lastName
+      });
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo';
+    }
+  }
+
+  Future<void> updateDatosPersonales(UserDetail userDetail) async {
+    try {
+     await _db.collection("UserDetails").doc(userDetail.idUsuario).update({
+        'genero': userDetail.genero,
+        'fechaNacimiento':userDetail.fechaNacimiento,
+        'altura':   userDetail.altura,
+        'peso': userDetail.peso,
+      });
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
+    } on PlatformException catch (e) {
+      throw TPlatformException(e.code).message;
+    } catch (e) {
+      throw 'Algo salió mal, intente de nuevo';
+    }
+  }
+
+   Future<void> updateDatosLaborales(UserDetail userDetail) async {
+    try {
+     await _db.collection("UserDetails").doc(userDetail.idUsuario).update({
+        'horasTrabajo': userDetail.horasTrabajo,
+        'modalidadTrabajo':userDetail.modalidadTrabajo,
+        'ocupacion':   userDetail.ocupacion,
+        'tipoContrato': userDetail.tipoContrato,
+        'tipoHorasTrabajo': userDetail.tipoHorasTrabajo,
+        'turnoTrabajo': userDetail.turnoTrabajo,
+      });
+    } on FirebaseException catch (e) {
+      throw TFirebaseException(e.code).message;
+    } on FormatException catch (_) {
+      throw const TFormatException();
     } on PlatformException catch (e) {
       throw TPlatformException(e.code).message;
     } catch (e) {
